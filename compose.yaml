@@ -1,4 +1,10 @@
 services:
+  db:
+    image: postgres:alpine
+    env_file: ./db/.env
+    volumes:
+      - ./db/db_data:/var/lib/postgresql/data
+      - ./db/db-init.sh:/docker-entrypoint-initdb.d/init-db.sh
   frontend:
     build:
       context: ./frontend

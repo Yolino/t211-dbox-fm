@@ -3,7 +3,7 @@ WORKDIR /usr/src/app
 
 COPY package.json package-lock.json ./
 RUN npm install -g next
-RUN npm clean-install
+RUN npm install
 COPY . .
 
 ENV NODE_ENV=development
