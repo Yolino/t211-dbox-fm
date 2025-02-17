@@ -1,10 +1,24 @@
 services:
   db:
     image: postgres:alpine
-    env_file: ./db/.env
+    env_file: ./.env
     volumes:
       - ./db/db_data:/var/lib/postgresql/data
-      - ./db/db-init.sh:/docker-entrypoint-initdb.d/init-db.sh
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file: 
+      - ./.env
+      - ./backend/.env.backend
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
   frontend:
     build:
       context: ./frontend
@@ -16,3 +30,6 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=development
+    depends_on:
+      - backend
+
