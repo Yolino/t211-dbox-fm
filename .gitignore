@@ -32,3 +32,6 @@ next-env.d.ts
 
 # db
 db_data/
+
+.idea/*
+.vscode/*
