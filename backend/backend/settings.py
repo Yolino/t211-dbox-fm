@@ -49,7 +49,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    #'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -133,16 +133,30 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # WARNING : remove for production
-CORS_ALLOW_ALL_ORIGINS = True
+#CORS_ALLOW_ALL_ORIGINS = True
 
-CORS_ALLOWED_ORIGINS = [
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOWED_ORIGINS = [ 
     'http://localhost:3000',
     'http://frontend:3000',
+    'http://0.0.0.0:3000',
 ]
 
 CORS_ALLOW_METHODS = ['GET', 'POST', 'OPTIONS', 'DELETE', 'PATCH', 'PUT']
 
-CORS_ALLOW_HEADERS = ["content-type", "authorization"]
+CORS_ALLOW_HEADERS = ["content-type", "authorization", "x-csrftoken"]
+
+#CSRF_TRUSTED_ORIGINS = [
+#    'http://localhost:3000',
+#    'http://frontend:3000',
+#    'http://0.0.0.0:3000',
+#]
+
+#CSRF_COOKIE_HTTPONLY = False
+#CSRF_COOKIE_SAMESITE = 'Lax'
+#CSRF_COOKIE_SECURE = False
+#CSRF_USE_SESSIONS = False
 
 GRAPHENE = {
     'SCHEMA': 'songs.schema.schema'
