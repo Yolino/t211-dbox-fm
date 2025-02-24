@@ -1,9 +1,7 @@
 import React from 'react';
-import logo from './logo.svg';
 import pictoMusic from './images/musicNote.svg'
 import showcase from './images/showcase.png'
 import './styles/Mobile.css';
-import Test from './components/Test';
 
 function App() {
   return (
