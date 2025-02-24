@@ -39,7 +39,7 @@ function Tile(id : string = "6969", user : string = "Showcase", title : string =
         <div className="Upvote"></div>
         <div className="Downvote"></div>
       </div>
-      <img className="Picto" src={imgMusic}></img>
+      <img className="Picto" src={imgMusic} alt="Song cover"></img>
       <div className="Informations">
         <p className="User">{user}</p>
         <p className="Title">{title}</p>
