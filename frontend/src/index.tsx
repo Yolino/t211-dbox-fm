@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './styles/index.css';
-import App from './App';
+import './styles/Mobile.css';
+import {App, TilesGroup, Tile, Footer, Header, WhiteSpace} from './App';
 import { ApolloProvider } from '@apollo/client';
 import client from './apolloClient';
 import reportWebVitals from './reportWebVitals';
@@ -12,7 +12,11 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <ApolloProvider client={client}>
-      <App />
+      {Header() }
+      {TilesGroup("Ajouts récents") }
+      {TilesGroup("Les plus populaires") }
+      {WhiteSpace() }
+      {Footer() }
     </ApolloProvider>
   </React.StrictMode>
 );
