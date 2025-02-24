@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'graphene_django',
 
-    'songs',
+    'content',
+    'moderation',
 ]
 
 MIDDLEWARE = [
@@ -132,9 +133,6 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# WARNING : remove for production
-#CORS_ALLOW_ALL_ORIGINS = True
-
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [ 
@@ -158,6 +156,6 @@ CORS_ALLOW_HEADERS = ["content-type", "authorization", "x-csrftoken"]
 #CSRF_COOKIE_SECURE = False
 #CSRF_USE_SESSIONS = False
 
-GRAPHENE = {
-    'SCHEMA': 'songs.schema.schema'
-}
+#GRAPHENE = {
+#    'SCHEMA': 'songs.schema.schema'
+#}

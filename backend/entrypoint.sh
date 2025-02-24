@@ -8,6 +8,8 @@ while ! nc -z db 5432; do
 done
 echo "PostgreSQL container ready !"
 
+python manage.py flush --no-input
+
 echo "Running Django migrations..."
 python manage.py makemigrations --no-input
 echo "Running database migrations..."
