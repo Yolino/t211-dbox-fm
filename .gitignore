@@ -35,3 +35,7 @@ db_data/
 
 .idea/*
 .vscode/*
+
+#backend
+migrations/*
+audio/*
