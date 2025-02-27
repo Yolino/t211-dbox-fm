@@ -3,7 +3,9 @@ import { useQuery, gql } from '@apollo/client';
 
 const GET_TEST_COUNT = gql`
   query {
-    testCount
+    publications {
+      title
+    }
   }
 `;
 
