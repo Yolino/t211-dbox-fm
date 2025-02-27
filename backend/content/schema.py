@@ -1,7 +1,7 @@
 import graphene
 from graphene_django import DjangoObjectType
 from django.contrib.auth import get_user_model
-from .models import Publication, Comment
+from .models import Audio, Publication, Comment
 
 User = get_user_model()
 class UserType(DjangoObjectType):
@@ -9,10 +9,15 @@ class UserType(DjangoObjectType):
         model = User
         fields = ("id", "username")
 
+class AudioType(DjangoObjectType):
+    class Meta:
+        model = Audio
+        fields = ("id",)
+
 class PublicationType(DjangoObjectType):
     class Meta:
         model = Publication
-        fields = ("id", "title", "author", "tag", "description", "view_count", "vote_count", "created_at")
+        fields = ("id", "title", "author", "tag", "description", "audio", "view_count", "vote_count", "created_at")
 
 class CommentType(DjangoObjectType):
     class Meta:
@@ -32,7 +37,5 @@ class Query(graphene.ObjectType):
 
     def resolve_publications(root, info):
         return Publication.objects.all()
-
-    
 
 schema = graphene.Schema(query=Query)

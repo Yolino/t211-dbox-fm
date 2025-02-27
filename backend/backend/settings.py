@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'graphene_django',
+    'rest_framework',
 
     'content',
     'moderation',
@@ -159,3 +160,7 @@ CORS_ALLOW_HEADERS = ["content-type", "authorization", "x-csrftoken"]
 GRAPHENE = {
     'SCHEMA': 'backend.schema.schema'
 }
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+

@@ -2,6 +2,9 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User
 
+class Audio(models.Model):
+    file = models.FileField(upload_to="audio/")
+
 class Tag(models.Model):
     name = models.CharField(max_length=30)
 
@@ -10,7 +13,7 @@ class Publication(models.Model):
     author = models.ForeignKey(User, on_delete=models.PROTECT)
     tag = models.ForeignKey(Tag, on_delete=models.PROTECT)
     description = models.CharField(max_length=255, null=True, blank=True)
-    file_path = models.CharField(max_length=255, unique=True)
+    audio = models.OneToOneField(Audio, on_delete=models.PROTECT)
     view_count = models.PositiveIntegerField(default=0)
     vote_count = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True, blank=True)
