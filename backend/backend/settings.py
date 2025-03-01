@@ -44,6 +44,7 @@ INSTALLED_APPS = [
 
     'content',
     'moderation',
+    'live',
 ]
 
 MIDDLEWARE = [

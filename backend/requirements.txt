@@ -3,3 +3,6 @@ psycopg2-binary
 graphene-django
 django-cors-headers
 djangorestframework
+pydub
+audioop-lts
+numpy
