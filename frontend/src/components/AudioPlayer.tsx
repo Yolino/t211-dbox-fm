@@ -1,4 +1,5 @@
 import React, { useRef, useState } from "react";
+import myAudio from "../music/test.mp3";
 
 const AudioPlayer = () => {
   const audioRef = useRef(null);
@@ -47,7 +48,7 @@ const AudioPlayer = () => {
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={() => setDuration(audioRef.current.duration)}
       >
-        <source src="your-audio-file.mp3" type="audio/mpeg" />
+        <source src={myAudio} type="audio/mpeg" />
         Your browser does not support the audio element.
       </audio>
 
