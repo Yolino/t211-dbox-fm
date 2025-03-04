@@ -1,7 +1,7 @@
 import graphene
 from graphene_django import DjangoObjectType
 from django.contrib.auth import get_user_model
-from .models import Audio, Publication, Comment
+from .models import Audio, Publication, Comment, Tag
 
 User = get_user_model()
 class UserType(DjangoObjectType):
@@ -22,13 +22,36 @@ class PublicationType(DjangoObjectType):
 class CommentType(DjangoObjectType):
     class Meta:
         model = Comment
-        fields = ("id", "text")
+        fields = ("id", "text", "author", "publication",  "created_at")
+
+class TagType(DjangoObjectType):
+    class Meta:
+        model = Tag
+        field = ("name")
+
 
 class Query(graphene.ObjectType):
     publication = graphene.Field(PublicationType, id=graphene.Int(required=True))
     publications = graphene.List(PublicationType)
-    #comments_by_publication
-
+    publicationsAuthor = graphene.List(PublicationType, author=graphene.String(required=True))
+    commentsByPublication = graphene.List(CommentType, publicationId=graphene.Int(required=True))
+    userUsernames = graphene.List(UserType)
+    tagnames= graphene.List(TagType)
+    def resolve_commentsByPublication(root,info,publicationId):
+        try:
+            return Comment.objects.filter(publication=publicationId)
+        except Comment.DoesNotExist:
+            return None
+    def resolve_publicationsAuthor(root, info, author):
+        # Récupérer l'utilisateur par son nom d'utilisateur
+        try:
+            user = User.objects.get(username=author)
+            # Filtrer les publications par l'utilisateur
+            return Publication.objects.filter(author=user)
+        except User.DoesNotExist:
+            # Si l'utilisateur n'existe pas, retourner une liste vide
+            return None
+        
     def resolve_publication(root, info, id):
         try:
             return Publication.objects.get(id=id)
@@ -37,5 +60,11 @@ class Query(graphene.ObjectType):
 
     def resolve_publications(root, info):
         return Publication.objects.all()
+    
+    def resolve_userUsernames(root, info):
+        return User.objects.all()
+    
+    def resolve_tagnames(root, info):
+        return Tag.objects.all()
 
 schema = graphene.Schema(query=Query)
