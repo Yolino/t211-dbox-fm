@@ -32,7 +32,7 @@ class TagType(DjangoObjectType):
 
 class Query(graphene.ObjectType):
     publication = graphene.Field(PublicationType, id=graphene.Int(required=True))
-    publications = graphene.List(PublicationType)
+    publications = graphene.List(PublicationType, order_by=graphene.String())
     publicationsAuthor = graphene.List(PublicationType, author=graphene.String(required=True))
     commentsByPublication = graphene.List(CommentType, publicationId=graphene.Int(required=True))
     userUsernames = graphene.List(UserType)
@@ -58,8 +58,11 @@ class Query(graphene.ObjectType):
         except Publication.DoesNotExist:
             return None
 
-    def resolve_publications(root, info):
-        return Publication.objects.all()
+    def resolve_publications(root, info, order_by=None):
+        result = Publication.objects.all()
+        if order_by:
+            result = result.order_by(order_by)
+        return result
     
     def resolve_userUsernames(root, info):
         return User.objects.all()
