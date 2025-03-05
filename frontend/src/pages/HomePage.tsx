@@ -12,7 +12,9 @@ import { useQuery, gql } from "@apollo/client";
 const GET_PUBLICATIONS = gql`
     query {
         publications {
+            id
             title
+            voteCount
             author {
                 username
             }
@@ -23,17 +25,7 @@ const GET_PUBLICATIONS = gql`
 const HomePage = () => {
 
   const { loading, error, data } = useQuery(GET_PUBLICATIONS);
-  console.log(data?.publications);
-
-  // Données pour le groupe "Recent"
-  const tilesDataRecent = [
-    { id: "1", title: "Summer Breeze", artist: "Dream Wave", likes: 1234, coverImage: Showcase },
-    { id: "2", title: "Night Drive", artist: "Synthwave Masters", likes: 856, coverImage: Sun },
-    { id: "3", title: "Ocean Waves", artist: "Chill Beats", likes: 2341, coverImage: CD },
-    { id: "4", title: "Urban Jungle", artist: "City Sounds", likes: 567, coverImage: Black },
-    { id: "5", title: "Midnight Rain", artist: "Nature Sounds", likes: 1789, coverImage: Showcase },
-    { id: "6", title: "Morning Coffee", artist: "Lofi Beats", likes: 987, coverImage: Royalty },
-  ];
+  const pubs = data?.publications;
 
   // Données pour le groupe "Popular"
   const tilesDataPopular = [
@@ -48,7 +40,9 @@ const HomePage = () => {
     <div className="App">
       <Header />
       <main className="p-6">
-        <TilesGroup group="Recent" tilesData={tilesDataRecent}/>
+        <TilesGroup group="Recent" tilesData={pubs ? pubs.map(p => {
+            return {id: p.id, title: p.title, artist: p.author.username, likes: p.voteCount, coverImage: Black};
+          }) : []}/>
         <TilesGroup group="Popular" tilesData={tilesDataPopular}/>
       </main>
       <AudioPlayer />
