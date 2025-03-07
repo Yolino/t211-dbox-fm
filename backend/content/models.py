@@ -8,6 +8,9 @@ class Audio(models.Model):
 class Tag(models.Model):
     name = models.CharField(max_length=30)
 
+    def __str__(self):
+        return self.name
+
 class Publication(models.Model):
     title = models.CharField(max_length=100)
     author = models.ForeignKey(User, on_delete=models.PROTECT)
@@ -19,6 +22,9 @@ class Publication(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, blank=True)
     is_banned = models.BooleanField(default=False)
 
+    def __str__(self):
+        return f"{self.author} - {self.title}"
+
 class View(models.Model):
     publication = models.ForeignKey(Publication, on_delete=models.PROTECT)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
@@ -26,6 +32,9 @@ class View(models.Model):
         constraints = [
             models.UniqueConstraint(fields=["publication", "user"], name="unique_view"),
         ]
+    
+    def __str__(self):
+        return f"{self.publication} : {self.user}"
 
 class Vote(models.Model):
     publication = models.ForeignKey(Publication, on_delete=models.PROTECT)
@@ -36,9 +45,15 @@ class Vote(models.Model):
             models.UniqueConstraint(fields=["publication", "user"], name="unique_vote"),
         ]
 
+    def __str__(self):
+        return f"{self.publication} : {self.type} - {self.user}"
+
 class Follower(models.Model):
     follower = models.ForeignKey(User, related_name="follower", on_delete=models.PROTECT)
     following = models.ForeignKey(User, related_name="following", on_delete=models.PROTECT)
+
+    def __str__(self):
+        return f"{self.following} followed by {self.follower}"
 
 class Comment(models.Model):
     publication = models.ForeignKey(Publication, on_delete=models.PROTECT)
@@ -47,4 +62,7 @@ class Comment(models.Model):
     text = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True, blank=True)
     is_banned = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.publication} : {author} commented '{self.comment}'"
 
