@@ -1,6 +1,7 @@
 import graphene
 from graphene_django import DjangoObjectType
 from django.contrib.auth import get_user_model
+from django.conf import settings
 from .models import Audio, Publication, Comment, Tag
 from users.schema import UserType
 
@@ -14,7 +15,13 @@ class AudioType(DjangoObjectType):
 class PublicationType(DjangoObjectType):
     class Meta:
         model = Publication
-        fields = ("id", "title", "author", "tag", "description", "audio", "view_count", "vote_count", "created_at")
+        fields = ("id", "title", "author", "cover", "tag", "description", "audio", "view_count", "vote_count", "created_at")
+
+    cover = graphene.String()
+    def resolve_cover(root, info):
+        if root.cover:
+            return root.cover.url
+        return None
 
 class CommentType(DjangoObjectType):
     class Meta:

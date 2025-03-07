@@ -14,7 +14,7 @@ const Tile = ({ id, title, artist, likes, coverImage }: TileProps) => {
       {/* Image de couverture */}
       <img
         className="w-full h-32 object-cover rounded mb-2"
-        src={coverImage}
+        src={`http://localhost:8000${coverImage}`}
         alt={`Cover for ${title}`}
       />
 

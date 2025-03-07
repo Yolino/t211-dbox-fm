@@ -14,6 +14,7 @@ const GET_PUBLICATIONS = gql`
         publications {
             id
             title
+            cover
             voteCount
             author {
                 username
@@ -41,7 +42,7 @@ const HomePage = () => {
       <Header />
       <main className="p-6">
         <TilesGroup group="Recent" tilesData={pubs ? pubs.map(p => {
-            return {id: p.id, title: p.title, artist: p.author.username, likes: p.voteCount, coverImage: Black};
+            return {id: p.id, title: p.title, artist: p.author.username, likes: p.voteCount, coverImage: p.cover};
           }) : []}/>
         <TilesGroup group="Popular" tilesData={tilesDataPopular}/>
       </main>

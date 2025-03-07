@@ -14,6 +14,7 @@ class Tag(models.Model):
 class Publication(models.Model):
     title = models.CharField(max_length=100)
     author = models.ForeignKey(User, on_delete=models.PROTECT)
+    cover = models.ImageField(upload_to="cover/", null=True, blank=True)
     tag = models.ForeignKey(Tag, on_delete=models.PROTECT)
     description = models.CharField(max_length=255, null=True, blank=True)
     audio = models.OneToOneField(Audio, on_delete=models.PROTECT)
