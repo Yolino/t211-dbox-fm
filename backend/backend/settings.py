@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-mw(t8-9a+t2%bbs%!=@fe)c4(lloxfu8g!*!*nk46m34-08*s^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['0.0.0.0', '127.0.0.1', 'localhost', 'backend', 'frontend']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'graphene_django',
     'rest_framework',
 
+    'users',
     'content',
     'moderation',
     'live',

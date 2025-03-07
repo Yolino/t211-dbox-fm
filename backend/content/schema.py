@@ -2,12 +2,9 @@ import graphene
 from graphene_django import DjangoObjectType
 from django.contrib.auth import get_user_model
 from .models import Audio, Publication, Comment, Tag
+from users.schema import UserType
 
 User = get_user_model()
-class UserType(DjangoObjectType):
-    class Meta:
-        model = User
-        fields = ("id", "username")
 
 class AudioType(DjangoObjectType):
     class Meta:
@@ -29,7 +26,6 @@ class TagType(DjangoObjectType):
         model = Tag
         field = ("name")
 
-
 class Query(graphene.ObjectType):
     publication = graphene.Field(PublicationType, id=graphene.Int(required=True))
     publications = graphene.List(PublicationType, order_by=graphene.String())
@@ -37,7 +33,8 @@ class Query(graphene.ObjectType):
     commentsByPublication = graphene.List(CommentType, publicationId=graphene.Int(required=True))
     userUsernames = graphene.List(UserType)
     tagnames= graphene.List(TagType)
-    def resolve_commentsByPublication(root,info,publicationId):
+
+    def resolve_commentsByPublication(root, info, publicationId):
         try:
             return Comment.objects.filter(publication=publicationId)
         except Comment.DoesNotExist:
