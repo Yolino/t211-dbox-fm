@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.conf import settings
 from .models import Audio, Publication, Comment, Tag
 from users.schema import UserType
+from graphene_file_upload.scalars import Upload
 
 User = get_user_model()
 
@@ -73,5 +74,15 @@ class Query(graphene.ObjectType):
     
     def resolve_tagnames(root, info):
         return Tag.objects.all()
+    
+
+class CreatePublication(graphene.Mutation):
+    class Arguments:
+        title = graphene.String(required=True)
+        cover = Upload()
+        tag = graphene.String(required=True)
+        description = graphene.String(required=True)
+        audio = Upload(required=True)
+
 
 schema = graphene.Schema(query=Query)
