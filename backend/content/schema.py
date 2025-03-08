@@ -5,6 +5,7 @@ from django.conf import settings
 from .models import Audio, Publication, Comment, Tag
 from users.schema import UserType
 from graphene_file_upload.scalars import Upload
+from graphql import GraphQLError
 
 User = get_user_model()
 
@@ -80,9 +81,27 @@ class CreatePublication(graphene.Mutation):
     class Arguments:
         title = graphene.String(required=True)
         cover = Upload()
-        tag = graphene.String(required=True)
+        tag = graphene.Int(required=True)
         description = graphene.String(required=True)
         audio = Upload(required=True)
 
+    publication = graphene.Field(PublicationType)
 
-schema = graphene.Schema(query=Query)
+    def mutate(root, info, title, cover, tag, description, audio):
+        if not info.context.user.is_authenticated:
+            raise GraphQLError("You cannot publish if you are not already authenticated")
+        
+        tag = Tag.objects.get(id=tag)
+        author = info.context.user
+        publication = Publication(title=title, cover=cover, tag=tag,description=description, audio=audio,author=author)
+        publication.save()
+
+        return CreatePublication(publication=publication)
+        
+
+class Mutation(graphene.ObjectType):
+    create_publication = CreatePublication.Field()
+
+
+
+schema = graphene.Schema(query=Query, mutation=Mutation)
