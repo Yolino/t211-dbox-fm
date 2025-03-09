@@ -1,12 +1,40 @@
-import React, { useRef, useState } from "react";
-import myAudio from "../music/test.mp3";
+import React, { useRef, useState, useEffect } from "react";
 
-const AudioPlayer = () => {
+const AudioPlayer = ({audioId}) => {
   const audioRef = useRef(null);
+  const [audioBlob, setAudioBlob] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
+
+  const fetchAudio = async(id) => {
+    try {
+      const response = await fetch(`http://localhost:8000/api/audio/${id}/`);
+      const blob = await response.blob();
+      setAudioBlob(blob);
+    } catch (error) {
+      console.log(`Error fetching audio ${id}: ${error}`);
+    }
+  };
+
+  useEffect(() => {
+    if (audioId) {
+      fetchAudio(audioId);
+    }
+  }, [audioId]);
+
+  useEffect(() => {
+    if (audioBlob && audioRef.current) {
+      // Create a URL for the blob
+      const audioUrl = URL.createObjectURL(audioBlob);
+      // Set the URL as the source for the audio
+      audioRef.current.src = audioUrl;
+      audioRef.current.load();
+      audioRef.current.play();
+      setIsPlaying(true);
+    }
+  }, [audioBlob]);
 
   const togglePlayPause = () => {
     if (isPlaying) {
@@ -48,12 +76,12 @@ const AudioPlayer = () => {
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={() => setDuration(audioRef.current.duration)}
       >
-        <source src={myAudio} type="audio/mpeg" />
+        {/* No need to specify src here, it's dynamically set in the effect */}
         Your browser does not support the audio element.
       </audio>
 
       <div className="flex items-center justify-between max-w-4xl mx-auto">
-        {/* Bouton Play/Pause */}
+        {/* Play/Pause Button */}
         <button
           onClick={togglePlayPause}
           className="p-3 bg-gray-700 rounded-full hover:bg-gray-600 transition-colors duration-200"
@@ -97,7 +125,7 @@ const AudioPlayer = () => {
           )}
         </button>
 
-        {/* Barre de progression */}
+        {/* Progress Bar */}
         <div className="flex items-center space-x-4 flex-1 mx-4">
           <span className="text-sm text-gray-400">{formatTime(currentTime)}</span>
           <input
@@ -111,7 +139,7 @@ const AudioPlayer = () => {
           <span className="text-sm text-gray-400">{formatTime(duration)}</span>
         </div>
 
-        {/* Contrôle du volume */}
+        {/* Volume Control */}
         <div className="flex items-center space-x-2">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -143,3 +171,4 @@ const AudioPlayer = () => {
 };
 
 export default AudioPlayer;
+

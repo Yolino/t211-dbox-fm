@@ -12,7 +12,7 @@ interface TilesGroupProps {
   }>;
 }
 
-const TilesGroup = ({ group = "Recent", tilesData }: TilesGroupProps) => {
+const TilesGroup = ({ group = "Recent", onPlayAudio, tilesData }: TilesGroupProps) => {
 
   return (
     <div id={group} className="my-4">
@@ -25,6 +25,7 @@ const TilesGroup = ({ group = "Recent", tilesData }: TilesGroupProps) => {
             artist={tile.artist}
             likes={tile.likes}
             coverImage={tile.coverImage}
+            onPlayAudio={onPlayAudio}
           />
         ))}
       </div>
