@@ -2,7 +2,7 @@ import graphene
 from graphene_django import DjangoObjectType
 from graphql import GraphQLError
 from django.core.exceptions import ValidationError
-from django.contrib.auth import get_user_model, authenticate, login
+from django.contrib.auth import get_user_model, authenticate, login, logout
 from django.contrib.auth.password_validation import validate_password
 
 User = get_user_model()
@@ -52,9 +52,20 @@ class LoginUser(graphene.Mutation):
         login(info.context, user)
         return LoginUser(user=user)
 
+class LogoutUser(graphene.Mutation):
+    user = graphene.Field(UserType)
+
+    def mutate(root, info):
+        if not info.context.user.is_authenticated:
+            raise GraphQLError("You cannot log out if you are not authenticated")
+        user_data = info.context.user
+        logout(info.context)
+        return LogoutUser(user=user_data)
+
 class Mutation(graphene.ObjectType):
     create_user = CreateUser.Field()
     login_user = LoginUser.Field()
+    logout_user = LogoutUser.Field()
 
 schema = graphene.Schema(mutation=Mutation)
 
