@@ -143,6 +143,7 @@ CORS_ALLOWED_ORIGINS = [
     'http://frontend:3000',
     'http://0.0.0.0:3000',
 ]
+CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOW_METHODS = ['GET', 'POST', 'OPTIONS', 'DELETE', 'PATCH', 'PUT']
 
