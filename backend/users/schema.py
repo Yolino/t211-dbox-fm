@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model, authenticate, login, logout
 from django.contrib.auth.password_validation import validate_password
 
 User = get_user_model()
+
 class UserType(DjangoObjectType):
     class Meta:
         model = User
@@ -41,16 +42,20 @@ class LoginUser(graphene.Mutation):
         username = graphene.String(required=True)
         password = graphene.String(required=True)
 
+    success = graphene.Boolean()  # Ajouter un champ `success`
     user = graphene.Field(UserType)
 
     def mutate(root, info, username, password):
-        if info.context.user.is_authenticated:
+        user = info.context.user
+        if user.is_authenticated:
             raise GraphQLError("You cannot log in if you are already authenticated")
+        
         user = authenticate(username=username, password=password)
-        if not user:
+        if user:
+            login(info.context, user)
+            return LoginUser(success=True, user=user)  # Renvoyer `success=True`
+        else:
             raise GraphQLError("Invalid credentials")
-        login(info.context, user)
-        return LoginUser(user=user)
 
 class LogoutUser(graphene.Mutation):
     user = graphene.Field(UserType)
@@ -62,10 +67,20 @@ class LogoutUser(graphene.Mutation):
         logout(info.context)
         return LogoutUser(user=user_data)
 
+# Nouvelle requête pour vérifier l'utilisateur connecté
+class Query(graphene.ObjectType):
+    me = graphene.Field(UserType)
+
+    def resolve_me(root, info):
+        user = info.context.user
+        if not user.is_authenticated:
+            raise GraphQLError("You are not authenticated")
+        return user
+
 class Mutation(graphene.ObjectType):
     create_user = CreateUser.Field()
     login_user = LoginUser.Field()
     logout_user = LogoutUser.Field()
 
-schema = graphene.Schema(mutation=Mutation)
-
+# Ajouter la classe Query au schéma
+schema = graphene.Schema(query=Query, mutation=Mutation)
