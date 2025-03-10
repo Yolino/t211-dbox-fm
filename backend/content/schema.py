@@ -37,35 +37,18 @@ class TagType(DjangoObjectType):
 
 class Query(graphene.ObjectType):
     publication = graphene.Field(PublicationType, id=graphene.Int(required=True))
-    publications = graphene.List(PublicationType, order_by=graphene.String())
-    publicationsAuthor = graphene.List(PublicationType, author=graphene.String(required=True))
-    commentsByPublication = graphene.List(CommentType, publicationId=graphene.Int(required=True))
+    publications = graphene.List(graphene.NonNull(PublicationType), order_by=graphene.String(), author=graphene.String())
+    commentsByPublication = graphene.List(graphene.NonNull(CommentType), publicationId=graphene.Int(required=True))
     userUsernames = graphene.List(UserType)
     tagnames= graphene.List(TagType)
-
-    def resolve_commentsByPublication(root, info, publicationId):
-        try:
-            return Comment.objects.filter(publication=publicationId)
-        except Comment.DoesNotExist:
-            return None
-    def resolve_publicationsAuthor(root, info, author):
-        # Récupérer l'utilisateur par son nom d'utilisateur
-        try:
-            user = User.objects.get(username=author)
-            # Filtrer les publications par l'utilisateur
-            return Publication.objects.filter(author=user)
-        except User.DoesNotExist:
-            # Si l'utilisateur n'existe pas, retourner une liste vide
-            return None
-        
+   
     def resolve_publication(root, info, id):
-        try:
-            return Publication.objects.get(id=id)
-        except Publication.DoesNotExist:
-            return None
+        return Publication.objects.filter(id=id).first()
 
-    def resolve_publications(root, info, order_by=None):
-        result = Publication.objects.all()
+    def resolve_publications(root, info, order_by=None, author=None):
+        result = Publication.objects.select_related("author")
+        if author:
+            result = result.filter(author__username__iexact=author)
         if order_by:
             result = result.order_by(order_by)
         return result
@@ -75,7 +58,9 @@ class Query(graphene.ObjectType):
     
     def resolve_tagnames(root, info):
         return Tag.objects.all()
-    
+   
+    def resolve_commentsByPublication(root, info, publicationId):
+        return Comment.objects.filter(publication=publicationId)
 
 class CreatePublication(graphene.Mutation):
     class Arguments:
@@ -131,6 +116,5 @@ class CreateComment(graphene.Mutation):
 class Mutation(graphene.ObjectType):
     create_publication = CreatePublication.Field()
     create_comment = CreateComment.Field()
-
 
 schema = graphene.Schema(query=Query, mutation=Mutation)
