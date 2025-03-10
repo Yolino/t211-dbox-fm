@@ -65,5 +65,5 @@ class Comment(models.Model):
     is_banned = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.publication} : {author} commented '{self.comment}'"
+        return f"{self.publication} : {self.author} commented '{self.text}'"
 

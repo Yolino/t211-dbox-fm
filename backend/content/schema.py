@@ -98,10 +98,39 @@ class CreatePublication(graphene.Mutation):
 
         return CreatePublication(publication=publication)
         
+class CreateComment(graphene.Mutation):
+    class Arguments:
+        publication = graphene.Int(required=True)  
+        parent = graphene.Int()
+        text = graphene.String(required=True)
 
+    comment = graphene.Field(CommentType)
+
+    def mutate(self, info, publication, text, parent=None):
+        if not info.context.user.is_authenticated:
+            raise GraphQLError("You must be logged in to comment.")
+
+        
+        try:
+            publication_instance = Publication.objects.get(id=publication)
+        except Publication.DoesNotExist:
+            raise GraphQLError("Publication not found.")
+
+       
+        parent_comment = None
+        if parent:
+            try:
+                parent_comment = Comment.objects.get(id=parent)
+            except Comment.DoesNotExist:
+                raise GraphQLError("Parent comment not found.")
+        author = info.context.user
+        comment = Comment(publication = publication_instance, parent=parent_comment, text=text, author=author)
+        comment.save()
+        return CreateComment(comment=comment)
+    
 class Mutation(graphene.ObjectType):
     create_publication = CreatePublication.Field()
-
+    create_comment = CreateComment.Field()
 
 
 schema = graphene.Schema(query=Query, mutation=Mutation)
