@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useQuery } from "@apollo/client";
-import { ME_QUERY } from "../graphql/meQuery.ts";
+import ME_QUERY from "../graphql/meQuery.ts";
 import LoginCard from "./LoginCard.tsx";
 import SignupCard from "./SignupCard.tsx";
 import Profile from "./Profile.tsx";

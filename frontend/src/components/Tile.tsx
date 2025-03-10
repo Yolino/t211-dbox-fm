@@ -14,15 +14,15 @@ interface Publication {
 
 interface TileProps {
   publication: Publication;
+  group: string;
 }
 
-const Tile = ({ publication, onPlayAudio }: TileProps) => {
-  const handleClick = () => {
-    onPlayAudio(publication.id);
-  }
-
+const Tile = ({ publication, group, onPlayAudio, onTileClick }: TileProps) => {
   return (
-    <div className="group flex-shrink-0 w-48 p-4 bg-gray-100 rounded-lg shadow-md hover:bg-gray-200 hover:scale-105 hover:shadow-lg transition-all duration-300 relative">
+    <div
+      className="group flex-shrink-0 w-48 p-4 bg-gray-100 rounded-lg shadow-md hover:bg-gray-200 hover:scale-105 hover:shadow-lg transition-all duration-300 relative"
+      onClick={() => onTileClick(publication.id, group)}
+    >
       {/* Image de couverture */}
       <img
         className="w-full h-32 object-cover rounded mb-2"
@@ -34,7 +34,7 @@ const Tile = ({ publication, onPlayAudio }: TileProps) => {
       <div className="absolute inset-x-0 top-1/4 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
         <button
           className="p-3 bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors duration-200"
-          onClick={handleClick}
+          onClick={() => onPlayAudio(publication.id)}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useMutation } from "@apollo/client";
-import { CREATE_USER_MUTATION } from "../graphql/createUserMutation.ts";
+import CREATE_USER_MUTATION from "../graphql/createUserMutation.ts";
 
 interface SignupCardProps {
   onClose: () => void; // Fonction pour fermer la carte

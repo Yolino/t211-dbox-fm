@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useMutation } from "@apollo/client";
-import { LOGIN_MUTATION } from "../graphql/loginMutation.ts";
+import LOGIN_MUTATION from "../graphql/loginMutation.ts";
 
 interface LoginCardProps {
   onClose: () => void;

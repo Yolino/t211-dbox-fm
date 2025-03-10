@@ -1,20 +1,17 @@
 import React from "react";
 import { useQuery } from "@apollo/client";
 import Tile from "./Tile.tsx";
-import { PUBLICATIONS_QUERY } from "../graphql/publicationsQuery.ts";
+import PUBLICATIONS_QUERY from "../graphql/publicationsQuery.ts";
 
 interface TileGroupProps {
   orderBy: string;
 }
 
-const TileGroup = ({ orderBy="-created_at", onPlayAudio }: TileGroupProps) => {
-  
-
+const TileGroup = ({ orderBy="-created_at", onPlayAudio, onTileClick }: TileGroupProps) => {
   const { loading, error, data } = useQuery(PUBLICATIONS_QUERY, {
     variables: { orderBy },
   });
   const pubs = data?.publications || [];
-  console.log(pubs);
   
   if (loading) return <p>Loading...</p>
   if (error) return <p>Error</p>
@@ -26,7 +23,9 @@ const TileGroup = ({ orderBy="-created_at", onPlayAudio }: TileGroupProps) => {
         {pubs.map((p) => (
           <Tile
             publication={p}
+            group={orderBy}
             onPlayAudio={onPlayAudio}
+            onTileClick={onTileClick}
           />
         ))}
       </div>

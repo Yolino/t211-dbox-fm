@@ -1,6 +1,6 @@
 import { gql } from "@apollo/client";
 
-export const PUBLICATIONS_QUERY = gql`
+const PUBLICATIONS_QUERY = gql`
   query PublicationsQuery($orderBy: String!) {
     publications(orderBy: $orderBy) {
       id
@@ -13,3 +13,5 @@ export const PUBLICATIONS_QUERY = gql`
     }
   }
 `;
+
+export default PUBLICATIONS_QUERY;

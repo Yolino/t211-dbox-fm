@@ -1,6 +1,6 @@
 import { gql } from "@apollo/client";
 
-export const ME_QUERY = gql`
+const ME_QUERY = gql`
   query Me {
     me {
       id
@@ -9,3 +9,5 @@ export const ME_QUERY = gql`
     }
   }
 `;
+
+export default ME_QUERY;
