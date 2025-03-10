@@ -41,8 +41,8 @@ const Account = () => {
     setIsSignupCardOpen(false);
   };
 
-  const handleSignupSuccess = () => {
-    refetch(); // Rafraîchir les données après une inscription réussie
+  const handleLoginSuccess = () => {
+    refetch(); // Rafraîchir les données après une connexion réussie
   };
 
   if (loading) return <p>Chargement...</p>;
@@ -70,10 +70,11 @@ const Account = () => {
         </>
       )}
 
-      {isLoginCardOpen && <LoginCard onClose={handleCloseLoginCard} />}
-      {isSignupCardOpen && (
-        <SignupCard onClose={handleCloseSignupCard} onSignupSuccess={handleSignupSuccess} />
+      {isLoginCardOpen && (
+        <LoginCard onClose={handleCloseLoginCard} onLoginSuccess={handleLoginSuccess} />
       )}
+
+      {isSignupCardOpen && <SignupCard onClose={handleCloseSignupCard} />}
     </div>
   );
 };

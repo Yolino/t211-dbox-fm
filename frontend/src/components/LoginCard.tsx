@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { gql, useMutation } from "@apollo/client";
 
-const CREATE_USER_MUTATION = gql`
-  mutation CreateUser($username: String!, $email: String!, $password: String!) {
-    createUser(username: $username, email: $email, password: $password) {
+const LOGIN_MUTATION = gql`
+  mutation LoginUser($username: String!, $password: String!) {
+    loginUser(username: $username, password: $password) {
+      success
       user {
         id
         username
@@ -13,43 +14,35 @@ const CREATE_USER_MUTATION = gql`
   }
 `;
 
-interface SignupCardProps {
-  onClose: () => void; // Fonction pour fermer la carte
-  onSignupSuccess: () => void; // Fonction à appeler après une inscription réussie
+interface LoginCardProps {
+  onClose: () => void;
+  onLoginSuccess: () => void;
 }
 
-const SignupCard = ({ onClose, onSignupSuccess }: SignupCardProps) => {
+const LoginCard = ({ onClose, onLoginSuccess }: LoginCardProps) => {
   const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
 
-  const [createUser, { loading }] = useMutation(CREATE_USER_MUTATION, {
+  const [loginUser, { loading }] = useMutation(LOGIN_MUTATION, {
     onCompleted: (data) => {
-      console.log("Utilisateur créé :", data.createUser.user);
-      onSignupSuccess(); // Appeler onSignupSuccess
-      onClose(); // Fermer la carte d'inscription
+      if (data.loginUser.success) {
+        console.log("Connexion réussie !");
+        onLoginSuccess(); // Appeler onLoginSuccess
+        onClose(); // Fermer la carte de connexion
+      } else {
+        setError("Identifiants invalides.");
+      }
     },
     onError: (error) => {
-      setError(error.message); // Afficher l'erreur
+      setError("Une erreur s'est produite lors de la connexion.");
     },
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // Vérifier que les mots de passe correspondent
-    if (password !== confirmPassword) {
-      setError("Les mots de passe ne correspondent pas.");
-      return;
-    }
-
-    // Réinitialiser l'erreur
     setError("");
-
-    // Appeler la mutation pour créer un utilisateur
-    createUser({ variables: { username, email, password } });
+    loginUser({ variables: { username, password } });
   };
 
   return (
@@ -78,7 +71,7 @@ const SignupCard = ({ onClose, onSignupSuccess }: SignupCardProps) => {
 
         {/* Titre */}
         <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">
-          S'inscrire
+          Se connecter
         </h2>
 
         {/* Formulaire */}
@@ -114,37 +107,6 @@ const SignupCard = ({ onClose, onSignupSuccess }: SignupCardProps) => {
             </div>
           </div>
 
-          {/* Champ Email */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="email">
-              Email
-            </label>
-            <div className="relative">
-              <input
-                type="email"
-                id="email"
-                className="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-                placeholder="Entrez votre email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 text-gray-400 absolute left-3 top-3.5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                />
-              </svg>
-            </div>
-          </div>
-
           {/* Champ Mot de passe */}
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="password">
@@ -158,37 +120,6 @@ const SignupCard = ({ onClose, onSignupSuccess }: SignupCardProps) => {
                 placeholder="Entrez votre mot de passe"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-              />
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 text-gray-400 absolute left-3 top-3.5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                />
-              </svg>
-            </div>
-          </div>
-
-          {/* Champ Confirmation du mot de passe */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="confirmPassword">
-              Confirmez le mot de passe
-            </label>
-            <div className="relative">
-              <input
-                type="password"
-                id="confirmPassword"
-                className="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-                placeholder="Confirmez votre mot de passe"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
               />
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -228,7 +159,7 @@ const SignupCard = ({ onClose, onSignupSuccess }: SignupCardProps) => {
               className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200"
               disabled={loading}
             >
-              {loading ? "Inscription..." : "S'inscrire"}
+              {loading ? "Connexion..." : "Connexion"}
             </button>
           </div>
         </form>
@@ -237,4 +168,4 @@ const SignupCard = ({ onClose, onSignupSuccess }: SignupCardProps) => {
   );
 };
 
-export default SignupCard;
+export default LoginCard;
