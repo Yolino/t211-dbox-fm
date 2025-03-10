@@ -1,15 +1,40 @@
 import React, { useState } from "react";
+import { gql, useMutation } from "@apollo/client";
+
+const CREATE_USER_MUTATION = gql`
+  mutation CreateUser($username: String!, $email: String!, $password: String!) {
+    createUser(username: $username, email: $email, password: $password) {
+      user {
+        id
+        username
+        email
+      }
+    }
+  }
+`;
 
 interface SignupCardProps {
   onClose: () => void; // Fonction pour fermer la carte
+  onSignupSuccess: () => void; // Fonction à appeler après une inscription réussie
 }
 
-const SignupCard = ({ onClose }: SignupCardProps) => {
+const SignupCard = ({ onClose, onSignupSuccess }: SignupCardProps) => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+
+  const [createUser, { loading }] = useMutation(CREATE_USER_MUTATION, {
+    onCompleted: (data) => {
+      console.log("Utilisateur créé :", data.createUser.user);
+      onSignupSuccess(); // Appeler onSignupSuccess
+      onClose(); // Fermer la carte d'inscription
+    },
+    onError: (error) => {
+      setError(error.message); // Afficher l'erreur
+    },
+  });
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -23,8 +48,8 @@ const SignupCard = ({ onClose }: SignupCardProps) => {
     // Réinitialiser l'erreur
     setError("");
 
-    // Soumettre le formulaire (à implémenter)
-    console.log("Formulaire soumis :", { username, email, password });
+    // Appeler la mutation pour créer un utilisateur
+    createUser({ variables: { username, email, password } });
   };
 
   return (
@@ -201,8 +226,9 @@ const SignupCard = ({ onClose }: SignupCardProps) => {
             <button
               type="submit"
               className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200"
+              disabled={loading}
             >
-              S'inscrire
+              {loading ? "Inscription..." : "S'inscrire"}
             </button>
           </div>
         </form>

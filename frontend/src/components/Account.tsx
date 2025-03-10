@@ -45,6 +45,10 @@ const Account = () => {
     refetch(); // Rafraîchir les données après une connexion réussie
   };
 
+  const handleSignupSuccess = () => {
+    refetch(); // Rafraîchir les données après une inscription réussie
+  };
+
   if (loading) return <p>Chargement...</p>;
 
   return (
@@ -74,7 +78,9 @@ const Account = () => {
         <LoginCard onClose={handleCloseLoginCard} onLoginSuccess={handleLoginSuccess} />
       )}
 
-      {isSignupCardOpen && <SignupCard onClose={handleCloseSignupCard} />}
+      {isSignupCardOpen && (
+        <SignupCard onClose={handleCloseSignupCard} onSignupSuccess={handleSignupSuccess} />
+      )}
     </div>
   );
 };
