@@ -1,18 +1,6 @@
 import React, { useState } from "react";
-import { gql, useMutation } from "@apollo/client";
-
-const LOGIN_MUTATION = gql`
-  mutation LoginUser($username: String!, $password: String!) {
-    loginUser(username: $username, password: $password) {
-      success
-      user {
-        id
-        username
-        email
-      }
-    }
-  }
-`;
+import { useMutation } from "@apollo/client";
+import { LOGIN_MUTATION } from "../graphql/loginMutation.ts";
 
 interface LoginCardProps {
   onClose: () => void;
@@ -27,15 +15,14 @@ const LoginCard = ({ onClose, onLoginSuccess }: LoginCardProps) => {
   const [loginUser, { loading }] = useMutation(LOGIN_MUTATION, {
     onCompleted: (data) => {
       if (data.loginUser.success) {
-        console.log("Connexion réussie !");
         onLoginSuccess(); // Appeler onLoginSuccess
         onClose(); // Fermer la carte de connexion
       } else {
-        setError("Identifiants invalides.");
+        setError("Invalid credentials.");
       }
     },
     onError: (error) => {
-      setError("Une erreur s'est produite lors de la connexion.");
+      setError("An error occured whilst trying to log you in.");
     },
   });
 
@@ -48,7 +35,7 @@ const LoginCard = ({ onClose, onLoginSuccess }: LoginCardProps) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white p-8 rounded-xl shadow-2xl w-96 relative">
-        {/* Bouton de fermeture */}
+        {/* Close button */}
         <button
           onClick={onClose}
           className="absolute top-4 right-4 p-2 text-gray-500 hover:text-gray-700 transition-colors duration-200"
@@ -69,24 +56,24 @@ const LoginCard = ({ onClose, onLoginSuccess }: LoginCardProps) => {
           </svg>
         </button>
 
-        {/* Titre */}
+        {/* Title */}
         <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">
-          Se connecter
+          Log In
         </h2>
 
-        {/* Formulaire */}
+        {/* Form */}
         <form onSubmit={handleSubmit}>
-          {/* Champ Nom d'utilisateur */}
+          {/* Username field */}
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="username">
-              Nom d'utilisateur
+              Username
             </label>
             <div className="relative">
               <input
                 type="text"
                 id="username"
                 className="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-                placeholder="Entrez votre nom d'utilisateur"
+                placeholder="Enter your username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
               />
@@ -107,17 +94,17 @@ const LoginCard = ({ onClose, onLoginSuccess }: LoginCardProps) => {
             </div>
           </div>
 
-          {/* Champ Mot de passe */}
+          {/* Password field */}
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="password">
-              Mot de passe
+              Password
             </label>
             <div className="relative">
               <input
                 type="password"
                 id="password"
                 className="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-                placeholder="Entrez votre mot de passe"
+                placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
@@ -138,7 +125,7 @@ const LoginCard = ({ onClose, onLoginSuccess }: LoginCardProps) => {
             </div>
           </div>
 
-          {/* Affichage des erreurs */}
+          {/* Error displaying */}
           {error && (
             <div className="mb-4 text-sm text-red-600">
               {error}
@@ -152,14 +139,14 @@ const LoginCard = ({ onClose, onLoginSuccess }: LoginCardProps) => {
               onClick={onClose}
               className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200"
             >
-              Annuler
+              Cancel
             </button>
             <button
               type="submit"
               className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200"
               disabled={loading}
             >
-              {loading ? "Connexion..." : "Connexion"}
+              {loading ? "Logging In..." : "Log In"}
             </button>
           </div>
         </form>

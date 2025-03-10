@@ -1,17 +1,6 @@
 import React, { useState } from "react";
-import { gql, useMutation } from "@apollo/client";
-
-const CREATE_USER_MUTATION = gql`
-  mutation CreateUser($username: String!, $email: String!, $password: String!) {
-    createUser(username: $username, email: $email, password: $password) {
-      user {
-        id
-        username
-        email
-      }
-    }
-  }
-`;
+import { useMutation } from "@apollo/client";
+import { CREATE_USER_MUTATION } from "../graphql/createUserMutation.ts";
 
 interface SignupCardProps {
   onClose: () => void; // Fonction pour fermer la carte
@@ -27,7 +16,6 @@ const SignupCard = ({ onClose, onSignupSuccess }: SignupCardProps) => {
 
   const [createUser, { loading }] = useMutation(CREATE_USER_MUTATION, {
     onCompleted: (data) => {
-      console.log("Utilisateur créé :", data.createUser.user);
       onSignupSuccess(); // Appeler onSignupSuccess
       onClose(); // Fermer la carte d'inscription
     },
@@ -41,7 +29,7 @@ const SignupCard = ({ onClose, onSignupSuccess }: SignupCardProps) => {
 
     // Vérifier que les mots de passe correspondent
     if (password !== confirmPassword) {
-      setError("Les mots de passe ne correspondent pas.");
+      setError("Passwords do not match.");
       return;
     }
 
@@ -55,7 +43,7 @@ const SignupCard = ({ onClose, onSignupSuccess }: SignupCardProps) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white p-8 rounded-xl shadow-2xl w-96 relative">
-        {/* Bouton de fermeture */}
+        {/* Close button */}
         <button
           onClick={onClose}
           className="absolute top-4 right-4 p-2 text-gray-500 hover:text-gray-700 transition-colors duration-200"
@@ -76,24 +64,24 @@ const SignupCard = ({ onClose, onSignupSuccess }: SignupCardProps) => {
           </svg>
         </button>
 
-        {/* Titre */}
+        {/* Title */}
         <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">
-          S'inscrire
+          Sign Up
         </h2>
 
-        {/* Formulaire */}
+        {/* Form */}
         <form onSubmit={handleSubmit}>
-          {/* Champ Nom d'utilisateur */}
+          {/* Username field */}
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="username">
-              Nom d'utilisateur
+              Username
             </label>
             <div className="relative">
               <input
                 type="text"
                 id="username"
                 className="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-                placeholder="Entrez votre nom d'utilisateur"
+                placeholder="Enter your username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
               />
@@ -114,7 +102,7 @@ const SignupCard = ({ onClose, onSignupSuccess }: SignupCardProps) => {
             </div>
           </div>
 
-          {/* Champ Email */}
+          {/* Email field */}
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="email">
               Email
@@ -124,7 +112,7 @@ const SignupCard = ({ onClose, onSignupSuccess }: SignupCardProps) => {
                 type="email"
                 id="email"
                 className="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-                placeholder="Entrez votre email"
+                placeholder="Enter your email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -145,17 +133,17 @@ const SignupCard = ({ onClose, onSignupSuccess }: SignupCardProps) => {
             </div>
           </div>
 
-          {/* Champ Mot de passe */}
+          {/* Password field */}
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="password">
-              Mot de passe
+              Password
             </label>
             <div className="relative">
               <input
                 type="password"
                 id="password"
                 className="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-                placeholder="Entrez votre mot de passe"
+                placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
@@ -176,17 +164,17 @@ const SignupCard = ({ onClose, onSignupSuccess }: SignupCardProps) => {
             </div>
           </div>
 
-          {/* Champ Confirmation du mot de passe */}
+          {/* Confirm password field */}
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="confirmPassword">
-              Confirmez le mot de passe
+              Confirm password
             </label>
             <div className="relative">
               <input
                 type="password"
                 id="confirmPassword"
                 className="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-                placeholder="Confirmez votre mot de passe"
+                placeholder="Confirm your password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
               />
@@ -207,28 +195,28 @@ const SignupCard = ({ onClose, onSignupSuccess }: SignupCardProps) => {
             </div>
           </div>
 
-          {/* Affichage des erreurs */}
+          {/* Display errors */}
           {error && (
             <div className="mb-4 text-sm text-red-600">
               {error}
             </div>
           )}
 
-          {/* Boutons */}
+          {/* Buttons */}
           <div className="flex justify-between items-center">
             <button
               type="button"
               onClick={onClose}
               className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200"
             >
-              Annuler
+              Cancel
             </button>
             <button
               type="submit"
               className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200"
               disabled={loading}
             >
-              {loading ? "Inscription..." : "S'inscrire"}
+              {loading ? "Signing Up..." : "Sign Up"}
             </button>
           </div>
         </form>
