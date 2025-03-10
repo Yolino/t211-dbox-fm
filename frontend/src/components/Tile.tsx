@@ -1,16 +1,24 @@
 import React from "react";
 
-interface TileProps {
-  id?: string;
-  title: string;
-  artist: string;
-  likes: number;
-  coverImage?: string;
+interface Author {
+  username: string;
 }
 
-const Tile = ({ id, title, artist, likes, coverImage, onPlayAudio }: TileProps) => {
+interface Publication {
+  id: number;
+  title: string;
+  cover: string;
+  voteCount: number;
+  author: Author;
+}
+
+interface TileProps {
+  publication: Publication;
+}
+
+const Tile = ({ publication, onPlayAudio }: TileProps) => {
   const handleClick = () => {
-    onPlayAudio(id);
+    onPlayAudio(publication.id);
   }
 
   return (
@@ -18,8 +26,8 @@ const Tile = ({ id, title, artist, likes, coverImage, onPlayAudio }: TileProps) 
       {/* Image de couverture */}
       <img
         className="w-full h-32 object-cover rounded mb-2"
-        src={`http://localhost:8000${coverImage}`}
-        alt={`Cover for ${title}`}
+        src={`http://localhost:8000${publication.cover}`}
+        alt={`Cover for ${publication.title}`}
       />
 
       {/* Bouton Play au survol */}
@@ -47,10 +55,10 @@ const Tile = ({ id, title, artist, likes, coverImage, onPlayAudio }: TileProps) 
 
       {/* Contenu de la tuile */}
       <div className="p-4">
-        <p className="text-black font-bold text-lg truncate">{title}</p>
-        <p className="text-gray-600 text-sm truncate">{artist}</p>
+        <p className="text-black font-bold text-lg truncate">{publication.title}</p>
+        <p className="text-gray-600 text-sm truncate">{publication.author.username}</p>
         <div className="flex items-center justify-between mt-2">
-          <p className="text-gray-400 text-xs">{likes} likes</p>
+          <p className="text-gray-400 text-xs">{publication.voteCount} votes</p>
 
           {/* Boutons Like et Menu au survol */}
           <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
