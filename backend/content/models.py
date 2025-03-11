@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 from django.conf import settings
 from django.contrib.auth.models import User
 
@@ -33,7 +33,19 @@ class View(models.Model):
         constraints = [
             models.UniqueConstraint(fields=["publication", "user"], name="unique_view"),
         ]
-    
+   
+    def save(self, *args, **kwargs):
+        with transaction.atomic():
+            super().save(*args, **kwargs)
+            self.publication.view_count += 1
+            self.publication.save()
+
+    def delete(self, *args, **kwargs):
+        with transaction.atomic():
+            self.publication.view_count -= 1
+            self.publication.save()
+            super().delete(*args, **kwargs)
+
     def __str__(self):
         return f"{self.publication} : {self.user}"
 
@@ -45,6 +57,18 @@ class Vote(models.Model):
         constraints = [
             models.UniqueConstraint(fields=["publication", "user"], name="unique_vote"),
         ]
+
+    def save(self, *args, **kwargs):
+        with transaction.atomic():
+            super().save(*args, **kwargs)
+            self.publication.vote_count += self.type
+            self.publication.save()
+
+    def delete(self, *args, **kwargs):
+        with transaction.atomic():
+            self.publication.vote_count -= self.type
+            self.publication.save()
+            super().delete(*args, **kwargs)
 
     def __str__(self):
         return f"{self.publication} : {self.type} - {self.user}"
