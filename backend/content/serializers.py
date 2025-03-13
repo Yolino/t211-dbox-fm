@@ -1,8 +1,8 @@
 from rest_framework import serializers
-from .models import Audio
+from .models import Publication
 
 class AudioSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Audio
-        fields = ("id", "file")
+        model = Publication
+        fields = ("id", "audio")
 

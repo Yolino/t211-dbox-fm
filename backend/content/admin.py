@@ -1,7 +1,6 @@
 from django.contrib import admin
-from .models import Audio, Tag, Publication, View, Vote, Follower, Comment
+from .models import Tag, Publication, View, Vote, Follower, Comment
 
-admin.site.register(Audio)
 admin.site.register(Tag)
 admin.site.register(Publication)
 admin.site.register(View)

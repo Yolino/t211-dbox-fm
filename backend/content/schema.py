@@ -2,22 +2,17 @@ import graphene
 from graphene_django import DjangoObjectType
 from django.contrib.auth import get_user_model
 from django.conf import settings
-from .models import Audio, Publication, View, Vote, Comment, Tag
+from .models import Publication, View, Vote, Comment, Tag
 from users.schema import UserType
 from graphene_file_upload.scalars import Upload
 from graphql import GraphQLError
 
 User = get_user_model()
 
-class AudioType(DjangoObjectType):
-    class Meta:
-        model = Audio
-        fields = ("id",)
-
 class PublicationType(DjangoObjectType):
     class Meta:
         model = Publication
-        fields = ("id", "title", "author", "cover", "tag", "description", "audio", "view_count", "vote_count", "created_at")
+        fields = ("id", "title", "author", "cover", "tag", "description", "view_count", "vote_count", "created_at")
 
     cover = graphene.String()
     def resolve_cover(root, info):

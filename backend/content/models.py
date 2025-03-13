@@ -2,9 +2,6 @@ from django.db import models, transaction
 from django.conf import settings
 from django.contrib.auth.models import User
 
-class Audio(models.Model):
-    file = models.FileField(upload_to="audio/")
-
 class Tag(models.Model):
     name = models.CharField(max_length=30)
 
@@ -17,7 +14,7 @@ class Publication(models.Model):
     cover = models.ImageField(upload_to="cover/", null=True, blank=True)
     tag = models.ForeignKey(Tag, on_delete=models.PROTECT)
     description = models.CharField(max_length=255, null=True, blank=True)
-    audio = models.OneToOneField(Audio, on_delete=models.PROTECT)
+    audio = models.FileField(upload_to="audio/")
     view_count = models.PositiveIntegerField(default=0)
     vote_count = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True, blank=True)
