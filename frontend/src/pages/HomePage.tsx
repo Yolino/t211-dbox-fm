@@ -1,11 +1,18 @@
 import React, { useState } from "react";
+import { Routes, Route, useNavigate, useParams } from "react-router-dom";
 import Header from "../components/Header.tsx";
 import TileMain from "../components/TileMain.tsx";
 import PublishMain from "../components/PublishMain.tsx";
+import ProfileMain from "../components/ProfileMain.tsx";
 import AudioPlayer from "../components/AudioPlayer.tsx";
 
+const ProfileWrapper = () => {
+  const { username } = useParams();
+  return <ProfileMain username={username} />;
+};
+
 const HomePage = () => {
-  const [currentPage, setCurrentPage] = useState("tiles");
+  const navigate = useNavigate();
 
   const [currentAudio, setCurrentAudio] = useState(null);
   const handlePlayAudio = (audioId) => {
@@ -14,10 +21,14 @@ const HomePage = () => {
 
   return (
     <div className="App">
-      <Header onSwitchPage={setCurrentPage} />
+      <Header onSwitchPage={(page) => navigate(page)} />
       <main className="p-6">
-        {currentPage === "tiles" && <TileMain onPlayAudio={handlePlayAudio} />}
-        {currentPage === "publish" && <PublishMain />}
+        <Routes>
+          <Route path="/" element={<TileMain onPlayAudio={handlePlayAudio} />} />
+          <Route path="/publish" element={<PublishMain />} />
+          <Route path="/profile" element={<ProfileWrapper />} />
+          <Route path="/profile/:username" element={<ProfileWrapper />} />
+        </Routes> 
       </main>
       <AudioPlayer audioId={currentAudio} />
     </div>

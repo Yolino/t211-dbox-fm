@@ -5,7 +5,7 @@ import LoginCard from "./LoginCard.tsx";
 import SignupCard from "./SignupCard.tsx";
 import Profile from "./Profile.tsx";
 
-const Account = () => {
+const Account = ({ onSwitchPage }) => {
   const [isLoginCardOpen, setIsLoginCardOpen] = useState(false);
   const [isSignupCardOpen, setIsSignupCardOpen] = useState(false);
 
@@ -40,12 +40,12 @@ const Account = () => {
     refetch(); // Rafraîchir les données après une inscription réussie
   };
 
-  if (loading) return <p>Chargement...</p>;
+  if (loading) return <p>Loading...</p>;
 
   return (
     <div className="LogButtons">
       {data?.me ? ( // Si l'utilisateur est connecté
-        <Profile />
+        <Profile username={data.me.username} onSwitchPage={onSwitchPage} />
       ) : ( // Si l'utilisateur n'est pas connecté
         <>
           <button

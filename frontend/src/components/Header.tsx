@@ -5,7 +5,7 @@ import Account from "./Account.tsx";
 const Header = ({ onSwitchPage }) => {
   return (
     <header className="flex justify-between items-center p-4 bg-gray-800 text-white">
-      <div id="logoDbox" onClick={() => { onSwitchPage("tiles"); }}>
+      <div id="logoDbox" onClick={() => { onSwitchPage("/"); }}>
         <p className="font-bold text-5xl">Dbox</p>
       </div>
       <div id="searchDiv" className="flex-grow mx-16"> {/* Ajoute une marge à gauche pour l'espacement */}
@@ -18,7 +18,7 @@ const Header = ({ onSwitchPage }) => {
       </div>
       <div>
         <PublishButton onSwitchPage={onSwitchPage} />
-        <Account />
+        <Account onSwitchPage={onSwitchPage} />
       </div>
     </header>
   );
