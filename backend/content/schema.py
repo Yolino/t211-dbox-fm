@@ -3,11 +3,8 @@ from graphene_django import DjangoObjectType
 from django.contrib.auth import get_user_model
 from django.conf import settings
 from .models import Publication, View, Vote, Comment, Tag
-from users.schema import UserType
 from graphene_file_upload.scalars import Upload
 from graphql import GraphQLError
-
-User = get_user_model()
 
 class PublicationType(DjangoObjectType):
     class Meta:
@@ -44,7 +41,6 @@ class Query(graphene.ObjectType):
     publication = graphene.Field(PublicationType, id=graphene.Int(required=True))
     publications = graphene.List(graphene.NonNull(PublicationType), order_by=graphene.String(), author=graphene.String())
     commentsByPublication = graphene.List(graphene.NonNull(CommentType), publicationId=graphene.Int(required=True))
-    userUsernames = graphene.List(UserType)
     tagnames= graphene.List(TagType)
    
     def resolve_publication(root, info, id):
@@ -57,9 +53,6 @@ class Query(graphene.ObjectType):
         if order_by:
             result = result.order_by(order_by)
         return result
-    
-    def resolve_userUsernames(root, info):
-        return User.objects.all()
     
     def resolve_tagnames(root, info):
         return Tag.objects.all()
@@ -80,7 +73,7 @@ class CreatePublication(graphene.Mutation):
     def mutate(root, info, title, cover, tag, description, audio):
         if not info.context.user.is_authenticated:
             raise GraphQLError("You cannot publish if you are not already authenticated")
-        
+ 
         tag = Tag.objects.get(id=tag)
         author = info.context.user
         publication = Publication(title=title, cover=cover, tag=tag,description=description, audio=audio,author=author)
