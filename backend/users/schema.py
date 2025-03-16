@@ -31,6 +31,27 @@ class ProfileType(graphene.ObjectType):
     def resolve_is_self(root, info):
         return root.user == info.context.user
 
+class Query(graphene.ObjectType):
+    me = graphene.Field(UserType)
+    profile = graphene.Field(ProfileType, username=graphene.String())
+
+    def resolve_me(root, info):
+        user = info.context.user
+        if not user.is_authenticated:
+            raise GraphQLError("You are not authenticated")
+        return user
+
+    def resolve_profile(root, info, username=None):
+        if username:
+            user = User.objects.get(username=username)
+        elif info.context.user.is_authenticated:
+            user = info.context.user
+        else:
+            user = None
+        if not user:
+            raise GraphQLError("User not found")
+        return ProfileType(user=user)
+
 class CreateUser(graphene.Mutation):
     class Arguments:
         username = graphene.String(required=True)
@@ -86,31 +107,56 @@ class LogoutUser(graphene.Mutation):
         logout(info.context)
         return LogoutUser(user=user_data)
 
-class Query(graphene.ObjectType):
-    me = graphene.Field(UserType)
-    profile = graphene.Field(ProfileType, username=graphene.String())
+class UpdateUsername(graphene.Mutation):
+    class Arguments:
+        new_username = graphene.String()
+        password = graphene.String()
 
-    def resolve_me(root, info):
+    success = graphene.Boolean()
+
+    def mutate(root, info, new_username, password):
         user = info.context.user
         if not user.is_authenticated:
-            raise GraphQLError("You are not authenticated")
-        return user
+            raise GraphQLError("You must be logged in to update your username")
+        auth = authenticate(username=user.username, password=password)
+        if not auth:
+            raise GraphQLError("Incorrect password")
+        if User.objects.filter(username=new_username).exists():
+            raise GraphQLError("This username is already taken")
 
-    def resolve_profile(root, info, username=None):
-        if username:
-            user = User.objects.get(username=username)
-        elif info.context.user.is_authenticated:
-            user = info.context.user
-        else:
-            user = None
-        if not user:
-            raise GraphQLError("User not found")
+        user.username = new_username
+        user.save()
+        return UpdateUsername(success=True)
 
-        return ProfileType(user=user)
+class UpdatePassword(graphene.Mutation):
+    class Arguments:
+        current_password = graphene.String()
+        new_password = graphene.String()
+
+    success = graphene.Boolean()
+
+    def mutate(root, info, current_password, new_password):
+        user = info.context.user
+        if not user.is_authenticated:
+            raise GraphQLError("You must be logged in to update your password")
+        auth = authenticate(username=user.username, password=current_password)
+        if not auth:
+            raise GraphQLError("Incorrect password")
+        if current_password == new_password:
+            raise GraphQLError("Passwords must be different")
+        try:
+            validate_password(new_password)
+        except ValidationError as e:
+            raise GraphQLError(f"Invalid new password: {', '.join(e.messages)}")
+        user.set_password(new_password)
+        user.save()
+        return UpdatePassword(success=True)
 
 class Mutation(graphene.ObjectType):
     create_user = CreateUser.Field()
     login_user = LoginUser.Field()
     logout_user = LogoutUser.Field()
+    update_username = UpdateUsername.Field()
+    update_password = UpdatePassword.Field()
 
 schema = graphene.Schema(query=Query, mutation=Mutation)
