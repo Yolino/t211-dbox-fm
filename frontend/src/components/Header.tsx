@@ -16,7 +16,7 @@ const Header = ({ onSwitchPage }) => {
           className="p-3 rounded-lg w-96 bg-white text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
-      <div>
+      <div className="flex items-center space-x-4">
         <RedirectButton onSwitchPage={onSwitchPage} page="/fm" text="DBox FM" />
         <RedirectButton onSwitchPage={onSwitchPage} page="/publish" text="Publish" />
         <Account onSwitchPage={onSwitchPage} />
