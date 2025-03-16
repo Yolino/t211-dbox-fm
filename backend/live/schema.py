@@ -2,8 +2,9 @@ import graphene
 from graphene_django import DjangoObjectType
 from graphql import GraphQLError
 from django.utils import timezone
-from datetime import datetime
+from datetime import datetime, timedelta
 from .models import Scheduling
+from content.models import Publication
 
 class SchedulingType(DjangoObjectType):
     class Meta:
@@ -18,5 +19,30 @@ class Query(graphene.ObjectType):
             date = timezone.now().date()
         return Scheduling.objects.filter(time__date=date)
 
+class CreateScheduling(graphene.Mutation):
+    class Arguments:
+        publication_id = graphene.Int(required=True)
+        time = graphene.DateTime(required=True)
+
+    scheduling = graphene.Field(SchedulingType)
+
+    def mutate(root, info, publication_id, time):
+        user = info.context.user
+        if not user.is_authenticated:
+            raise GraphQLError("You must be logged in to add to the schedule")
+        if not user.has_perm("live.add_scheduling"):
+            raise GraphQLError("You do not have the required permissions to add to the schedule")
+        # WARNING : a timedelta of one day should be added in production : if time < (datetime.now() + timedelta(days=1))
+        if time < datetime.now():
+            raise GraphQLError("The schedule for this date and time has already been fixed. You cannot update it")
+        try:
+            publication = Publication.objects.get(id=publication_id)
+        except Publication.DoesNotExist:
+            raise GraphQLError("This Publication does not exist")
+        scheduling = Scheduling(publication=publication, time=time)
+        scheduling.save()
+        return CreateScheduling(scheduling=scheduling)
+
 class Mutation(graphene.ObjectType):
-    pass
+    create_scheduling = CreateScheduling.Field()
+

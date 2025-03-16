@@ -41,10 +41,14 @@ class Query(graphene.ObjectType):
     publication = graphene.Field(PublicationType, id=graphene.Int(required=True))
     publications = graphene.List(graphene.NonNull(PublicationType), order_by=graphene.String(), author=graphene.String())
     commentsByPublication = graphene.List(graphene.NonNull(CommentType), publicationId=graphene.Int(required=True))
-    tagnames= graphene.List(TagType)
+    tags= graphene.List(TagType)
    
     def resolve_publication(root, info, id):
-        return Publication.objects.filter(id=id).first()
+        try:
+            publication = Publication.objects.get(id=id)
+        except Publication.DoesNotExist:
+            raise GraphQLError("This Publication does not exist")
+        return publication
 
     def resolve_publications(root, info, order_by=None, author=None):
         result = Publication.objects.select_related("author")
@@ -54,7 +58,7 @@ class Query(graphene.ObjectType):
             result = result.order_by(order_by)
         return result
     
-    def resolve_tagnames(root, info):
+    def resolve_tags(root, info):
         return Tag.objects.all()
    
     def resolve_commentsByPublication(root, info, publicationId):
@@ -72,13 +76,14 @@ class CreatePublication(graphene.Mutation):
 
     def mutate(root, info, title, cover, tag, description, audio):
         if not info.context.user.is_authenticated:
-            raise GraphQLError("You cannot publish if you are not already authenticated")
- 
-        tag = Tag.objects.get(id=tag)
+            raise GraphQLError("You must be logged in to publish")
+        try:
+            tag = Tag.objects.get(id=tag)
+        except Tag.DoesNotExist:
+            raise GraphQLError("This Tag does not exist")
         author = info.context.user
         publication = Publication(title=title, cover=cover, tag=tag,description=description, audio=audio,author=author)
         publication.save()
-
         return CreatePublication(publication=publication)
 
 class CreateView(graphene.Mutation):
@@ -93,8 +98,11 @@ class CreateView(graphene.Mutation):
             return CreateView(view_count=None)
         if View.objects.filter(publication_id=publication_id, user=user).exists():
             return CreateView(view_count=None)
-
-        publication = Publication.objects.get(id=publication_id)
+        
+        try:
+            publication = Publication.objects.get(id=publication_id)
+        except Publication.DoesNotExist:
+            raise GraphQLError("This Publication does not exist")
         View.objects.create(publication=publication, user=user)
         publication.refresh_from_db()
         return CreateView(view_count=publication.view_count)
@@ -112,8 +120,11 @@ class CreateVote(graphene.Mutation):
             return CreateVote(vote_count=None)
         if Vote.objects.filter(publication_id=publication_id, user=user).exists():
             return CreateVote(vote_count=None)
-
-        publication = Publication.objects.get(id=publication_id)
+        
+        try:
+            publication = Publication.objects.get(id=publication_id)
+        except Publication.DoesNotExist:
+            raise GraphQLError("This Publication does not exist")
         Vote.objects.create(publication=publication, user=user, type=type)
         publication.refresh_from_db()
         return CreateVote(vote_count=publication.vote_count)
@@ -128,17 +139,17 @@ class CreateComment(graphene.Mutation):
 
     def mutate(self, info, publication, text, parent=None):
         if not info.context.user.is_authenticated:
-            raise GraphQLError("You must be logged in to comment.")
+            raise GraphQLError("You must be logged in to comment")
         try:
             publication_instance = Publication.objects.get(id=publication)
         except Publication.DoesNotExist:
-            raise GraphQLError("Publication not found.")
+            raise GraphQLError("This Publication does not exist")
         parent_comment = None
         if parent:
             try:
                 parent_comment = Comment.objects.get(id=parent)
             except Comment.DoesNotExist:
-                raise GraphQLError("Parent comment not found.")
+                raise GraphQLError("This parent Comment does not exist")
 
         author = info.context.user
         comment = Comment(publication = publication_instance, parent=parent_comment, text=text, author=author)
