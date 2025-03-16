@@ -1,5 +1,5 @@
 import React from "react";
-import PublishButton from "./PublishButton.tsx";
+import RedirectButton from "./RedirectButton.tsx";
 import Account from "./Account.tsx";
 
 const Header = ({ onSwitchPage }) => {
@@ -17,7 +17,8 @@ const Header = ({ onSwitchPage }) => {
         />
       </div>
       <div>
-        <PublishButton onSwitchPage={onSwitchPage} />
+        <RedirectButton onSwitchPage={onSwitchPage} page="/fm" text="DBox FM" />
+        <RedirectButton onSwitchPage={onSwitchPage} page="/publish" text="Publish" />
         <Account onSwitchPage={onSwitchPage} />
       </div>
     </header>

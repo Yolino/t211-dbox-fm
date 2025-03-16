@@ -1,10 +1,10 @@
 import graphene
 from graphene_django import DjangoObjectType
+from graphene_file_upload.scalars import Upload
+from graphql import GraphQLError
 from django.contrib.auth import get_user_model
 from django.conf import settings
 from .models import Publication, View, Vote, Comment, Tag
-from graphene_file_upload.scalars import Upload
-from graphql import GraphQLError
 
 class PublicationType(DjangoObjectType):
     class Meta:
@@ -151,4 +151,3 @@ class Mutation(graphene.ObjectType):
     create_vote = CreateVote.Field()
     create_comment = CreateComment.Field()
 
-schema = graphene.Schema(query=Query, mutation=Mutation)

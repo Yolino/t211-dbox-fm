@@ -159,4 +159,3 @@ class Mutation(graphene.ObjectType):
     update_username = UpdateUsername.Field()
     update_password = UpdatePassword.Field()
 
-schema = graphene.Schema(query=Query, mutation=Mutation)

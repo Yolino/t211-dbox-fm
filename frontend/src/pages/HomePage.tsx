@@ -4,6 +4,7 @@ import Header from "../components/Header.tsx";
 import TileMain from "../components/TileMain.tsx";
 import PublishMain from "../components/PublishMain.tsx";
 import ProfileMain from "../components/ProfileMain.tsx";
+import FmMain from "../components/FmMain.tsx";
 import AudioPlayer from "../components/AudioPlayer.tsx";
 
 const ProfileWrapper = () => {
@@ -28,6 +29,7 @@ const HomePage = () => {
           <Route path="/publish" element={<PublishMain />} />
           <Route path="/profile" element={<ProfileWrapper />} />
           <Route path="/profile/:username" element={<ProfileWrapper />} />
+          <Route path="/fm" element={<FmMain />} />
         </Routes> 
       </main>
       <AudioPlayer audioId={currentAudio} />
