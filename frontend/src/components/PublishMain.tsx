@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { usePrivileges } from "../context/PrivilegesContext.tsx";
 import { useMutation, useQuery } from "@apollo/client";
 import CREATE_PUBLICATION_MUTATION from "../graphql/createPublicationMutation.tsx";
 import TAGS_QUERY from "../graphql/tagsQuery.ts";
 
 const PublishButton = () => {
+  const { privileges } = usePrivileges();
   const [mutate] = useMutation(CREATE_PUBLICATION_MUTATION);
   const { data, loading, error } = useQuery(TAGS_QUERY);
 
@@ -52,6 +54,8 @@ const PublishButton = () => {
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
+
+  if (!privileges?.isLoggedIn) return <p>You cannot publish if you are not authentified</p>;
 
   return (
     <div className="max-w-2xl mx-auto p-6 bg-gray-800 rounded-lg shadow-lg">

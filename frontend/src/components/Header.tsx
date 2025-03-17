@@ -1,8 +1,11 @@
 import React from "react";
+import { usePrivileges } from "../context/PrivilegesContext.tsx";
 import RedirectButton from "./RedirectButton.tsx";
 import Account from "./Account.tsx";
 
 const Header = ({ onSwitchPage }) => {
+  const { privileges } = usePrivileges();
+
   return (
     <header className="flex justify-between items-center p-4 bg-gray-800 text-white">
       <div id="logoDbox" onClick={() => { onSwitchPage("/"); }}>
@@ -18,7 +21,7 @@ const Header = ({ onSwitchPage }) => {
       </div>
       <div className="flex items-center space-x-4">
         <RedirectButton onSwitchPage={onSwitchPage} page="/fm" text="DBox FM" />
-        <RedirectButton onSwitchPage={onSwitchPage} page="/publish" text="Publish" />
+        {privileges?.isLoggedIn && <RedirectButton onSwitchPage={onSwitchPage} page="/publish" text="Publish" />}
         <Account onSwitchPage={onSwitchPage} />
       </div>
     </header>
