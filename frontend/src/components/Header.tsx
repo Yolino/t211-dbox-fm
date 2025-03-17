@@ -22,6 +22,7 @@ const Header = ({ onSwitchPage }) => {
       <div className="flex items-center space-x-4">
         <RedirectButton onSwitchPage={onSwitchPage} page="/fm" text="DBox FM" />
         {privileges?.isLoggedIn && <RedirectButton onSwitchPage={onSwitchPage} page="/publish" text="Publish" />}
+        {privileges?.isModerator && <RedirectButton onSwitchPage={onSwitchPage} page="/moderation" text="Moderation" />}
         <Account onSwitchPage={onSwitchPage} />
       </div>
     </header>
