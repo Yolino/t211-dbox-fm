@@ -1,20 +1,13 @@
 import React, { useState } from "react";
-import { useQuery } from "@apollo/client";
-import ME_QUERY from "../graphql/meQuery.ts";
+import { usePrivileges } from "../context/PrivilegesContext.tsx";
 import LoginCard from "./LoginCard.tsx";
 import SignupCard from "./SignupCard.tsx";
 import Profile from "./Profile.tsx";
 
 const Account = ({ onSwitchPage }) => {
+  const { privileges, refreshPrivileges } = usePrivileges();
   const [isLoginCardOpen, setIsLoginCardOpen] = useState(false);
   const [isSignupCardOpen, setIsSignupCardOpen] = useState(false);
-
-  // Exécuter la requête `me` pour vérifier l'authentification
-  const { loading, error, data, refetch } = useQuery(ME_QUERY, {
-    onError: (error) => {
-      console.error("Error :", error.message);
-    },
-  });
 
   const handleLoginClick = () => {
     setIsLoginCardOpen(true);
@@ -32,20 +25,18 @@ const Account = ({ onSwitchPage }) => {
     setIsSignupCardOpen(false);
   };
 
-  const handleLoginSuccess = () => {
-    refetch(); // Rafraîchir les données après une connexion réussie
+  const handleLoginSuccess = async () => {
+    await refreshPrivileges();
   };
 
-  const handleSignupSuccess = () => {
-    refetch(); // Rafraîchir les données après une inscription réussie
+  const handleSignupSuccess = async () => {
+    await refreshPrivileges();
   };
-
-  if (loading) return <p>Loading...</p>;
 
   return (
     <div className="LogButtons">
-      {data?.me ? ( // Si l'utilisateur est connecté
-        <Profile username={data.me.username} onSwitchPage={onSwitchPage} />
+      {privileges?.isLoggedIn ? ( // Si l'utilisateur est connecté
+        <Profile onSwitchPage={onSwitchPage} />
       ) : ( // Si l'utilisateur n'est pas connecté
         <>
           <button

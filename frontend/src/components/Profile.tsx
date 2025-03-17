@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useMutation } from "@apollo/client";
 import LOGOUT_MUTATION from "../graphql/logoutMutation.ts";
 
-const Profile = ({ username, onSwitchPage }) => {
+const Profile = ({ onSwitchPage }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [logoutUser] = useMutation(LOGOUT_MUTATION, {
     onCompleted: () => {
@@ -45,7 +45,7 @@ const Profile = ({ username, onSwitchPage }) => {
       {isMenuOpen && (
         <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg">
           <button
-            onClick={() => { onSwitchPage(`/profile/${username}`); }}
+            onClick={() => { onSwitchPage("/profile"); }}
             className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
           >
             Paramètres du profil
@@ -54,7 +54,7 @@ const Profile = ({ username, onSwitchPage }) => {
             onClick={handleLogout}
             className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
           >
-            Se déconnecter
+            Log Out
           </button>
         </div>
       )}

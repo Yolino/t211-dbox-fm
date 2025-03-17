@@ -14,6 +14,10 @@ class UserType(DjangoObjectType):
         model = User
         fields = ("id", "username", "email")
 
+class PrivilegesType(graphene.ObjectType):
+    is_logged_in = graphene.Boolean()
+    is_moderator = graphene.Boolean()
+
 class ProfileType(graphene.ObjectType):
     user = graphene.Field(UserType)
     publications = graphene.List(graphene.NonNull(PublicationType))
@@ -32,15 +36,17 @@ class ProfileType(graphene.ObjectType):
         return root.user == info.context.user
 
 class Query(graphene.ObjectType):
-    me = graphene.Field(UserType)
+    me = graphene.Field(PrivilegesType)
     profile = graphene.Field(ProfileType, username=graphene.String())
 
     def resolve_me(root, info):
         user = info.context.user
-        if not user.is_authenticated:
-            raise GraphQLError("You are not authenticated")
-        return user
-
+        if user.is_authenticated:
+            if user.groups.filter(name="Moderators").exists():
+                return PrivilegesType(is_logged_in=True, is_moderator=True)
+            return PrivilegesType(is_logged_in=True, is_moderator=False)
+        return PrivilegesType(is_logged_in=False, is_moderator=False)
+        
     def resolve_profile(root, info, username=None):
         if username:
             user = User.objects.get(username=username)

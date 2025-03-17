@@ -1,8 +1,14 @@
 import React from "react";
+import { usePrivileges } from "../context/PrivilegesContext.tsx";
 
 const FmMain = () => {
+  const { privileges } = usePrivileges();
+
   return (
-    <p>Dbox FM</p>
+    <div>
+      <p>Dbox FM</p>
+      {privileges?.isModerator && <p>You are a moderator</p>}
+    </div>
   );
 };
 
