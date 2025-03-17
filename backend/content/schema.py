@@ -30,7 +30,7 @@ class VoteType(DjangoObjectType):
 class CommentType(DjangoObjectType):
     class Meta:
         model = Comment
-        fields = ("id", "text", "author", "publication",  "created_at")
+        fields = ("id", "text", "author", "parent", "publication",  "created_at")
 
 class TagType(DjangoObjectType):
     class Meta:
