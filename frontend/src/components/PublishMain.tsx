@@ -1,9 +1,11 @@
-import React, { useState } from "react";
-import { useMutation } from "@apollo/client";
+import React, { useState, useEffect } from "react";
+import { useMutation, useQuery } from "@apollo/client";
 import CREATE_PUBLICATION_MUTATION from "../graphql/createPublicationMutation.tsx";
+import TAGS_QUERY from "../graphql/tagsQuery.ts";
 
 const PublishButton = () => {
   const [mutate] = useMutation(CREATE_PUBLICATION_MUTATION);
+  const { data, loading, error } = useQuery(TAGS_QUERY);
 
   const [publication, setPublication] = useState({
     audio: null as File | null,
@@ -29,6 +31,13 @@ const PublishButton = () => {
     }
   };
 
+  const handleTagChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setPublication({
+      ...publication,
+      tag: Number(event.target.value),
+    });
+  };
+
   const handleSubmit = (event: React.FormEvent) => {
     mutate({
       variables: {
@@ -40,6 +49,9 @@ const PublishButton = () => {
       },
     });
   };
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error.message}</p>;
 
   return (
     <div className="max-w-2xl mx-auto p-6 bg-gray-800 rounded-lg shadow-lg">
@@ -68,14 +80,19 @@ const PublishButton = () => {
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-300">Tag</label>
-          <input
-            type="number"
+          <select
             name="tag"
-            placeholder="Tag"
             required
-            onChange={handleInputChange}
+            onChange={handleTagChange}
             className="mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          >
+            <option value="">Select a tag</option>
+            {data.tags.map((tag) => (
+              <option key={tag.id} value={tag.id}>
+                {tag.name}
+              </option>
+            ))}
+          </select>
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-300">Description</label>
@@ -108,6 +125,5 @@ const PublishButton = () => {
     </div>
   );
 };
-
 
 export default PublishButton;
