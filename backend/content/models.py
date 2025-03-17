@@ -1,5 +1,6 @@
 from django.db import models, transaction
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 
 class Tag(models.Model):
@@ -84,6 +85,12 @@ class Comment(models.Model):
     text = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True, blank=True)
     is_banned = models.BooleanField(default=False)
+
+    def clean(self):
+        if self.parent:
+            if not self.parent.publication == self.publication:
+                raise ValidationError("A Comment can only reply to another within the same Publication")
+        super().clean()
 
     def __str__(self):
         return f"{self.publication} : {self.author} commented '{self.text}'"

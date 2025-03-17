@@ -150,6 +150,8 @@ class CreateComment(graphene.Mutation):
                 parent_comment = Comment.objects.get(id=parent)
             except Comment.DoesNotExist:
                 raise GraphQLError("This parent Comment does not exist")
+            if not parent_comment.publication == publication_instance:
+                raise GraphQLError("The parent comment's publication does not match this commment's")
 
         author = info.context.user
         comment = Comment(publication = publication_instance, parent=parent_comment, text=text, author=author)
