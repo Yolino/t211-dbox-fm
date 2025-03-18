@@ -8,6 +8,7 @@ const PROFILE_QUERY = gql`
         email
       }
       publications {
+        id
         title
         cover
         viewCount
