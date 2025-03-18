@@ -5,9 +5,12 @@ import ProfileTile from "../components/ProfileTile.tsx";
 
 const ProfileMain = ({ username }) => {
   const [expandedTile, setExpandedTile] = useState(null);
-  const { loading, error, data } = useQuery(PROFILE_QUERY, {
+  const { loading, error, data, refetch } = useQuery(PROFILE_QUERY, {
     variables: { username },
   });
+  const refetchProfile = () => {
+    refetch();
+  };
   const profile = data?.profile;
 
   if (loading) return <p className="text-center text-gray-500">Loading...</p>;
@@ -32,6 +35,7 @@ const ProfileMain = ({ username }) => {
               isSelf={profile.isSelf}
               onEdit={() => { setExpandedTile(i) }}
               isExpanded={ i === expandedTile }
+              onDeletePublication={refetchProfile}
             />
           ))}
         </ul>

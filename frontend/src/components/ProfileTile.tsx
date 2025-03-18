@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useMutation } from "@apollo/client";
+import DELETE_PUBLICATION_MUTATION from "../graphql/deletePublicationMutation.tsx";
 import DeletePublicationCard from "./DeletePublicationCard.tsx";
 
 interface Publication {
@@ -15,9 +17,10 @@ interface ProfileTileProps {
   isSelf: boolean;
   onEdit: () => void;
   isExpanded: boolean;
+  onDeletePublication: () => void;
 };
 
-const ProfileType = ({ publication, index, isSelf, onEdit, isExpanded }: ProfileTileProps) => {
+const ProfileType = ({ publication, index, isSelf, onEdit, isExpanded, onDeletePublication }: ProfileTileProps) => {
   const [isDeleteCardOpen, setIsDeleteCardOpen] = useState(false);
   const handleDeleteClick = () => {
     setIsDeleteCardOpen(true);
@@ -25,9 +28,23 @@ const ProfileType = ({ publication, index, isSelf, onEdit, isExpanded }: Profile
   const handleCloseCard = () => {
     setIsDeleteCardOpen(false);
   };
-  
+
+  const [error, setError] = useState("");
+  const [deletePublication, { loading }] = useMutation(DELETE_PUBLICATION_MUTATION, {
+    onCompleted: (data) => {
+      if (data.deletePublication.success) {
+        setError("");
+        setIsDeleteCardOpen(false);
+        onDeletePublication();
+      }
+    },
+    onError: (error) => {
+      setError(error);
+    },
+  });
+
   const handleDeletePublication = (id) => {
-    console.log(id);
+    deletePublication({ variables: { publicationId: +id } });
   };
 
   return (

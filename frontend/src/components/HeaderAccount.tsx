@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { usePrivileges } from "../context/PrivilegesContext.tsx";
 import LoginCard from "./LoginCard.tsx";
 import SignupCard from "./SignupCard.tsx";
-import Profile from "./Profile.tsx";
+import HeaderProfile from "./HeaderProfile.tsx";
 
-const Account = ({ onSwitchPage }) => {
+const HeaderAccount = ({ onSwitchPage }) => {
   const { privileges, refreshPrivileges } = usePrivileges();
   const [isLoginCardOpen, setIsLoginCardOpen] = useState(false);
   const [isSignupCardOpen, setIsSignupCardOpen] = useState(false);
@@ -36,7 +36,7 @@ const Account = ({ onSwitchPage }) => {
   return (
     <div className="LogButtons">
       {privileges?.isLoggedIn ? ( // Si l'utilisateur est connecté
-        <Profile onSwitchPage={onSwitchPage} />
+        <HeaderProfile onSwitchPage={onSwitchPage} />
       ) : ( // Si l'utilisateur n'est pas connecté
         <>
           <button
@@ -67,4 +67,4 @@ const Account = ({ onSwitchPage }) => {
   );
 };
 
-export default Account;
+export default HeaderAccount;

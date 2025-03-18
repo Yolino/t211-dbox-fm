@@ -1,8 +1,10 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useMutation } from "@apollo/client";
 import LOGOUT_MUTATION from "../graphql/logoutMutation.ts";
 
-const Profile = ({ onSwitchPage }) => {
+const HeaderProfile = ({ onSwitchPage }) => {
+  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [logoutUser] = useMutation(LOGOUT_MUTATION, {
     onCompleted: () => {
@@ -13,9 +15,9 @@ const Profile = ({ onSwitchPage }) => {
       console.error("Erreur lors de la déconnexion :", error.message);
     },
   });
-
   const handleLogout = () => {
     logoutUser();
+    navigate("/");
   };
 
   return (
@@ -62,4 +64,4 @@ const Profile = ({ onSwitchPage }) => {
   );
 };
 
-export default Profile;
+export default HeaderProfile;

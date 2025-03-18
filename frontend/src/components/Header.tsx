@@ -1,7 +1,7 @@
 import React from "react";
 import { usePrivileges } from "../context/PrivilegesContext.tsx";
 import RedirectButton from "./RedirectButton.tsx";
-import Account from "./Account.tsx";
+import HeaderAccount from "./HeaderAccount.tsx";
 
 const Header = ({ onSwitchPage }) => {
   const { privileges } = usePrivileges();
@@ -23,7 +23,7 @@ const Header = ({ onSwitchPage }) => {
         <RedirectButton onSwitchPage={onSwitchPage} page="/fm" text="DBox FM" />
         {privileges?.isLoggedIn && <RedirectButton onSwitchPage={onSwitchPage} page="/publish" text="Publish" />}
         {privileges?.isModerator && <RedirectButton onSwitchPage={onSwitchPage} page="/moderation" text="Moderation" />}
-        <Account onSwitchPage={onSwitchPage} />
+        <HeaderAccount onSwitchPage={onSwitchPage} />
       </div>
     </header>
   );
