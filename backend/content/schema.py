@@ -86,6 +86,25 @@ class CreatePublication(graphene.Mutation):
         publication.save()
         return CreatePublication(publication=publication)
 
+class DeletePublication(graphene.Mutation):
+    class Arguments:
+        publication_id = graphene.Int(required=True)
+
+    success = graphene.Boolean()
+
+    def mutate(root, info, publication_id):
+        user = info.context.user
+        if not user.is_authenticated:
+            raise GraphQLError("You cannot delete a Publication if you are not authenticated")
+        try:
+            publication = Publication.objects.get(id=publication_id)
+        except Publication.DoesNotExist:
+            raise GraphQLError("This Publication does not exist")
+        if not publication.author == user:
+            raise GraphQLError("You cannot delete a Publication you do not own")
+        publication.delete()
+        return DeletePublication(success=True)
+
 class CreateView(graphene.Mutation):
     class Arguments:
         publication_id = graphene.Int(required=True)
@@ -160,6 +179,7 @@ class CreateComment(graphene.Mutation):
     
 class Mutation(graphene.ObjectType):
     create_publication = CreatePublication.Field()
+    delete_publication = DeletePublication.Field()
     create_view = CreateView.Field()
     create_vote = CreateVote.Field()
     create_comment = CreateComment.Field()

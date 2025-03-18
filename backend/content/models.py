@@ -25,8 +25,8 @@ class Publication(models.Model):
         return f"{self.author} - {self.title}"
 
 class View(models.Model):
-    publication = models.ForeignKey(Publication, on_delete=models.PROTECT)
-    user = models.ForeignKey(User, on_delete=models.PROTECT)
+    publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=["publication", "user"], name="unique_view"),
@@ -48,8 +48,8 @@ class View(models.Model):
         return f"{self.publication} : {self.user}"
 
 class Vote(models.Model):
-    publication = models.ForeignKey(Publication, on_delete=models.PROTECT)
-    user = models.ForeignKey(User, on_delete=models.PROTECT)
+    publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     type = models.SmallIntegerField()
     class Meta:
         constraints = [
@@ -72,16 +72,16 @@ class Vote(models.Model):
         return f"{self.publication} : {self.type} - {self.user}"
 
 class Follower(models.Model):
-    follower = models.ForeignKey(User, related_name="follower", on_delete=models.PROTECT)
-    following = models.ForeignKey(User, related_name="following", on_delete=models.PROTECT)
+    follower = models.ForeignKey(User, related_name="follower", on_delete=models.CASCADE)
+    following = models.ForeignKey(User, related_name="following", on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.following} followed by {self.follower}"
 
 class Comment(models.Model):
-    publication = models.ForeignKey(Publication, on_delete=models.PROTECT)
+    publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
     author = models.ForeignKey(User, on_delete=models.PROTECT)
-    parent = models.ForeignKey("self", on_delete=models.PROTECT, null=True, blank=True)
+    parent = models.ForeignKey("self", on_delete=models.SET_NULL, null=True, blank=True)
     text = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True, blank=True)
     is_banned = models.BooleanField(default=False)
