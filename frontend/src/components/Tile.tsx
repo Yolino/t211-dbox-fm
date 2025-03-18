@@ -62,7 +62,7 @@ const Tile = ({ publication, group, onPlayAudio, onTileClick }: TileProps) => {
 
           {/* Boutons Like et Menu au survol */}
           <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            {/* Bouton Like déplacé légèrement à gauche */}
+            {/* Bouton vote déplacé légèrement à gauche */}
             <button
               className="p-1 bg-gray-200 rounded-full hover:bg-gray-300 transition-colors duration-200"
               onClick={(e) => {
@@ -70,42 +70,39 @@ const Tile = ({ publication, group, onPlayAudio, onTileClick }: TileProps) => {
                 console.log("Liked!");
               }}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4 text-gray-600"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+              <svg class="w-4 h-4 text-gray-600" 
+	      	aria-hidden="true" 
+		xmlns="http://www.w3.org/2000/svg" 
+		fill="none"
+		viewBox="0 0 10 14">
+    	      <path stroke="currentColor" 
+	      	stroke-linecap="round" 
+		stroke-linejoin="round" 
+		stroke-width="2" 
+		d="M5 13V1m0 0L1 5m4-4 4 4"
                 />
               </svg>
             </button>
 
-            {/* Bouton Menu (trois petits points) */}
+            {/* Bouton Down vote déplacé légèrement à gauche */}
+
             <button
               className="p-1 bg-gray-200 rounded-full hover:bg-gray-300 transition-colors duration-200"
               onClick={(e) => {
                 e.preventDefault();
-                console.log("Menu clicked!");
+                console.log("Liked!");
               }}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4 text-gray-600"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
+              <svg class="w-4 h-4 text-gray-600" 
+	      	aria-hidden="true" 
+		xmlns="http://www.w3.org/2000/svg" 
+		fill="none"
+		viewBox="0 0 10 14">
+    	      <path stroke="currentColor" 
+	      	stroke-linecap="round" 
+		stroke-linejoin="round" 
+		stroke-width="2" 
+		d="M5 1v12m0 0 4-4m-4 4L1 9"
                 />
               </svg>
             </button>
