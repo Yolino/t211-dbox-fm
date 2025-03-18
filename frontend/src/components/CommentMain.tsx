@@ -35,10 +35,10 @@ const CommentMain = ({publicationId}) => {
 
   const renderComments = (comments, level = -1) => {
     return comments.map(comment => (
-      <>
+      <div key={comment.id}>
         <CommentTile comment={comment} level={level} />
         {comment.children.length > 0 && renderComments(comment.children, level + 1)}
-      </>
+      </div>
     ));
   };
 
