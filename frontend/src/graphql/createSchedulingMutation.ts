@@ -2,10 +2,12 @@ import { gql } from "@apollo/client";
 
 const CREATE_SCHEDULING_MUTATION = gql`
   mutation CreateSchedulingMutation($publicationId: Int!, $time: DateTime!) {
-    createScheduling() {
+    createScheduling(publicationId: $publicationId, time: $time) {
       scheduling {
         publication {
-          author
+          author {
+            username
+          }
           title
         }
         time

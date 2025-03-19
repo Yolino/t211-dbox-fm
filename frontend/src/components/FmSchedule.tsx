@@ -1,19 +1,7 @@
 import React, { useState } from "react";
-import { useQuery } from "@apollo/client";
-import SCHEDULE_QUERY from "../graphql/scheduleQuery.ts";
+import DroppableSlot from "./DroppableSlot.tsx";
 
-const FmSchedule = () => {
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  const incrementDate = (increment) => {
-    const currentDate = new Date(date);
-    currentDate.setDate(currentDate.getDate() + increment);
-    setDate(currentDate.toISOString().split('T')[0]);
-  };
-  const { loading, error, data } = useQuery(SCHEDULE_QUERY, {
-    variables: { date },
-  });
-  const schedule = data?.schedule || [];
-  
+const FmSchedule = ({ date, schedule, incrementDate, handleDrop }) => {
   const startHour = 0;
   const endHour = 23;
   const timeSlots = Array.from({ length: endHour - startHour + 1 }, (_, index) => ({
@@ -47,25 +35,15 @@ const FmSchedule = () => {
             const eventHour = new Date(s.time).getHours();
             return start <= eventHour && eventHour < end;
           });
-
           return (
-            <div
+            <DroppableSlot
               key={index}
-              className={`flex items-start space-x-4 ${
-                index !== timeSlots.length - 1 ? "border-b border-gray-300 pb-3" : ""
-              }`}
-            >
-              <div className="w-1/6 text-white font-semibold">{label}</div>
-              <div className="flex-1 flex flex-col space-y-2">
-                {slotSchedule.length > 0 && (
-                  slotSchedule.map((s) => (
-                    <div className="flex-1 bg-gray-100 rounded-md border-dashed border-2 p-2">
-                      <h4 className="font-bold">{s.publication.title}</h4>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
+              label={label}
+              timeSlot={start}
+              className={`flex items-start space-x-4 ${index !== timeSlots.length - 1 ? "border-b border-gray-300 pb-3" : ""}`}
+              schedule={slotSchedule}
+              handleDrop={handleDrop}
+            />
           );
         })}
       </div>
