@@ -1,11 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { usePrivileges } from "../context/PrivilegesContext.tsx";
 import { useMutation, useQuery } from "@apollo/client";
 import CREATE_PUBLICATION_MUTATION from "../graphql/createPublicationMutation.tsx";
 import TAGS_QUERY from "../graphql/tagsQuery.ts";
 
 const PublishButton = () => {
+  const navigate = useNavigate();
   const { privileges } = usePrivileges();
+  const [errorMessage, setErrorMessage] = useState("");
   const [mutate] = useMutation(CREATE_PUBLICATION_MUTATION);
   const { data, loading, error } = useQuery(TAGS_QUERY);
 
@@ -41,6 +44,8 @@ const PublishButton = () => {
   };
 
   const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    setErrorMessage("");
     mutate({
       variables: {
         audio: publication.audio,
@@ -49,6 +54,11 @@ const PublishButton = () => {
         description: publication.description,
         cover: publication.cover,
       },
+    }).then((response) => {
+      const message = `You successfully published "${response?.data.createPublication.publication.title}"`;
+        navigate("/", {state: { message }});
+    }).catch((err) => {
+      setErrorMessage(err.message);
     });
   };
 
@@ -117,6 +127,7 @@ const PublishButton = () => {
             className="mt-1 block w-full text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-500 file:text-white hover:file:bg-blue-600"
           />
         </div>
+        {errorMessage && <p className="mb-4 text-sm text-red-600 text-center">{errorMessage}</p>}
         <div>
           <button
             type="submit"

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Routes, Route, useNavigate, useParams } from "react-router-dom";
+import { Routes, Route, useNavigate, useParams, useLocation } from "react-router-dom";
 import Header from "../components/Header.tsx";
 import TileMain from "../components/TileMain.tsx";
 import PublishMain from "../components/PublishMain.tsx";
@@ -15,16 +15,18 @@ const ProfileWrapper = () => {
 
 const HomePage = () => {
   const navigate = useNavigate();
-
   const [currentAudio, setCurrentAudio] = useState(null);
   const handlePlayAudio = (audioId) => {
     setCurrentAudio(audioId);
   }
+  const location = useLocation();
+  const message = location.state?.message;
 
   return (
     <div className="App">
       <Header onSwitchPage={(page) => navigate(page)} />
       <main className="p-6">
+        {message && <p className="text-green">{message}</p>}
         <Routes>
           <Route path="/" element={<TileMain onPlayAudio={handlePlayAudio} />} />
           <Route path="/publish" element={<PublishMain />} />

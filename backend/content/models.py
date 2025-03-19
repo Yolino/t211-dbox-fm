@@ -2,6 +2,7 @@ from django.db import models, transaction
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
+from .validators import validate_image, validate_audio
 
 class Tag(models.Model):
     name = models.CharField(max_length=30)
@@ -12,10 +13,10 @@ class Tag(models.Model):
 class Publication(models.Model):
     title = models.CharField(max_length=100)
     author = models.ForeignKey(User, on_delete=models.PROTECT)
-    cover = models.ImageField(upload_to="cover/", null=True, blank=True)
+    cover = models.ImageField(upload_to="cover/", validators=[validate_image], null=True, blank=True)
     tag = models.ForeignKey(Tag, on_delete=models.PROTECT)
     description = models.CharField(max_length=255, null=True, blank=True)
-    audio = models.FileField(upload_to="audio/")
+    audio = models.FileField(upload_to="audio/", validators=[validate_audio])
     view_count = models.PositiveIntegerField(default=0)
     vote_count = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True, blank=True)

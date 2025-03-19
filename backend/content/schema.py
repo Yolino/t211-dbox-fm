@@ -2,9 +2,11 @@ import graphene
 from graphene_django import DjangoObjectType
 from graphene_file_upload.scalars import Upload
 from graphql import GraphQLError
+from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 from django.conf import settings
 from .models import Publication, View, Vote, Comment, Tag
+from .validators import validate_image, validate_audio
 
 class PublicationType(DjangoObjectType):
     class Meta:
@@ -82,6 +84,17 @@ class CreatePublication(graphene.Mutation):
         except Tag.DoesNotExist:
             raise GraphQLError("This Tag does not exist")
         author = info.context.user
+
+        if cover:
+            try:
+                validate_image(cover)
+            except ValidationError:
+                raise GraphQLError("Invalid image file")
+        try:
+            validate_audio(audio)
+        except ValidationError:
+            raise GraphQLError("Invalid audio file")
+
         publication = Publication(title=title, cover=cover, tag=tag,description=description, audio=audio,author=author)
         publication.save()
         return CreatePublication(publication=publication)
