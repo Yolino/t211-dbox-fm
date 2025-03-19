@@ -45,6 +45,8 @@ const CommentMain = ({publicationId}) => {
   return (
     <div>
       <h3 className="text-lg font-semibold text-black mb-4">Comments</h3>
+      	<textarea className="mt-2 mb-2 h-8 w-full bg-gray-100 border-b-solid border-b-black border-b-2" placeholder="your comment..." />
+	<button className="mb-2 rounded-md pl-2 pr-2 pt-1 pb-1 text-gray-800 hover:text-white hover:bg-gray-800">comment</button>
       {commentTree.length > 0 ? (renderComments(commentTree)) : (
         <p className="text-gray-600 text-sm">No comments yet.</p>
       )}
