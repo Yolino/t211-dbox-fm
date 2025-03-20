@@ -99,6 +99,47 @@ class CreatePublication(graphene.Mutation):
         publication.save()
         return CreatePublication(publication=publication)
 
+class UpdatePublication(graphene.Mutation):
+    class Arguments:
+        publication_id = graphene.Int(required=True)
+        title = graphene.String()
+        cover = Upload()
+        tag = graphene.Int()
+        description = graphene.String()
+
+    success = graphene.Boolean()
+
+    def mutate(root, info, publication_id, title, cover, tag, description):
+        user = info.context.user
+        if not user.is_authenticated:
+            raise GraphQLError("You cannot update a Publication if you are not authenticated")
+        try:
+            publication = Publication.objects.get(id=publication_id)
+        except Publication.DoesNotExist:
+            raise GraphQLError("This Publication does not exist")
+        if not publication.author == user:
+            raise GraphQLError("You cannot update a Publication you do not own")
+        if not title and not cover and not tag and not description:
+            raise GraphQLError("You need to specify at least one field in order to update this publication")
+        if title:
+            publication.title = title
+        if cover:
+            try:
+                validate_image(cover)
+            except ValidationError as e:
+                raise GraphQLError(str(e))
+            publication.cover = cover
+        if tag:
+            try:
+                tag =Tag.objects.get(id=tag)
+            except Tag.DoesNotExist:
+                raise GraphQLError("This Tag does not exist")
+            publication.tag = tag
+        if description:
+            publication.description = description
+        publication.save()
+        return UpdatePublication(success=True)
+
 class DeletePublication(graphene.Mutation):
     class Arguments:
         publication_id = graphene.Int(required=True)
@@ -192,6 +233,7 @@ class CreateComment(graphene.Mutation):
     
 class Mutation(graphene.ObjectType):
     create_publication = CreatePublication.Field()
+    update_publication = UpdatePublication.Field()
     delete_publication = DeletePublication.Field()
     create_view = CreateView.Field()
     create_vote = CreateVote.Field()
