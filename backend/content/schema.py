@@ -88,12 +88,12 @@ class CreatePublication(graphene.Mutation):
         if cover:
             try:
                 validate_image(cover)
-            except ValidationError:
-                raise GraphQLError("Invalid image file")
+            except ValidationError as e:
+                raise GraphQLError(str(e))
         try:
             validate_audio(audio)
-        except ValidationError:
-            raise GraphQLError("Invalid audio file")
+        except ValidationError as e:
+            raise GraphQLError(str(e))
 
         publication = Publication(title=title, cover=cover, tag=tag,description=description, audio=audio,author=author)
         publication.save()

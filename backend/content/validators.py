@@ -7,7 +7,7 @@ import subprocess
 def validate_extension(file, allowed_extensions):
     extension = file.name.split(".")[-1].lower()
     if extension not in allowed_extensions:
-        raise ValidationError(f"Unsupported file extension, expected {extensions}")
+        raise ValidationError(f"Unsupported file extension, expected {allowed_extensions}")
 
 def validate_image_extension(image):
     validate_extension(image, ("jpeg", "jpg", "png"))
@@ -48,20 +48,14 @@ def validate_image_corruption(image):
     img.verify()
 
 def validate_image(image):
-    try:
-        validate_image_extension(image)
-        validate_image_mime(image)
-        validate_image_size(image)
-        validate_image_dimensions(image)
-        validate_image_corruption(image)
-    except:
-        raise ValidationError("Invalid image file")
+    validate_image_extension(image)
+    validate_image_mime(image)
+    validate_image_size(image)
+    validate_image_dimensions(image)
+    validate_image_corruption(image)
 
 def validate_audio(audio):
-    try:
-        validate_audio_extension(audio)
-        validate_audio_mime(audio)
-        validate_audio_size(audio)
-    except:
-        raise ValidationError("Invalid audio type")
+    validate_audio_extension(audio)
+    validate_audio_mime(audio)
+    validate_audio_size(audio)
 
