@@ -1,9 +1,7 @@
 import React from "react";
 import DroppableSlot from "./DroppableSlot.tsx";
-import { useMutation } from "@apollo/client";
-//import DELETE_SCHEDULING_MUTATION from "../graphql/deleteSchedulingMutation";
 
-const FmSchedule = ({ date, schedule, incrementDate, handleDrop }) => {
+const FmSchedule = ({ date, schedule, incrementDate, handleDrop, handleDeleteScheduling }) => {
   const startHour = 0;
   const endHour = 23;
   const timeSlots = Array.from({ length: endHour - startHour + 1 }, (_, index) => ({
@@ -11,6 +9,7 @@ const FmSchedule = ({ date, schedule, incrementDate, handleDrop }) => {
     start: startHour + index,
     end: startHour + index + 1,
   }));
+  
 
   return (
     <div className="w-1/4 mx-auto p-4 bg-gray-800 shadow-lg rounded-lg h-[800px] flex flex-col">
@@ -44,6 +43,7 @@ const FmSchedule = ({ date, schedule, incrementDate, handleDrop }) => {
               timeSlot={start}
               schedule={slotSchedule}
               handleDrop={handleDrop}
+              handleDeleteScheduling={handleDeleteScheduling}
             />
           );
         })}

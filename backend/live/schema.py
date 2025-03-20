@@ -59,6 +59,8 @@ class DeleteScheduling(graphene.Mutation):
             scheduling = Scheduling.objects.get(id=scheduling_id)
         except Scheduling.DoesNotExist:
             raise GraphQLError("This Scheduling does not exist")
+        if scheduling.time < timezone.now():
+            raise GraphQLError("The schedule for this date and time has already been fixed. You cannot update it")
         scheduling.delete()
         return DeleteScheduling(success=True)
 

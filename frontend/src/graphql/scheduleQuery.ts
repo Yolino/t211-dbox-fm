@@ -3,6 +3,7 @@ import { gql } from "@apollo/client";
 const SCHEDULE_QUERY = gql`
   query ScheduleQuery($date: Date) {
     schedule(date: $date) {
+      id
       publication {
         title
         author {

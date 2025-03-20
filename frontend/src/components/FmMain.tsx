@@ -5,6 +5,7 @@ import { usePrivileges } from "../context/PrivilegesContext.tsx";
 import { useQuery, useMutation } from "@apollo/client";
 import SCHEDULE_QUERY from "../graphql/scheduleQuery.ts";
 import CREATE_SCHEDULING_MUTATION from "../graphql/createSchedulingMutation.ts"
+import DELETE_SCHEDULING_MUTATION from "../graphql/deleteSchedulingMutation.tsx";
 import FmSchedule from "./FmSchedule.tsx";
 import FmUpdate from "./FmUpdate.tsx";
 
@@ -37,12 +38,23 @@ const FmMain = () => {
       setErrorMessage(err.message);
     });
   };
+  const [deleteScheduling] = useMutation(DELETE_SCHEDULING_MUTATION);
+  const handleDeleteScheduling = (schedulingId) => {
+    setErrorMessage("");
+    deleteScheduling({
+      variables : { schedulingId: +schedulingId },
+    }).then(() => {
+        refetch();
+      }).catch((err) => {
+        setErrorMessage(err.message);
+      });
+  };
 
   return (
     <DndProvider backend={HTML5Backend}>
       {errorMessage && <div className="mb-4 text-center text-sm text-red-600">{errorMessage}</div>}
       <div className="flex justify-center items-center">
-        <FmSchedule date={date} schedule={schedule} incrementDate={incrementDate} handleDrop={handleDrop} />
+        <FmSchedule date={date} schedule={schedule} incrementDate={incrementDate} handleDrop={handleDrop} handleDeleteScheduling={privileges?.isModerator ? handleDeleteScheduling : null} />
         {privileges?.isModerator && <FmUpdate />}
       </div>
     </DndProvider>
