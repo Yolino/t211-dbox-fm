@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { Routes, Route, useNavigate, useParams, useLocation } from "react-router-dom";
-import Header from "../components/Header.tsx";
-import TileMain from "../components/TileMain.tsx";
+import Header from "../components/header/Header.tsx";
+import TileMain from "../components/tiles/TileMain.tsx";
 import PublishMain from "../components/PublishMain.tsx";
-import ProfileMain from "../components/ProfileMain.tsx";
-import FmMain from "../components/FmMain.tsx";
+import ProfileMain from "../components/profile/ProfileMain.tsx";
+import FmMain from "../components/fm/FmMain.tsx";
 import ModerationMain from "../components/ModerationMain.tsx";
 import AudioPlayer from "../components/AudioPlayer.tsx";
 

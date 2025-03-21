@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { usePrivileges } from "../context/PrivilegesContext.tsx";
+import { usePrivileges } from "../../context/PrivilegesContext.tsx";
 import LoginCard from "./LoginCard.tsx";
 import SignupCard from "./SignupCard.tsx";
 import HeaderProfile from "./HeaderProfile.tsx";

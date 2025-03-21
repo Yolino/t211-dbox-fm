@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "@apollo/client";
-import LOGOUT_MUTATION from "../graphql/logoutMutation.ts";
+import LOGOUT_MUTATION from "../../graphql/logoutMutation.ts";
 
 const HeaderProfile = ({ onSwitchPage }) => {
   const navigate = useNavigate();

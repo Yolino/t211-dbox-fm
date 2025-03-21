@@ -1,6 +1,6 @@
 import React from "react";
 import { useQuery } from "@apollo/client";
-import PUBLICATION_DETAIL_QUERY from "../graphql/publicationDetailQuery.ts";
+import PUBLICATION_DETAIL_QUERY from "../../graphql/publicationDetailQuery.ts";
 import CommentMain from "./CommentMain.tsx";
 
 const TileExpanded = ({ tileId }) => {

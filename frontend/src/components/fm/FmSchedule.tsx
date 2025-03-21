@@ -1,4 +1,5 @@
 import React from "react";
+import MainBlock from "../MainBlock.tsx";
 import DroppableSlot from "./DroppableSlot.tsx";
 
 const FmSchedule = ({ date, schedule, incrementDate, handleDrop, handleDeleteScheduling }) => {
@@ -8,11 +9,10 @@ const FmSchedule = ({ date, schedule, incrementDate, handleDrop, handleDeleteSch
     label: `${startHour + index}:00`,
     start: startHour + index,
     end: startHour + index + 1,
-  }));
-  
+  })); 
 
   return (
-    <div className="w-1/4 mx-auto p-4 bg-gray-800 shadow-lg rounded-lg h-[800px] flex flex-col">
+    <MainBlock style="w-1/4">
       <div className="flex justify-center items-center space-x-10">
         <button
           onClick={() => { incrementDate(-1) }}
@@ -48,7 +48,7 @@ const FmSchedule = ({ date, schedule, incrementDate, handleDrop, handleDeleteSch
           );
         })}
       </div>
-    </div>
+    </MainBlock>
   );
 };
 

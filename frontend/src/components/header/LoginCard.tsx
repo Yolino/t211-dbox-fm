@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { useMutation } from "@apollo/client";
-import LOGIN_MUTATION from "../graphql/loginMutation.ts";
+import LOGIN_MUTATION from "../../graphql/loginMutation.ts";
+import CloseIcon from "../../svg/CloseIcon.tsx";
+import ProfileIcon from "../../svg/ProfileIcon.tsx";
+import PasswordIcon from "../../svg/PasswordIcon.tsx";
 
 interface LoginCardProps {
   onClose: () => void;
@@ -40,20 +43,7 @@ const LoginCard = ({ onClose, onLoginSuccess }: LoginCardProps) => {
           onClick={onClose}
           className="absolute top-4 right-4 p-2 text-gray-500 hover:text-gray-700 transition-colors duration-200"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
+          <CloseIcon />
         </button>
 
         {/* Title */}
@@ -77,20 +67,7 @@ const LoginCard = ({ onClose, onLoginSuccess }: LoginCardProps) => {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
               />
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 text-gray-400 absolute left-3 top-3.5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                />
-              </svg>
+              <ProfileIcon />
             </div>
           </div>
 
@@ -108,20 +85,7 @@ const LoginCard = ({ onClose, onLoginSuccess }: LoginCardProps) => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 text-gray-400 absolute left-3 top-3.5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                />
-              </svg>
+              <PasswordIcon />
             </div>
           </div>
 

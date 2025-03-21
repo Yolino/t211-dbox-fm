@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { usePrivileges } from "../context/PrivilegesContext.tsx";
+import { usePrivileges } from "../../context/PrivilegesContext.tsx";
 import { useQuery, useMutation } from "@apollo/client";
-import SCHEDULE_QUERY from "../graphql/scheduleQuery.ts";
-import CREATE_SCHEDULING_MUTATION from "../graphql/createSchedulingMutation.ts"
-import DELETE_SCHEDULING_MUTATION from "../graphql/deleteSchedulingMutation.tsx";
+import SCHEDULE_QUERY from "../../graphql/scheduleQuery.ts";
+import CREATE_SCHEDULING_MUTATION from "../../graphql/createSchedulingMutation.ts"
+import DELETE_SCHEDULING_MUTATION from "../../graphql/deleteSchedulingMutation.tsx";
 import FmSchedule from "./FmSchedule.tsx";
 import FmUpdate from "./FmUpdate.tsx";
 

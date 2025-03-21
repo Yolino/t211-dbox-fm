@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import TileGroup from "./TileGroup.tsx";
 import TileExpanded from "./TileExpanded.tsx";
 import { useMutation } from "@apollo/client";
-import CREATE_VIEW_MUTATION from "../graphql/createViewMutation.ts";
+import CREATE_VIEW_MUTATION from "../../graphql/createViewMutation.ts";
 
 const TileMain = ({ onPlayAudio }) => {
   const SORT_TYPES = ["-created_at", "-vote_count"];

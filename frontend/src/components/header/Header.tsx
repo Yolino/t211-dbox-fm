@@ -1,5 +1,5 @@
 import React from "react";
-import { usePrivileges } from "../context/PrivilegesContext.tsx";
+import { usePrivileges } from "../../context/PrivilegesContext.tsx";
 import RedirectButton from "./RedirectButton.tsx";
 import HeaderAccount from "./HeaderAccount.tsx";
 
@@ -11,7 +11,7 @@ const Header = ({ onSwitchPage }) => {
       <div id="logoDbox" onClick={() => { onSwitchPage("/"); }}>
         <p className="font-bold text-5xl">Dbox</p>
       </div>
-      <div id="searchDiv" className="flex-grow mx-16"> {/* Ajoute une marge à gauche pour l'espacement */}
+      <div id="searchDiv" className="flex-grow mx-16">
         <input
           id="searchBar"
           type="text"

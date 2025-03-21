@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useMutation } from "@apollo/client";
-import DELETE_PUBLICATION_MUTATION from "../graphql/deletePublicationMutation.tsx";
+import DELETE_PUBLICATION_MUTATION from "../../graphql/deletePublicationMutation.tsx";
 import DeletePublicationCard from "./DeletePublicationCard.tsx";
 
 interface Publication {

@@ -1,7 +1,7 @@
 import React from "react";
 import { useQuery } from "@apollo/client";
 import Tile from "./Tile.tsx";
-import PUBLICATIONS_QUERY from "../graphql/publicationsQuery.ts";
+import PUBLICATIONS_QUERY from "../../graphql/publicationsQuery.ts";
 
 interface TileGroupProps {
   orderBy: string;

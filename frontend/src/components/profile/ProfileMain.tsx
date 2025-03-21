@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useQuery } from "@apollo/client";
-import PROFILE_QUERY from "../graphql/profileQuery.ts";
-import ProfileTile from "../components/ProfileTile.tsx";
+import PROFILE_QUERY from "../../graphql/profileQuery.ts";
+import MainBlock from "../MainBlock.tsx";
+import ProfileTile from "./ProfileTile.tsx";
 
 const ProfileMain = ({ username }) => {
   const [expandedTile, setExpandedTile] = useState(null);
@@ -17,7 +18,7 @@ const ProfileMain = ({ username }) => {
   if (error) return <p className="text-center text-red-500">Error</p>;
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-gray-800 rounded-lg shadow-lg">
+    <MainBlock>
       <div className="text-center">
         <h1 className="text-3xl font-bold text-white">{profile.user.username}</h1>
         {profile.isSelf && (
@@ -40,7 +41,7 @@ const ProfileMain = ({ username }) => {
           ))}
         </ul>
       </div>
-    </div>
+    </MainBlock>
   );
 };
 
