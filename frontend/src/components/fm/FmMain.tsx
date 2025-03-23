@@ -5,7 +5,7 @@ import { usePrivileges } from "../../context/PrivilegesContext.tsx";
 import { useQuery, useMutation } from "@apollo/client";
 import SCHEDULE_QUERY from "../../graphql/scheduleQuery.ts";
 import CREATE_SCHEDULING_MUTATION from "../../graphql/createSchedulingMutation.ts"
-import DELETE_SCHEDULING_MUTATION from "../../graphql/deleteSchedulingMutation.tsx";
+import DELETE_SCHEDULING_MUTATION from "../../graphql/deleteSchedulingMutation.ts";
 import FmSchedule from "./FmSchedule.tsx";
 import FmUpdate from "./FmUpdate.tsx";
 

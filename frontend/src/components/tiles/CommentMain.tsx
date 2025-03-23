@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useQuery, useMutation } from "@apollo/client";
 import COMMENT_QUERY from "../../graphql/commentQuery.ts";
-import CREATE_COMMENT_MUTATION from "../../graphql/createCommentMutation.tsx";
+import CREATE_COMMENT_MUTATION from "../../graphql/createCommentMutation.ts";
 import CommentTile from "./CommentTile.tsx";
 
 const CommentMain = ({ publicationId }) => {

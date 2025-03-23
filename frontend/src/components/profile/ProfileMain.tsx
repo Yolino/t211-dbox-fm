@@ -20,7 +20,7 @@ const ProfileMain = ({ username }) => {
   return (
     <MainBlock>
       <div className="text-center">
-        <h1 className="text-3xl font-bold text-white">{profile.user.username}</h1>
+        <h1 className="text-3xl font-bold text-white">User Profile - {profile.user.username}</h1>
         {profile.isSelf && (
           <p className="mt-2 text-sm text-gray-400">This is your profile</p>
         )}
@@ -31,12 +31,13 @@ const ProfileMain = ({ username }) => {
         <ul className="space-y-4">
           {profile.publications.map((p, i) => (
             <ProfileTile
+              key={i}
               publication={p}
               index={i} 
               isSelf={profile.isSelf}
               onEdit={() => { setExpandedTile(i) }}
               isExpanded={ i === expandedTile }
-              onDeletePublication={refetchProfile}
+              onProfileUpdate={refetchProfile}
             />
           ))}
         </ul>

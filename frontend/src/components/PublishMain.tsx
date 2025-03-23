@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { usePrivileges } from "../context/PrivilegesContext.tsx";
 import { useMutation, useQuery } from "@apollo/client";
-import CREATE_PUBLICATION_MUTATION from "../graphql/createPublicationMutation.tsx";
+import CREATE_PUBLICATION_MUTATION from "../graphql/createPublicationMutation.ts";
 import TAGS_QUERY from "../graphql/tagsQuery.ts";
 import MainBlock from "./MainBlock.tsx";
 
@@ -24,7 +24,7 @@ const PublishButton = () => {
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setPublication({
       ...publication,
-      [event.target.name]: event.target.type === "number" ? Number(event.target.value) : event.target.value,
+      [event.target.name]: event.target.value,
     });
   };
 

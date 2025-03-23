@@ -1,7 +1,11 @@
 import React, { useState } from "react";
-import { useMutation } from "@apollo/client";
-import DELETE_PUBLICATION_MUTATION from "../../graphql/deletePublicationMutation.tsx";
+import { useQuery, useMutation } from "@apollo/client";
+import TAGS_QUERY from "../../graphql/tagsQuery.ts";
+import UPDATE_PUBLICATION_MUTATION from "../../graphql/updatePublicationMutation.ts";
+import DELETE_PUBLICATION_MUTATION from "../../graphql/deletePublicationMutation.ts";
 import DeletePublicationCard from "./DeletePublicationCard.tsx";
+import EditIcon from "../../svg/EditIcon.tsx";
+import DeleteIcon from "../../svg/DeleteIcon.tsx";
 
 interface Publication {
   id: number;
@@ -20,7 +24,7 @@ interface ProfileTileProps {
   onDeletePublication: () => void;
 };
 
-const ProfileType = ({ publication, index, isSelf, onEdit, isExpanded, onDeletePublication }: ProfileTileProps) => {
+const ProfileTile = ({ publication, index, isSelf, onEdit, isExpanded, onProfileUpdate }: ProfileTileProps) => {
   const [isDeleteCardOpen, setIsDeleteCardOpen] = useState(false);
   const handleDeleteClick = () => {
     setIsDeleteCardOpen(true);
@@ -29,34 +33,135 @@ const ProfileType = ({ publication, index, isSelf, onEdit, isExpanded, onDeleteP
     setIsDeleteCardOpen(false);
   };
 
-  const [error, setError] = useState("");
-  const [deletePublication, { loading }] = useMutation(DELETE_PUBLICATION_MUTATION, {
+  const [editedPublication, setEditedPublication] = useState({
+    title: "",
+    tag: NaN,
+    description: "",
+    cover: null as File | null,
+  });
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setEditedPublication({
+      ...editedPublication,
+      [event.target.name]: event.target.value,
+    });
+  };
+  const handleTagChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setEditedPublication({
+      ...editedPublication,
+      tag: Number(event.target.value),
+    });
+  };
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      setEditedPublication({
+        ...editedPublication,
+        [event.target.name]: event.target.files[0],
+      });
+    }
+  };
+
+  const { loading, error, data } = useQuery(TAGS_QUERY);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [updatePublication] = useMutation(UPDATE_PUBLICATION_MUTATION, {
     onCompleted: (data) => {
-      if (data.deletePublication.success) {
-        setError("");
-        setIsDeleteCardOpen(false);
-        onDeletePublication();
+      if (data.updatePublication.success) {
+        setErrorMessage("");
+        onProfileUpdate();
       }
     },
-    onError: (error) => {
-      setError(error);
+    onError: (err) => {
+      setErrorMessage(err.message);
     },
   });
-
+  const [deletePublication] = useMutation(DELETE_PUBLICATION_MUTATION, {
+    onCompleted: (data) => {
+      if (data.deletePublication.success) {
+        setErrorMessage("");
+        setIsDeleteCardOpen(false);
+        onProfileUpdate();
+      }
+    },
+    onError: (err) => {
+      setErrorMessage(err.message);
+    },
+  });
+  const handleEditPublication = (event: React.FormEvent) => {
+    event.preventDefault();
+    updatePublication({ variables: {
+      publicationId: +publication.id,
+      title: editedPublication.title === "" ? null : editedPublication.title,
+      tag: editedPublication.tag === +publication.tag.id ? null : editedPublication.tag,
+      description: editedPublication.description === "" ? null : editedPublication.description,
+      cover: editedPublication.cover,
+    }});
+  };
   const handleDeletePublication = (id) => {
     deletePublication({ variables: { publicationId: +id } });
   };
 
   return (
-    <div className="p-4 bg-gray-700 rounded-lg shadow-sm">
+    <div className="p-4 bg-gray-200 rounded-lg shadow-sm">
       <li key={index} className="flex justify-between items-center">
-        <h3 className="text-lg font-medium text-white">{publication.title}</h3>
+        <h3 className="text-lg font-bold text-gray-800">{publication.title}{isExpanded && " - Edit publication"}</h3>
         {isSelf && <div className="flex gap-2">
-          <button onClick={onEdit} className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400">Edit</button>
-          <button onClick={handleDeleteClick} className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400">Delete</button>
+          <EditIcon onClick={onEdit} />
+          <DeleteIcon onClick={handleDeleteClick} />
         </div>}
       </li>
-      {isExpanded && <p>This tile is expanded</p>}
+      {isExpanded && (
+        <form onSubmit={handleEditPublication} className="space-y-4 mt-4">
+          <div className="flex items-center gap-4 w-full">
+            <label className="w-1/6 font-bold text-gray-800 whitespace-nowrap">Title</label>
+            <input
+              type="text"
+              name="title"
+              placeholder={publication.title}
+              onChange={handleInputChange}
+              className="mt-0 w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div className="flex items-center gap-4 w-full">
+            <label className="w-1/6 font-bold text-gray-800 whitespace-nowrap">Tag</label>
+            <select
+              name="tag"
+              defaultValue={publication.tag.id}
+              onChange={handleTagChange}
+              className="mt-0 w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {data.tags.map((tag) => (
+                <option key={tag.id} value={tag.id}>
+                  {tag.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-center gap-4 w-full">
+            <label className="w-1/6 font-bold text-gray-800 whitespace-nowrap">Description</label>
+            <input
+              type="text"
+              name="description"
+              placeholder={publication.description}
+              onChange={handleInputChange}
+              className="mt-0 w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div className="flex items-center gap-4 w-full">
+            <label className="w-1/6 font-bold text-gray-800 whitespace-nowrap">Cover Image</label>
+            <input
+              type="file"
+              name="cover"
+              onChange={handleFileChange}
+              className="mt-0 w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <input
+            type="submit"
+            value="Edit"
+            className="w-full px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200"
+          />
+        </form>
+      )}
+      {errorMessage && <p className="mb-4 mt-1 text-sm text-center text-red-600">{errorMessage}</p>}
       {isDeleteCardOpen && (
         <DeletePublicationCard
           id={publication.id}
@@ -69,4 +174,4 @@ const ProfileType = ({ publication, index, isSelf, onEdit, isExpanded, onDeleteP
   );
 };
 
-export default ProfileType;
+export default ProfileTile;

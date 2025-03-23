@@ -11,6 +11,9 @@ const PROFILE_QUERY = gql`
         id
         title
         cover
+        tag {
+          id
+        }
         viewCount
         voteCount
       }
