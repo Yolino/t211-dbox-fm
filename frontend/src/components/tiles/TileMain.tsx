@@ -23,16 +23,27 @@ const TileMain = ({ onPlayAudio }) => {
 
   return (
     <div>
-      {SORT_TYPES.map((orderBy) => (
+      {SORT_TYPES.map((orderBy) => {
+	let groupTitle="Unexpected"
+
+	if(orderBy==="-created_at") {
+		groupTitle="Recent"
+	} else if (orderBy==="-vote_count") {
+		groupTitle="Most voted"
+		}
+
+	return (
         <React.Fragment key={orderBy}>
           <TileGroup
+	    groupTitle={groupTitle}
             orderBy={orderBy}
             onPlayAudio={handlePlayAudio}
             onTileClick={handleExpandTile}
           />
           {expandedTile?.groupId === orderBy && <TileExpanded tileId={expandedTile.tileId} />}
         </React.Fragment>
-      ))}
+	);
+      })}
     </div>
   );
 };
