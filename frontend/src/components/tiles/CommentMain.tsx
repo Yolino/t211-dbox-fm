@@ -43,7 +43,11 @@ const CommentMain = ({ publicationId }) => {
   const renderComments = (comments, level = -1) => {
     return comments.map((comment) => (
       <div key={comment.id}>
-        <CommentTile comment={comment} level={level} />
+        <CommentTile 
+          comment={comment} 
+          level={level} 
+          onReply={(replyText) => handleReply(comment.id, replyText)}
+        />
         {comment.children.length > 0 && renderComments(comment.children, level + 1)}
       </div>
     ));
@@ -65,6 +69,23 @@ const CommentMain = ({ publicationId }) => {
     }
   };
 
+  const handleReply = async (parentId, replyText) => {
+    if (!replyText.trim()) return;
+  
+    try {
+      await createComment({
+        variables: {
+          publication: +publicationId,
+          text: replyText,
+          parent: +parentId,
+        },
+      });
+    } catch (err) {
+      console.error("Failed to post reply:", err.message);
+      // Affichez un message d'erreur à l'utilisateur si nécessaire
+    }
+  };
+  
   return (
     <div>
       <h3 className="text-lg font-semibold text-black mb-4">Comments</h3>

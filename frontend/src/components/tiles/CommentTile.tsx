@@ -1,4 +1,4 @@
-import { React, useState } from "react";
+import React, { useState } from "react";
 
 interface Comment {
   id: number;
@@ -15,11 +15,18 @@ interface Comment {
 interface CommentProps {
   comment: Comment;
   level: number;
+  onReply: (replyText: string) => void;
 };
 
-const CommentTile = ({comment, level}: CommentProps) => {
-
+const CommentTile = ({ comment, level, onReply }: CommentProps) => {
   const [isVisible, setIsVisible] = useState(false);
+  const [replyText, setReplyText] = useState("");
+
+  const handleReplySubmit = () => {
+    onReply(replyText);
+    setReplyText("");
+    setIsVisible(false);
+  };
 
   return (
     <div key={comment.id} style={{ marginLeft: `${(level * 20) + 22}px` }}>
@@ -29,17 +36,26 @@ const CommentTile = ({comment, level}: CommentProps) => {
       </div>
       <p className="text-gray-600 text-sm mt-1">{comment.text}</p>
       <div className="flex">
-        <button onClick={() => setIsVisible(!isVisible)} className="h-7 text-xs text-gray-400 pl-2 pr-2 pt-1 pb-1 ml-5 mb-6 mt-1 rounded-md hover:text-white hover:bg-gray-800">reply</button>
+        <button 
+          onClick={() => setIsVisible(!isVisible)} 
+          className="h-7 text-xs text-gray-400 pl-2 pr-2 pt-1 pb-1 ml-5 mb-6 mt-1 rounded-md hover:text-white hover:bg-gray-800"
+        >
+          reply
+        </button>
         <div style={{ display: isVisible ? "block" : "none" }} className="w-1/3">
-      	  <textarea
-	    className="m-2 border-b-solid border-b-black border-b-2 bg-gray-100 h-7"
-	    placeholder="your reply..." 
-	  />
-	  <button 
-	    className="text-xs pl-2 pr-2 pt-1 pb-1 rounded-md text-white bg-gray-800">
-	    reply to comment
-	  </button>
-	</div>
+          <textarea
+            className="m-2 border-b-solid border-b-black border-b-2 bg-gray-100 h-7"
+            placeholder="your reply..."
+            value={replyText}
+            onChange={(e) => setReplyText(e.target.value)}
+          />
+          <button 
+            className="text-xs pl-2 pr-2 pt-1 pb-1 rounded-md text-white bg-gray-800"
+            onClick={handleReplySubmit}
+          >
+            reply to comment
+          </button>
+        </div>
       </div>
     </div>
   );
