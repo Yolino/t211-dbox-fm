@@ -102,6 +102,11 @@ const ProfileTile = ({ publication, index, isSelf, onEdit, isExpanded, onProfile
   return (
     <div className="p-4 bg-gray-200 rounded-lg shadow-sm">
       <li key={index} className="flex justify-between items-center">
+        {publication.cover && <img
+          className="h-16 object-cover rounded mb-2"
+          src={`http://localhost:8000${publication.cover}`}
+          alt={`Cover for ${publication.title}`}
+        />}
         <h3 className="text-lg font-bold text-gray-800">{publication.title}{isExpanded && " - Edit publication"}</h3>
         {isSelf && <div className="flex gap-2">
           <EditIcon onClick={onEdit} />

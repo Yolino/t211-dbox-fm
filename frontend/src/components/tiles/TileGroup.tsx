@@ -1,15 +1,17 @@
-import React from "react";
+import React, { useState } from "react";
 import { useQuery } from "@apollo/client";
 import Tile from "./Tile.tsx";
 import PUBLICATIONS_QUERY from "../../graphql/publicationsQuery.ts";
+import ShowMoreIcon from "../../svg/ShowMoreIcon.tsx";
 
 interface TileGroupProps {
   orderBy: string;
 }
 
 const TileGroup = ({ groupTitle="Default", orderBy="-created_at", onPlayAudio, onTileClick }: TileGroupProps) => {
+  const [count, setCount] = useState(6);
   const { loading, error, data } = useQuery(PUBLICATIONS_QUERY, {
-    variables: { orderBy },
+    variables: { orderBy, count },
   });
   const pubs = data?.publications || [];
   
@@ -29,6 +31,12 @@ const TileGroup = ({ groupTitle="Default", orderBy="-created_at", onPlayAudio, o
             onTileClick={onTileClick}
           />
         ))}
+        <button
+          onClick={() => setCount(count + 6)}
+          className="flex justify-center items-center w-12 h-12 rounded-full bg-gray-200 text-gray-800 hover:bg-gray-300 focus:outline-none"
+        >
+          <ShowMoreIcon />
+        </button>
       </div>
     </div>
   );

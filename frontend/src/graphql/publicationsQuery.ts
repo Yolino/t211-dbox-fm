@@ -1,8 +1,8 @@
 import { gql } from "@apollo/client";
 
 const PUBLICATIONS_QUERY = gql`
-  query PublicationsQuery($orderBy: String!) {
-    publications(orderBy: $orderBy) {
+  query PublicationsQuery($count: Int!, $orderBy: String!) {
+    publications(count: $count, orderBy: $orderBy) {
       id
       title
       cover

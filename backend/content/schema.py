@@ -41,7 +41,7 @@ class TagType(DjangoObjectType):
 
 class Query(graphene.ObjectType):
     publication = graphene.Field(PublicationType, id=graphene.Int(required=True))
-    publications = graphene.List(graphene.NonNull(PublicationType), order_by=graphene.String(), author=graphene.String())
+    publications = graphene.List(graphene.NonNull(PublicationType), count=graphene.Int(), order_by=graphene.String(), author=graphene.String())
     commentsByPublication = graphene.List(graphene.NonNull(CommentType), publicationId=graphene.Int(required=True))
     tags= graphene.List(TagType)
    
@@ -52,12 +52,14 @@ class Query(graphene.ObjectType):
             raise GraphQLError("This Publication does not exist")
         return publication
 
-    def resolve_publications(root, info, order_by=None, author=None):
+    def resolve_publications(root, info, count=None, order_by=None, author=None):
         result = Publication.objects.select_related("author")
         if author:
             result = result.filter(author__username__iexact=author)
         if order_by:
             result = result.order_by(order_by)
+        if count and len(result) > count :
+            result = result[:count]
         return result
     
     def resolve_tags(root, info):
