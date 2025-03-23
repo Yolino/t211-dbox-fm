@@ -27,12 +27,15 @@ const CommentTile = ({ comment, level, onReply }: CommentProps) => {
     setReplyText("");
     setIsVisible(false);
   };
+  // Formater la date
+  const date = new Date(comment.createdAt);
+  const formattedDateComment = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
 
   return (
     <div key={comment.id} style={{ marginLeft: `${(level * 20) + 22}px` }}>
       <div className="flex items-center justify-between">
         <p className="text-gray-700 font-medium">{comment.author.username}</p>
-        <p className="text-gray-400 text-xs">{comment.createdAt}</p>
+        <p className="text-gray-400 text-xs">{formattedDateComment}</p>
       </div>
       <p className="text-gray-600 text-sm mt-1">{comment.text}</p>
       <div className="flex">

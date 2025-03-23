@@ -12,6 +12,9 @@ const TileExpanded = ({ tileId }) => {
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error</p>;
+  // Formater la date
+  const date = new Date(publication.createdAt);
+  const formattedDatePublication = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
 
   return (
     <div className="w-full p-6 bg-gray-100 rounded-lg shadow-md mt-4 animate-fade-in">
@@ -29,7 +32,7 @@ const TileExpanded = ({ tileId }) => {
             <h2 className="text-xl font-bold text-black">{publication.title}</h2>
             <button className="text-gray-600 hover:text-black transition-colors"></button>
           </div>
-          <p className="text-gray-700">by {publication.author.username} on {publication.createdAt}</p>
+          <p className="text-gray-700">by {publication.author.username} on {formattedDatePublication}</p>
           <p className="text-gray-600 text-sm mt-2">{publication.description || "No description available."}</p>
           <p className="text-gray-400 text-xs mt-2">{publication.viewCount} views</p>
           <p className="text-gray-400 text-xs mt-2">{publication.voteCount} votes</p>
