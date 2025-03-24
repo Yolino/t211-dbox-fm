@@ -30,8 +30,8 @@ const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote }: Tile
         publicationId: +publication.id,
         voteType: type,
       },
+      onCompleted: onTileVote,
     });
-    onTileVote();
   };
 
   return (

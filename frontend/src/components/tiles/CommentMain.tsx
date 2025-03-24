@@ -5,6 +5,7 @@ import CREATE_COMMENT_MUTATION from "../../graphql/createCommentMutation.ts";
 import CommentTile from "./CommentTile.tsx";
 
 const CommentMain = ({ publicationId }) => {
+  const [enabledCommentZone, setEnabledCommentZone] = useState(null);
   const [commentText, setCommentText] = useState("");
   const { loading, error, data } = useQuery(COMMENT_QUERY, {
     variables: { publicationId: +publicationId },
@@ -47,6 +48,8 @@ const CommentMain = ({ publicationId }) => {
           comment={comment} 
           level={level} 
           onReply={(replyText) => handleReply(comment.id, replyText)}
+          onEnableCommentZone={setEnabledCommentZone}
+          enableCommentZone={enabledCommentZone === comment.id}
         />
         {comment.children.length > 0 && renderComments(comment.children, level + 1)}
       </div>
