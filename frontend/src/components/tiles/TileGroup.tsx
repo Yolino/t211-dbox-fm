@@ -35,12 +35,14 @@ const TileGroup = ({ groupTitle="Default", orderBy="-created_at", onPlayAudio, o
             onTileVote={onTileVote}
           />
         ))}
+        <div className="flex items-center justify-center">
         <button
           onClick={() => setCount(count + 6)}
-          className="flex justify-center items-center w-12 h-12 rounded-full bg-gray-200 text-gray-800 hover:bg-gray-300 focus:outline-none"
+          className="flex justify-center items-center w-16 h-16 rounded-full bg-gray-200 text-gray-800 hover:bg-gray-300 focus:outline-none"
         >
           <ShowMoreIcon />
         </button>
+        </div>
       </div>
     </div>
   );
