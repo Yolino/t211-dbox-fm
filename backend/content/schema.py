@@ -19,6 +19,16 @@ class PublicationType(DjangoObjectType):
             return root.cover.url
         return None
 
+    visitor_vote = graphene.String()
+    def resolve_visitor_vote(root, info):
+        user = info.context.user
+        if user.is_authenticated:
+            try:
+                return Vote.objects.get(publication=root, user=user).type
+            except Vote.DoesNotExist:
+                return None
+        return None
+
 class ViewType(DjangoObjectType):
     class Meta:
         model = View
@@ -193,6 +203,8 @@ class CreateVote(graphene.Mutation):
         user = info.context.user
         if not user.is_authenticated:
             return CreateVote(vote_count=None)
+        if abs(type) > 1 and not user.is_staff:
+            raise GraphQLError("You cannot have such a weight for your vote")
         if Vote.objects.filter(publication_id=publication_id, user=user).exists():
             return CreateVote(vote_count=None)
         

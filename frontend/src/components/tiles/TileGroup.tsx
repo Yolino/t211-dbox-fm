@@ -10,9 +10,12 @@ interface TileGroupProps {
 
 const TileGroup = ({ groupTitle="Default", orderBy="-created_at", onPlayAudio, onTileClick }: TileGroupProps) => {
   const [count, setCount] = useState(6);
-  const { loading, error, data } = useQuery(PUBLICATIONS_QUERY, {
+  const { loading, error, data, refetch } = useQuery(PUBLICATIONS_QUERY, {
     variables: { orderBy, count },
   });
+  const onTileVote = () => {
+    refetch();
+  };
   const pubs = data?.publications || [];
   
   if (loading) return <p>Loading...</p>
@@ -29,6 +32,7 @@ const TileGroup = ({ groupTitle="Default", orderBy="-created_at", onPlayAudio, o
             group={orderBy}
             onPlayAudio={onPlayAudio}
             onTileClick={onTileClick}
+            onTileVote={onTileVote}
           />
         ))}
         <button

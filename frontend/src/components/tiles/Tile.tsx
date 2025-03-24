@@ -1,4 +1,8 @@
 import React from "react";
+import { useMutation } from "@apollo/client";
+import CREATE_VOTE_MUTATION from "../../graphql/createVoteMutation.ts";
+import UpvoteIcon from "../../svg/UpvoteIcon.tsx";
+import DownvoteIcon from "../../svg/DownvoteIcon.tsx";
 
 interface Author {
   username: string;
@@ -10,6 +14,7 @@ interface Publication {
   cover: string;
   voteCount: number;
   author: Author;
+  visitorVote: number;
 }
 
 interface TileProps {
@@ -17,7 +22,18 @@ interface TileProps {
   group: string;
 }
 
-const Tile = ({ publication, group, onPlayAudio, onTileClick }: TileProps) => {
+const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote }: TileProps) => {
+  const [vote] = useMutation(CREATE_VOTE_MUTATION);
+  const handleVote = (type) => {
+    vote({
+      variables: {
+        publicationId: +publication.id,
+        voteType: type,
+      },
+    });
+    onTileVote();
+  };
+
   return (
     <div
       className="group flex-shrink-0 w-48 p-4 bg-gray-100 rounded-lg shadow-md hover:bg-gray-200 hover:scale-105 hover:shadow-lg transition-all duration-300 relative"
@@ -60,51 +76,19 @@ const Tile = ({ publication, group, onPlayAudio, onTileClick }: TileProps) => {
         <div className="flex items-center justify-between mt-2">
           <p className="text-gray-400 text-xs">{publication.voteCount} votes</p>
 
-          {/* Boutons Like et Menu au survol */}
           <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            {/* Bouton vote déplacé légèrement à gauche */}
             <button
-              className="p-1 bg-gray-200 rounded-full hover:bg-gray-300 transition-colors duration-200"
-              onClick={(e) => {
-                e.preventDefault();
-                console.log("Liked!");
-              }}
+              className={`p-1 ${publication.visitorVote > 0 ? "bg-green-300" : "bg-gray-200"} rounded-full hover:bg-gray-300 transition-colors duration-200`}
+              onClick={() => { handleVote(1) }}
             >
-              <svg className="w-4 h-4 text-gray-600" 
-	      	      aria-hidden="true" 
-		            xmlns="http://www.w3.org/2000/svg" 
-		            fill="none"
-		            viewBox="0 0 10 14">
-    	          <path stroke="currentColor" 
-	      	        strokeLinecap="round" 
-		              strokeLinejoin="round" 
-		              strokeWidth="2" 
-		              d="M5 13V1m0 0L1 5m4-4 4 4"
-                />
-              </svg>
-            </button>
-
-            {/* Bouton Down vote déplacé légèrement à gauche */}
+              <UpvoteIcon />
+            </button> 
 
             <button
-              className="p-1 bg-gray-200 rounded-full hover:bg-gray-300 transition-colors duration-200"
-              onClick={(e) => {
-                e.preventDefault();
-                console.log("Liked!");
-              }}
+              className={`p-1 ${publication.visitorVote < 0 ? "bg-red-300" : "bg-gray-200"} rounded-full hover:bg-gray-300 transition-colors duration-200`}
+              onClick={() => { handleVote(-1) }}
             >
-              <svg className="w-4 h-4 text-gray-600" 
-	      	      aria-hidden="true" 
-		            xmlns="http://www.w3.org/2000/svg" 
-		            fill="none"
-		            viewBox="0 0 10 14">
-    	          <path stroke="currentColor" 
-	      	        strokeLinecap="round"
-		              strokeLinejoin="round" 
-		              strokeWidth="2" 
-		              d="M5 1v12m0 0 4-4m-4 4L1 9"
-                />
-              </svg>
+              <DownvoteIcon />
             </button>
           </div>
         </div>

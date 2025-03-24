@@ -133,6 +133,8 @@ const ProfileTile = ({ publication, index, isSelf, onEdit, isExpanded, onProfile
               onChange={handleTagChange}
               className="mt-0 w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
+              {loading && <option disabled>Loading...</option>}
+              {error && <option disabled>Error</option>}
               {data.tags.map((tag) => (
                 <option key={tag.id} value={tag.id}>
                   {tag.name}

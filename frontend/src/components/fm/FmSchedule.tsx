@@ -12,7 +12,7 @@ const FmSchedule = ({ date, schedule, incrementDate, handleDrop, handleDeleteSch
   })); 
 
   return (
-    <MainBlock style="w-1/4">
+    <MainBlock styleClass="w-1/4">
       <div className="flex justify-center items-center space-x-10">
         <button
           onClick={() => { incrementDate(-1) }}

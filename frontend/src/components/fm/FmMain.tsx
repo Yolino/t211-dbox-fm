@@ -54,6 +54,8 @@ const FmMain = () => {
     <DndProvider backend={HTML5Backend}>
       {errorMessage && <div className="mb-4 text-center text-sm text-red-600">{errorMessage}</div>}
       <div className="flex justify-center items-center">
+        {loading && <p>Loading...</p>}
+        {error && <p>Error</p>}
         <FmSchedule date={date} schedule={schedule} incrementDate={incrementDate} handleDrop={handleDrop} handleDeleteScheduling={privileges?.isModerator ? handleDeleteScheduling : null} />
         {privileges?.isModerator && <FmUpdate />}
       </div>

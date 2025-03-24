@@ -1,7 +1,7 @@
 import { gql } from "@apollo/client";
 
 const PUBLICATIONS_QUERY = gql`
-  query PublicationsQuery($count: Int!, $orderBy: String!) {
+  query PublicationsQuery($count: Int, $orderBy: String!) {
     publications(count: $count, orderBy: $orderBy) {
       id
       title
@@ -10,6 +10,7 @@ const PUBLICATIONS_QUERY = gql`
       author {
         username
       }
+      visitorVote
     }
   }
 `;

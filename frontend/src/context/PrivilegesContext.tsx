@@ -15,7 +15,7 @@ interface Privileges {
 
 export const PrivilegesProvider = ({ children }: PrivilegesProviderProps) => {
   const [privileges, setPrivileges] = useState<Privileges | null>(null);
-  const { loading, error, data, refetch } = useQuery(ME_QUERY);
+  const { data, refetch } = useQuery(ME_QUERY);
 
   React.useEffect(() => {
     if (data) { setPrivileges(data.me) }

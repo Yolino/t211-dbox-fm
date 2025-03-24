@@ -11,10 +11,12 @@ const FmUpdate = () => {
   const publications = data?.publications || [];
 
   return (
-    <MainBlock style="w-1/4">
+    <MainBlock styleClass="w-1/4">
       <h2 className="text-2xl text-center font-bold text-white mt-6 mb-4">Popular publications</h2>
       <p className="text-white text-center mb-6">Drag any publication to the schedule</p>
       <div className="flex-1 overflow-y-auto space-y-4 px-2 max-h-[700px]">
+        {loading && <p>Loading...</p>}
+        {error && <p>Error</p>}
         {publications.map((publication) => (
           <DraggablePublication key={publication.id} publication={publication} />
         ))}
