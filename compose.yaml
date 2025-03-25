@@ -25,7 +25,7 @@ services:
       - django_key
     volumes:
       - ./backend:/app
-      - media_files:/app/backend/media
+      - media_files:/media
     ports:
       - "8000:8000"
     depends_on:
@@ -38,7 +38,7 @@ services:
     container_name: frontend
     volumes:
       - ./frontend:/app:cache
-      - /app/node_modules 
+      - node_modules:/app/node_modules 
     ports: 
       - "3000:3000"
     depends_on:
@@ -57,3 +57,4 @@ secrets:
 volumes:
   db_data:
   media_files:
+  node_modules:
