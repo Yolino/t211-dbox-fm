@@ -37,6 +37,5 @@ db_data/
 .vscode/*
 
 #backend
-**/migrations/
 **/media/
 **/audio/
