@@ -25,7 +25,7 @@ const HomePage = () => {
   return (
     <div className="App">
       <Header onSwitchPage={(page) => navigate(page)} />
-      <main className="p-6">
+      <main className="p-6 mb-20">
         {message && <p className="text-green">{message}</p>}
         <Routes>
           <Route path="/" element={<TileMain onPlayAudio={handlePlayAudio} />} />

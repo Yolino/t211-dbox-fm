@@ -2,14 +2,15 @@ import React from "react";
 import { usePrivileges } from "../../context/PrivilegesContext.tsx";
 import RedirectButton from "./RedirectButton.tsx";
 import HeaderAccount from "./HeaderAccount.tsx";
+import Dbox from "../../svg/dbox-logo-white.svg"
 
 const Header = ({ onSwitchPage }) => {
   const { privileges } = usePrivileges();
 
   return (
-    <header className="flex justify-between items-center p-4 bg-gray-800 text-white">
+    <header className="flex justify-between items-center p-4 bg-gray-800 text-white hover:cursor-pointer">
       <div id="logoDbox" onClick={() => { onSwitchPage("/"); }}>
-        <p className="font-bold text-5xl">Dbox</p>
+        <img className="h-20" src={Dbox} />
       </div>
       <div id="searchDiv" className="flex-grow mx-16">
         <input
