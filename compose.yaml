@@ -1,11 +1,14 @@
 services:
   db:
-    image: postgres:alpine
+    build:
+      context: ./db
+      dockerfile: Dockerfile
     container_name: db
     secrets:
       - db_name
       - db_user
       - db_password
+      - db_django_password
     environment:
       - POSTGRES_DB_FILE=/run/secrets/db_name
       - POSTGRES_USER_FILE=/run/secrets/db_user
@@ -20,8 +23,7 @@ services:
     container_name: backend
     secrets:
       - db_name
-      - db_user
-      - db_password
+      - db_django_password
       - django_key
     volumes:
       - ./backend:/app
@@ -51,6 +53,8 @@ secrets:
     file: ./.secrets/db_user.txt
   db_password:
     file: ./.secrets/db_password.txt
+  db_django_password:
+    file: ./.secrets/db_django_password.txt
   django_key:
     file: ./.secrets/django_key.txt
 

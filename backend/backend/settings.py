@@ -87,8 +87,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': get_secret("db_name"),
-        'USER': get_secret("db_user"),
-        'PASSWORD': get_secret("db_password"),
+        'USER': 'django',
+        'PASSWORD': get_secret("db_django_password"),
         'HOST': 'db', # Refers to the 'db' container name from compose.yaml
         'PORT': 5432,
     }
