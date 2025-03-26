@@ -3,7 +3,8 @@ services:
     build:
       context: ./db
       dockerfile: Dockerfile
-    container_name: db
+    image: dbox-db:dev
+    container_name: dbox-db-dev
     secrets:
       - db_name
       - db_user
@@ -14,25 +15,26 @@ services:
       - POSTGRES_USER_FILE=/run/secrets/db_user
       - POSTGRES_PASSWORD_FILE=/run/secrets/db_password
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - dev_db_data:/var/lib/postgresql/data
     networks:
-      - orm
+      - dev_orm
 
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: backend
+    image: dbox-backend:dev
+    container_name: dbox-backend-dev
     secrets:
       - db_name
       - db_django_password
       - django_key
     volumes:
       - ./backend:/app
-      - media_files:/media
+      - dev_media_files:/media
     networks:
-      - orm
-      - api
+      - dev_orm
+      - dev_api
     ports:
       - "8000:8000"
     depends_on:
@@ -42,12 +44,13 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: frontend
+    image: dbox-frontend:dev
+    container_name: dbox-frontend-dev
     volumes:
       - ./frontend:/app:cache
-      - node_modules:/app/node_modules
+      - dev_node_modules:/app/node_modules
     networks:
-      - api
+      - dev_api
     ports: 
       - "3000:3000"
     depends_on:
@@ -55,21 +58,21 @@ services:
 
 secrets:
   db_name:
-    file: ./.secrets/db_name.txt
+    file: ./.secrets/dev/db_name.txt
   db_user:
-    file: ./.secrets/db_user.txt
+    file: ./.secrets/dev/db_user.txt
   db_password:
-    file: ./.secrets/db_password.txt
+    file: ./.secrets/dev/db_password.txt
   db_django_password:
-    file: ./.secrets/db_django_password.txt
+    file: ./.secrets/dev/db_django_password.txt
   django_key:
-    file: ./.secrets/django_key.txt
+    file: ./.secrets/dev/django_key.txt
 
 volumes:
-  db_data:
-  media_files:
-  node_modules:
+  dev_db_data:
+  dev_media_files:
+  dev_node_modules:
 
 networks:
-  api:
-  orm:
+  dev_api:
+  dev_orm:
