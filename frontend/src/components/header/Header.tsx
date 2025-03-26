@@ -10,7 +10,7 @@ const Header = ({ onSwitchPage }) => {
   return (
     <header className="flex justify-between items-center p-4 bg-gray-800 text-white hover:cursor-pointer">
       <div id="logoDbox" onClick={() => { onSwitchPage("/"); }}>
-        <img className="h-20" src={Dbox} />
+        <img className="h-20" src={Dbox} alt="Dbox logo" />
       </div>
       <div id="searchDiv" className="flex-grow mx-16">
         <input
