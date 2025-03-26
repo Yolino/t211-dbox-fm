@@ -1,0 +1,39 @@
+services:
+  db:
+    build:
+      context: ./db
+      dockerfile: Dockerfile
+    image: dbox-db:prod
+    container_name: dbox-db-prod
+    secrets:
+      - db_name
+      - db_user
+      - db_password
+      - db_django_password
+    environment:
+      - POSTGRES_DB_FILE=/run/secrets/db_name
+      - POSTGRES_USER_FILE=/run/secrets/db_user
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db_password
+    volumes:
+      - prod_db_data:/var/lib/postgresql/data
+    networks:
+      - prod_orm
+
+secrets:
+  db_name:
+    file: ./.secrets/prod/db_name.txt
+  db_user:
+    file: ./.secrets/prod/db_user.txt
+  db_password:
+    file: ./.secrets/prod/db_password.txt
+  db_django_password:
+    file: ./.secrets/prod/db_django_password.txt
+  django_key:
+    file: ./.secrets/prod/django_key.txt
+
+volumes:
+  prod_dm_data:
+
+networks:
+  prod_api:
+  prod_orm:
