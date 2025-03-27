@@ -19,6 +19,36 @@ services:
     networks:
       - prod_orm
 
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: dbox-backend:prod
+    container_name: dbox-backend-prod
+    secrets:
+      - db_name
+      - db_user
+      - db_django_password
+      - django_key
+    volumes:
+      - prod_media_files:/media
+    networks:
+      - prod_orm
+      - prod_api
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: dbox-frontend:prod
+    container_name: dbox-frontend-prod
+    volumes:
+      - prod_media_files:/usr/share/nginx/html/media
+    networks:
+      - prod_api
+    ports:
+      - "80:80"
+
 secrets:
   db_name:
     file: ./.secrets/prod/db_name.txt
@@ -32,8 +62,9 @@ secrets:
     file: ./.secrets/prod/django_key.txt
 
 volumes:
-  prod_dm_data:
+  prod_db_data:
+  prod_media_files:
 
 networks:
   prod_api:
-  prod_orm:
+  prod_orm: 

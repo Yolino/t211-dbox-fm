@@ -1,0 +1,9 @@
+Django
+psycopg2-binary
+graphene-django
+graphene-file-upload
+django-cors-headers
+djangorestframework
+Pillow
+python-magic
+gunicorn
