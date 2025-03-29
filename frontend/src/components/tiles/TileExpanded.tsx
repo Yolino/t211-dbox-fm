@@ -1,6 +1,7 @@
 import React from "react";
 import { useQuery } from "@apollo/client";
 import PUBLICATION_DETAIL_QUERY from "../../graphql/publicationDetailQuery.ts";
+import GET_MEDIA from "../../context/mediaUrl.ts";
 import CommentMain from "./CommentMain.tsx";
 
 const TileExpanded = ({ tileId }) => {
@@ -12,7 +13,6 @@ const TileExpanded = ({ tileId }) => {
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error</p>;
-  // Formater la date
   const date = new Date(publication.createdAt);
   const formattedDatePublication = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
 
@@ -22,7 +22,7 @@ const TileExpanded = ({ tileId }) => {
         {/* Cover Image */}
         <img
           className="w-32 h-32 object-cover rounded-lg shadow-md"
-          src={`http://localhost:8000${publication.cover}`}
+          src={GET_MEDIA(publication.cover)}
           alt={`Cover for ${publication.title}`}
         />
 

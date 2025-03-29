@@ -1,2 +1,2 @@
-const GET_MEDIA = (resourceName) => `http://localhost/${resourceName}`;
+const GET_MEDIA = (resourceName) => `${resourceName}`;
 export default GET_MEDIA;
