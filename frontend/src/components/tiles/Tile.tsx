@@ -24,7 +24,9 @@ interface TileProps {
 
 const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote }: TileProps) => {
   const [vote] = useMutation(CREATE_VOTE_MUTATION);
-  const handleVote = (type) => {
+  
+  const handleVote = (type, e) => {
+    e.stopPropagation(); // Empêche la propagation du clic
     vote({
       variables: {
         publicationId: +publication.id,
@@ -50,7 +52,10 @@ const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote }: Tile
       <div className="absolute inset-x-0 top-1/4 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
         <button
           className="p-3 bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors duration-200"
-          onClick={() => onPlayAudio(publication.id)}
+          onClick={(e) => {
+            e.stopPropagation(); // Empêche la propagation du clic
+            onPlayAudio(publication.id);
+          }}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -79,14 +84,14 @@ const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote }: Tile
           <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <button
               className={`p-1 ${publication.visitorVote > 0 ? "bg-green-300" : "bg-gray-200"} rounded-full hover:bg-gray-300 transition-colors duration-200`}
-              onClick={() => { handleVote(1) }}
+              onClick={(e) => handleVote(1, e)}
             >
               <UpvoteIcon />
             </button> 
 
             <button
               className={`p-1 ${publication.visitorVote < 0 ? "bg-red-300" : "bg-gray-200"} rounded-full hover:bg-gray-300 transition-colors duration-200`}
-              onClick={() => { handleVote(-1) }}
+              onClick={(e) => handleVote(-1, e)}
             >
               <DownvoteIcon />
             </button>
