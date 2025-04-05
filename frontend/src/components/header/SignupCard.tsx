@@ -30,17 +30,11 @@ const SignupCard = ({ onClose, onSignupSuccess }: SignupCardProps) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // Vérifier que les mots de passe correspondent
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
       return;
     }
-
-    // Réinitialiser l'erreur
     setError("");
-
-    // Appeler la mutation pour créer un utilisateur
     createUser({ variables: { username, email, password } });
   };
 
