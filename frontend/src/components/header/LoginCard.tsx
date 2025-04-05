@@ -66,6 +66,7 @@ const LoginCard = ({ onClose, onLoginSuccess }: LoginCardProps) => {
                 placeholder="Enter your username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
+                required
               />
               <ProfileIcon />
             </div>
@@ -84,6 +85,7 @@ const LoginCard = ({ onClose, onLoginSuccess }: LoginCardProps) => {
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
               />
               <PasswordIcon />
             </div>
