@@ -36,6 +36,7 @@ const ProfileMain = ({ username }) => {
               index={i} 
               isSelf={profile.isSelf}
               onEdit={() => { setExpandedTile(i) }}
+              onCloseTile={() => { setExpandedTile(null) }}
               isExpanded={ i === expandedTile }
               onProfileUpdate={refetchProfile}
             />

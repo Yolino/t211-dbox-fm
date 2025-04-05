@@ -24,7 +24,7 @@ interface ProfileTileProps {
   onDeletePublication: () => void;
 };
 
-const ProfileTile = ({ publication, index, isSelf, onEdit, isExpanded, onProfileUpdate }: ProfileTileProps) => {
+const ProfileTile = ({ publication, index, isSelf, onEdit, onCloseTile, isExpanded, onProfileUpdate }: ProfileTileProps) => {
   const [isDeleteCardOpen, setIsDeleteCardOpen] = useState(false);
   const handleDeleteClick = () => {
     setIsDeleteCardOpen(true);
@@ -67,6 +67,7 @@ const ProfileTile = ({ publication, index, isSelf, onEdit, isExpanded, onProfile
       if (data.updatePublication.success) {
         setErrorMessage("");
         onProfileUpdate();
+        onCloseTile();
       }
     },
     onError: (err) => {
@@ -120,7 +121,7 @@ const ProfileTile = ({ publication, index, isSelf, onEdit, isExpanded, onProfile
             <input
               type="text"
               name="title"
-              placeholder={publication.title}
+              defaultValue={publication.title}
               onChange={handleInputChange}
               className="mt-0 w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -147,7 +148,7 @@ const ProfileTile = ({ publication, index, isSelf, onEdit, isExpanded, onProfile
             <input
               type="text"
               name="description"
-              placeholder={publication.description}
+              defaultValue={publication.description}
               onChange={handleInputChange}
               className="mt-0 w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
