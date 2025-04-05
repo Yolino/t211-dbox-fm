@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { useMutation } from "@apollo/client";
 import CREATE_VOTE_MUTATION from "../../graphql/createVoteMutation.ts";
 import UpvoteIcon from "../../svg/UpvoteIcon.tsx";
@@ -23,6 +24,7 @@ interface TileProps {
 }
 
 const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote }: TileProps) => {
+  const navigate = useNavigate();
   const [vote] = useMutation(CREATE_VOTE_MUTATION);
   
   const handleVote = (type, e) => {
@@ -76,10 +78,15 @@ const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote }: Tile
 
       {/* Contenu de la tuile */}
       <div className="p-4">
-        <p className="text-black font-bold text-lg truncate">{publication.title}</p>
-        <p className="text-gray-600 text-sm truncate">{publication.author.username}</p>
+        <p className="text-black font-bold text-lg truncate cursor-default">{publication.title}</p>
+        <p
+          className="text-gray-600 text-sm truncate cursor-pointer"
+          onClick={() => { navigate(`/profile/${publication.author.username}`) }}
+        >
+          {publication.author.username}
+        </p>
         <div className="flex items-center justify-between mt-2">
-          <p className="text-gray-400 text-xs">{publication.voteCount} votes</p>
+          <p className="text-gray-400 text-xs cursor-default">{publication.voteCount} votes</p>
 
           <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <button

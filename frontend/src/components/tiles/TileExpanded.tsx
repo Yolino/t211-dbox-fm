@@ -1,9 +1,11 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { useQuery } from "@apollo/client";
 import PUBLICATION_DETAIL_QUERY from "../../graphql/publicationDetailQuery.ts";
 import CommentMain from "./CommentMain.tsx";
 
 const TileExpanded = ({ tileId }) => {
+  const navigate = useNavigate();
   const { loading, error, data } = useQuery(PUBLICATION_DETAIL_QUERY, {
     variables: { publicationId: +tileId },
   });
@@ -32,10 +34,11 @@ const TileExpanded = ({ tileId }) => {
             <h2 className="text-xl font-bold text-black">{publication.title}</h2>
             <button className="text-gray-600 hover:text-black transition-colors"></button>
           </div>
-          <p className="text-gray-700">by {publication.author.username} on {formattedDatePublication}</p>
-          <p className="text-gray-600 text-sm mt-2">{publication.description || "No description available."}</p>
-          <p className="text-gray-400 text-xs mt-2">{publication.viewCount} views</p>
-          <p className="text-gray-400 text-xs mt-2">{publication.voteCount} votes</p>
+          <p className="text-gray-700 cursor-default">
+            by <span className="cursor-pointer" onClick={() => { navigate(`/profile/${publication.author.username}`) }}>{publication.author.username}</span> on {formattedDatePublication}</p>
+          <p className="text-gray-600 text-sm mt-2 cursor-default">{publication.description || "No description available."}</p>
+          <p className="text-gray-400 text-xs mt-2 cursor-default">{publication.viewCount} views</p>
+          <p className="text-gray-400 text-xs mt-2 cursor-default">{publication.voteCount} votes</p>
         </div>
       </div>
       <CommentMain publicationId={tileId} />
