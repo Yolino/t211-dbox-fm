@@ -1,10 +1,23 @@
 import React, { useRef, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import PlayIcon from "../svg/PlayIcon.tsx";
 import PauseIcon from "../svg/PauseIcon.tsx";
 import AudioIcon from "../svg/AudioIcon.tsx";
 import CloseIcon from "../svg/CloseIcon.tsx";
 
-const AudioPlayer = ({ audioId, onClose }) => {
+interface Audio {
+  id: number | null;
+  title: string;
+  author: string;
+}
+
+interface AudioPlayerProps {
+  audio: Audio;
+  onClose: () => void;
+}
+
+const AudioPlayer = ({ audio, onClose }) => {
+  const navigate = useNavigate();
   const audioRef = useRef(null);
   const controllerRef = useRef(new AbortController());
   const [audioBlob, setAudioBlob] = useState(null);
@@ -24,10 +37,10 @@ const AudioPlayer = ({ audioId, onClose }) => {
   };
 
   useEffect(() => {
-    if (audioId) {
-      fetchAudio(audioId);
+    if (audio.id) {
+      fetchAudio(audio.id);
     }
-  }, [audioId]);
+  }, [audio.id]);
 
   useEffect(() => {
     if (audioBlob && audioRef.current) {
@@ -95,11 +108,14 @@ const AudioPlayer = ({ audioId, onClose }) => {
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={() => setDuration(audioRef.current.duration)}
       >
-        {/* No need to specify src here, it's dynamically set in the effect */}
         Your browser does not support the audio element.
       </audio>
 
       <div className="flex items-center justify-between max-w-4xl mx-auto">
+        <div className="text-sm text-white">
+          <p className="cursor-default">{audio.title}</p>
+          <p onClick={() => { navigate(`/profile/${audio.author}`) }} className="cursor-pointer">{audio.author}</p>
+        </div>
         {/* Play/Pause Button */}
         <button
           onClick={togglePlayPause}

@@ -57,7 +57,11 @@ const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote }: Tile
           className="p-3 bg-white rounded-full shadow-lg hover:bg-gray-400 transition-colors duration-200"
           onClick={(e) => {
             e.stopPropagation(); // Empêche la propagation du clic
-            onPlayAudio(publication.id);
+            onPlayAudio({
+              id: publication.id,
+              title: publication.title,
+              author: publication.author.username,
+            });
           }}
         >
           <PlayIcon />

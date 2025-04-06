@@ -15,11 +15,15 @@ const ProfileWrapper = () => {
 
 const HomePage = () => {
   const navigate = useNavigate();
-  const [currentAudio, setCurrentAudio] = useState(null);
+  const [currentAudio, setCurrentAudio] = useState({
+    id: null,
+    title: "",
+    author: "",
+  });
   const [displayPlayer, setDisplayPlayer] = useState(false);
-  const handlePlayAudio = (audioId) => {
+  const handlePlayAudio = (audio) => {
     setDisplayPlayer(true);
-    setCurrentAudio(audioId);
+    setCurrentAudio(audio);
   }
   const handleClosePlayer = () => {
     setDisplayPlayer(false);
@@ -41,7 +45,7 @@ const HomePage = () => {
           <Route path="/moderation" element={<ModerationMain />} />
         </Routes> 
       </main>
-      {displayPlayer && <AudioPlayer audioId={currentAudio} onClose={handleClosePlayer} />}
+      {displayPlayer && <AudioPlayer audio={currentAudio} onClose={handleClosePlayer} />}
     </div>
   );
 };
