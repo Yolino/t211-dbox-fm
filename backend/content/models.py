@@ -59,9 +59,13 @@ class Vote(models.Model):
 
     def save(self, *args, **kwargs):
         with transaction.atomic():
-            super().save(*args, **kwargs)
+            if self.id: # If the vote already exists (which means updating)
+                current_vote = Vote.objects.get(id=self.id)
+                current_type = current_vote.type
+                self.publication.vote_count -= current_type
             self.publication.vote_count += self.type
             self.publication.save()
+            super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
         with transaction.atomic():

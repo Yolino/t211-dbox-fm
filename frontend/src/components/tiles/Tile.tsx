@@ -2,6 +2,8 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "@apollo/client";
 import CREATE_VOTE_MUTATION from "../../graphql/createVoteMutation.ts";
+import UPDATE_VOTE_MUTATION from "../../graphql/updateVoteMutation.ts";
+import DELETE_VOTE_MUTATION from "../../graphql/deleteVoteMutation.ts";
 import AudioIcon from "../../svg/AudioIcon.tsx";
 import PlayIcon from "../../svg/PlayIcon.tsx";
 import UpvoteIcon from "../../svg/UpvoteIcon.tsx";
@@ -27,17 +29,60 @@ interface TileProps {
 
 const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote }: TileProps) => {
   const navigate = useNavigate();
-  const [vote] = useMutation(CREATE_VOTE_MUTATION);
-  
-  const handleVote = (type, e) => {
-    e.stopPropagation(); // Empêche la propagation du clic
-    vote({
+  const [createVote] = useMutation(CREATE_VOTE_MUTATION);
+  const [updateVote] = useMutation(UPDATE_VOTE_MUTATION);
+  const [deleteVote] = useMutation(DELETE_VOTE_MUTATION);
+  const handleCreateVote = (type, e) => {
+    createVote({
       variables: {
         publicationId: +publication.id,
         voteType: type,
       },
-      onCompleted: onTileVote,
+      onCompleted: (data) => {
+        if (data.createVote.voteCount !== null) onTileVote();
+      },
     });
+  };
+  const handleUpdateVote = (type, e) => {
+    updateVote({
+      variables: {
+        publicationId: +publication.id,
+        voteType: type,
+      },
+      onCompleted: (data) => {
+        if (data.updateVote.voteCount !== null) onTileVote();
+      },
+    });
+  }
+  const handleDeleteVote = (e) => {
+    deleteVote({
+      variables: {
+        publicationId: +publication.id,
+      },
+      onCompleted: (data) => {
+        if (date.deleteVote.voteCount !== null) onTileVote();
+      },
+    });
+  }
+  const handleUpvote = (e) => {
+    e.stopPropagation();
+    if (publication.visitorVote > 0) {
+      handleDeleteVote(e);
+    } else if (publication.visitorVote < 0) {
+      handleUpdateVote(1, e);
+    } else {
+      handleCreateVote(1, e);
+    }
+  };
+  const handleDownvote = (e) => {
+    e.stopPropagation();
+    if (publication.visitorVote > 0) {
+      handleUpdateVote(-1, e);
+    } else if (publication.visitorVote < 0) {
+      handleDeleteVote(e);
+    } else {
+      handleCreateVote(-1, e);
+    }
   };
 
   return (
@@ -61,7 +106,7 @@ const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote }: Tile
         <button
           className="p-3 bg-white rounded-full shadow-lg hover:bg-gray-400 transition-colors duration-200"
           onClick={(e) => {
-            e.stopPropagation(); // Empêche la propagation du clic
+            e.stopPropagation();
             onPlayAudio({
               id: publication.id,
               title: publication.title,
@@ -88,14 +133,14 @@ const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote }: Tile
           <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <button
               className={`p-1 ${publication.visitorVote > 0 ? "bg-green-300" : "bg-gray-200"} rounded-full hover:bg-gray-300 transition-colors duration-200`}
-              onClick={(e) => handleVote(1, e)}
+              onClick={(e) => handleUpvote(e)}
             >
               <UpvoteIcon />
             </button> 
 
             <button
               className={`p-1 ${publication.visitorVote < 0 ? "bg-red-300" : "bg-gray-200"} rounded-full hover:bg-gray-300 transition-colors duration-200`}
-              onClick={(e) => handleVote(-1, e)}
+              onClick={(e) => handleDownvote(e)}
             >
               <DownvoteIcon />
             </button>

@@ -203,8 +203,8 @@ class CreateVote(graphene.Mutation):
         user = info.context.user
         if not user.is_authenticated:
             return CreateVote(vote_count=None)
-        if abs(type) > 1 and not user.is_staff:
-            raise GraphQLError("You cannot have such a weight for your vote")
+        if (abs(type) > 1 and not user.is_staff) or not type:
+            raise GraphQLError("You are not allowed to have such a weight for your vote")
         if Vote.objects.filter(publication_id=publication_id, user=user).exists():
             return CreateVote(vote_count=None)
         
@@ -215,6 +215,48 @@ class CreateVote(graphene.Mutation):
         Vote.objects.create(publication=publication, user=user, type=type)
         publication.refresh_from_db()
         return CreateVote(vote_count=publication.vote_count)
+
+class UpdateVote(graphene.Mutation):
+    class Arguments:
+        publication_id = graphene.Int(required=True)
+        type = graphene.Int(required=True)
+
+    vote_count = graphene.Int()
+
+    def mutate(root, info, publication_id, type):
+        user = info.context.user
+        if not user.is_authenticated:
+            return UpdateVote(vote_count=None)
+        if (abs(type) > 1 and not user.is_staff) or not type:
+            raise GraphQLError("You are not allowed to have such a weight for your vote")
+        try:
+            vote = Vote.objects.get(publication_id=publication_id, user=user)
+        except Vote.DoesNotExist:
+            raise GraphQLError("This Vote does not exist")
+        if vote.type == type:
+            return UpdateVote(vote_count=None)
+        vote.type = type
+        vote.save()
+        publication = Publication.objects.get(id=publication_id)
+        return UpdateVote(vote_count=publication.vote_count)
+
+class DeleteVote(graphene.Mutation):
+    class Arguments:
+        publication_id = graphene.Int(required=True)
+
+    vote_count = graphene.Int()
+
+    def mutate(root, info, publication_id):
+        user = info.context.user
+        if not user.is_authenticated:
+            return DeleteVote(vote_count=None)
+        try:
+            vote = Vote.objects.get(publication_id=publication_id, user=user)
+        except Vote.DoesNotExist:
+            raise GraphQLError("This Vote does not exist")
+        vote.delete()
+        publication = Publication.objects.get(id=publication_id)
+        return DeleteVote(vote_count=publication.vote_count)
 
 class CreateComment(graphene.Mutation):
     class Arguments:
@@ -251,5 +293,7 @@ class Mutation(graphene.ObjectType):
     delete_publication = DeletePublication.Field()
     create_view = CreateView.Field()
     create_vote = CreateVote.Field()
+    update_vote = UpdateVote.Field()
+    delete_vote = DeleteVote.Field()
     create_comment = CreateComment.Field()
 
