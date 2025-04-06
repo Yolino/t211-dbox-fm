@@ -10,8 +10,8 @@ const PublishButton = () => {
   const navigate = useNavigate();
   const { privileges } = usePrivileges();
   const [errorMessage, setErrorMessage] = useState("");
-  const [mutate] = useMutation(CREATE_PUBLICATION_MUTATION);
-  const { data, loading, error } = useQuery(TAGS_QUERY);
+  const [mutate, { loading }] = useMutation(CREATE_PUBLICATION_MUTATION);
+  const { data, error } = useQuery(TAGS_QUERY);
 
   const [publication, setPublication] = useState({
     audio: null as File | null,
@@ -63,9 +63,6 @@ const PublishButton = () => {
     });
   };
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error.message}</p>;
-
   if (!privileges?.isLoggedIn) return <p>You cannot publish if you are not authentified</p>;
 
   return (
@@ -101,7 +98,10 @@ const PublishButton = () => {
             onChange={handleTagChange}
             className="mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="">Select a tag</option>
+            { (error) ?
+              <option disabled>Error loading tags</option> : 
+              <option value="">Select a tag</option> 
+            }
             {data.tags.map((tag) => (
               <option key={tag.id} value={tag.id}>
                 {tag.name}
@@ -133,8 +133,9 @@ const PublishButton = () => {
           <button
             type="submit"
             className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            disabled={loading}
           >
-            Publish
+            {(loading) ? "Processing publication..." : "Publish"}
           </button>
         </div>
       </form>
