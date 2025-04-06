@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "@apollo/client";
 import CREATE_VOTE_MUTATION from "../../graphql/createVoteMutation.ts";
+import AudioIcon from "../../svg/AudioIcon.tsx";
 import PlayIcon from "../../svg/PlayIcon.tsx";
 import UpvoteIcon from "../../svg/UpvoteIcon.tsx";
 import DownvoteIcon from "../../svg/DownvoteIcon.tsx";
@@ -45,12 +46,16 @@ const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote }: Tile
       onClick={() => onTileClick(publication.id, group)}
     >
       {/* Image de couverture */}
-      <img
-        className="w-full h-32 object-cover rounded mb-2"
-        src={`http://localhost:8000${publication.cover}`}
-        alt={`Cover for ${publication.title}`}
-      />
-
+      {(publication.cover) ? <img
+          className="w-full h-32 object-cover rounded mb-2"
+          src={`http://localhost:8000${publication.cover}`}
+          alt={`Cover for ${publication.title}`}
+        /> : <div
+          className="w-full h-32 flex items-center justify-center rounded mb-2 bg-gray-100"
+        >
+          <AudioIcon styleClass="w-12 h-12 text-gray-800" />
+        </div>
+      }
       {/* Bouton Play au survol */}
       <div className="absolute inset-x-0 top-1/4 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
         <button
