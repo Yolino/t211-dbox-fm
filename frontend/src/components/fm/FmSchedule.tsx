@@ -9,10 +9,10 @@ const FmSchedule = ({ date, schedule, incrementDate, handleDrop, handleDeleteSch
     label: `${startHour + index}:00`,
     start: startHour + index,
     end: startHour + index + 1,
-  })); 
+  }));
 
   return (
-    <MainBlock styleClass="w-1/4">
+    <MainBlock styleClass="w-1/3">
       <div className="flex justify-center items-center space-x-10">
         <button
           onClick={() => { incrementDate(-1) }}
@@ -33,7 +33,8 @@ const FmSchedule = ({ date, schedule, incrementDate, handleDrop, handleDeleteSch
       <div className="flex-1 overflow-y-auto space-y-4 px-2 max-h-[700px]">
         {timeSlots.map(({ label, start, end }, index) => {
           const slotSchedule = schedule.filter((s) => {
-            const eventHour = new Date(s.time).getHours();
+            
+            const eventHour = new Date(s.time).getUTCHours();
             return start <= eventHour && eventHour < end;
           });
           return (

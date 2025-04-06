@@ -8,10 +8,13 @@ import CREATE_SCHEDULING_MUTATION from "../../graphql/createSchedulingMutation.t
 import DELETE_SCHEDULING_MUTATION from "../../graphql/deleteSchedulingMutation.ts";
 import FmSchedule from "./FmSchedule.tsx";
 import FmUpdate from "./FmUpdate.tsx";
+import FmTimeForm from "./FmTimeForm.tsx";
 
 const FmMain = () => {
   const { privileges } = usePrivileges();
   const [errorMessage, setErrorMessage] = useState("");
+  const [currentPublicationId, setCurrentPublicationId] = useState(null);
+  const [displayTimeForm, setDisplayTimeForm] = useState(null);
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const incrementDate = (increment) => {
     const currentDate = new Date(date);
@@ -26,14 +29,19 @@ const FmMain = () => {
   const handleDrop = (item, timeSlot) => {
     setErrorMessage("");
     const time = new Date(date);
-    time.setHours(timeSlot, 0, 0, 0);
+    time.setUTCHours(timeSlot, 0, 0, 0);
+    setCurrentPublicationId(item.id)
+    setDisplayTimeForm(time);
+  };
+  const handleFormSubmit = (time) => {
     createScheduling({
       variables: {
-        publicationId: +item.id,
+        publicationId: +currentPublicationId,
         time: time.toISOString().split('.')[0],
       }
     }).then(() => {
       refetch();
+      setDisplayTimeForm(null);
     }).catch((err) => {
       setErrorMessage(err.message);
     });
@@ -57,6 +65,7 @@ const FmMain = () => {
         {loading && <p>Loading...</p>}
         {error && <p>Error</p>}
         <FmSchedule date={date} schedule={schedule} incrementDate={incrementDate} handleDrop={handleDrop} handleDeleteScheduling={privileges?.isModerator ? handleDeleteScheduling : null} />
+        {displayTimeForm && <FmTimeForm time={displayTimeForm} handleFormSubmit={handleFormSubmit} handleFormClose={() => { setDisplayTimeForm(null) }} />}
         {privileges?.isModerator && <FmUpdate />}
       </div>
     </DndProvider>
