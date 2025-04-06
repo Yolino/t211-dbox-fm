@@ -16,8 +16,13 @@ const ProfileWrapper = () => {
 const HomePage = () => {
   const navigate = useNavigate();
   const [currentAudio, setCurrentAudio] = useState(null);
+  const [displayPlayer, setDisplayPlayer] = useState(false);
   const handlePlayAudio = (audioId) => {
+    setDisplayPlayer(true);
     setCurrentAudio(audioId);
+  }
+  const handleClosePlayer = () => {
+    setDisplayPlayer(false);
   }
   const location = useLocation();
   const message = location.state?.message;
@@ -36,7 +41,7 @@ const HomePage = () => {
           <Route path="/moderation" element={<ModerationMain />} />
         </Routes> 
       </main>
-      <AudioPlayer audioId={currentAudio} />
+      {displayPlayer && <AudioPlayer audioId={currentAudio} onClose={handleClosePlayer} />}
     </div>
   );
 };

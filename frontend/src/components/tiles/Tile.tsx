@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "@apollo/client";
 import CREATE_VOTE_MUTATION from "../../graphql/createVoteMutation.ts";
+import PlayIcon from "../../svg/PlayIcon.tsx";
 import UpvoteIcon from "../../svg/UpvoteIcon.tsx";
 import DownvoteIcon from "../../svg/DownvoteIcon.tsx";
 
@@ -53,26 +54,13 @@ const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote }: Tile
       {/* Bouton Play au survol */}
       <div className="absolute inset-x-0 top-1/4 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
         <button
-          className="p-3 bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors duration-200"
+          className="p-3 bg-white rounded-full shadow-lg hover:bg-gray-400 transition-colors duration-200"
           onClick={(e) => {
             e.stopPropagation(); // Empêche la propagation du clic
             onPlayAudio(publication.id);
           }}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-8 w-8 text-gray-700"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
-            />
-          </svg>
+          <PlayIcon />
         </button>
       </div>
 
