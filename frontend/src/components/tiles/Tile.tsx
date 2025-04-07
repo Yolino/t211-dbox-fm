@@ -60,7 +60,7 @@ const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote }: Tile
         publicationId: +publication.id,
       },
       onCompleted: (data) => {
-        if (date.deleteVote.voteCount !== null) onTileVote();
+        if (data.deleteVote.voteCount !== null) onTileVote();
       },
     });
   }
@@ -122,7 +122,7 @@ const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote }: Tile
       <div className="p-4">
         <p className="text-black font-bold text-lg truncate cursor-default">{publication.title}</p>
         <p
-          className="text-gray-600 text-sm truncate cursor-pointer"
+          className="text-gray-600 text-sm truncate cursor-pointer hover:underline"
           onClick={() => { navigate(`/profile/${publication.author.username}`) }}
         >
           {publication.author.username}

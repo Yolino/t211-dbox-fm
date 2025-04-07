@@ -112,9 +112,9 @@ const AudioPlayer = ({ audio, onClose }) => {
       </audio>
 
       <div className="flex items-center justify-between max-w-4xl mx-auto">
-        <div className="text-sm text-white">
+        <div className="m-2 text-sm text-white">
           <p className="cursor-default">{audio.title}</p>
-          <p onClick={() => { navigate(`/profile/${audio.author}`) }} className="cursor-pointer">{audio.author}</p>
+          <p onClick={() => { navigate(`/profile/${audio.author}`) }} className="cursor-pointer hover:underline">{audio.author}</p>
         </div>
         {/* Play/Pause Button */}
         <button

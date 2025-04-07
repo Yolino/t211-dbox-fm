@@ -8,9 +8,9 @@ import FmMain from "../components/fm/FmMain.tsx";
 import ModerationMain from "../components/ModerationMain.tsx";
 import AudioPlayer from "../components/AudioPlayer.tsx";
 
-const ProfileWrapper = () => {
+const ProfileWrapper = ({ onPlayAudio }) => {
   const { username } = useParams();
-  return <ProfileMain username={username} />;
+  return <ProfileMain username={username} onPlayAudio={onPlayAudio} />;
 };
 
 const HomePage = () => {
@@ -40,7 +40,7 @@ const HomePage = () => {
           <Route path="/" element={<TileMain onPlayAudio={handlePlayAudio} />} />
           <Route path="/publish" element={<PublishMain />} />
           <Route path="/profile" element={<ProfileWrapper />} />
-          <Route path="/profile/:username" element={<ProfileWrapper />} />
+          <Route path="/profile/:username" element={<ProfileWrapper onPlayAudio={handlePlayAudio} />} />
           <Route path="/fm" element={<FmMain />} />
           <Route path="/moderation" element={<ModerationMain />} />
         </Routes> 

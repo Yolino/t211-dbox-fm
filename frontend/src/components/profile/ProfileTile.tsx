@@ -4,6 +4,7 @@ import TAGS_QUERY from "../../graphql/tagsQuery.ts";
 import UPDATE_PUBLICATION_MUTATION from "../../graphql/updatePublicationMutation.ts";
 import DELETE_PUBLICATION_MUTATION from "../../graphql/deletePublicationMutation.ts";
 import DeletePublicationCard from "./DeletePublicationCard.tsx";
+import PlayIcon from "../../svg/PlayIcon.tsx";
 import EditIcon from "../../svg/EditIcon.tsx";
 import DeleteIcon from "../../svg/DeleteIcon.tsx";
 
@@ -22,9 +23,10 @@ interface ProfileTileProps {
   onEdit: () => void;
   isExpanded: boolean;
   onDeletePublication: () => void;
+  onPlayAudio: () => void;
 };
 
-const ProfileTile = ({ publication, index, isSelf, onEdit, onCloseTile, isExpanded, onProfileUpdate }: ProfileTileProps) => {
+const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, isExpanded, onProfileUpdate, onPlayAudio }: ProfileTileProps) => {
   const [isDeleteCardOpen, setIsDeleteCardOpen] = useState(false);
   const handleDeleteClick = () => {
     setIsDeleteCardOpen(true);
@@ -101,15 +103,31 @@ const ProfileTile = ({ publication, index, isSelf, onEdit, onCloseTile, isExpand
   };
 
   return (
-    <div className="p-4 bg-gray-200 rounded-lg shadow-sm">
-      <li key={index} className="flex justify-between items-center">
-        {publication.cover && <img
-          className="h-16 object-cover rounded mb-2"
-          src={`http://localhost:8000${publication.cover}`}
-          alt={`Cover for ${publication.title}`}
-        />}
-        <h3 className="text-lg font-bold text-gray-800">{publication.title}{isExpanded && " - Edit publication"}</h3>
-        {isSelf && <div className="flex gap-2">
+    <div className="p-4 bg-gray-200 rounded-lg shadow-sm group">
+      <li key={index} className="relative flex items-center">
+        <div className="flex items-center">
+          {publication.cover && (
+            <img
+              className="h-16 object-cover rounded mr-2"
+              src={`http://localhost:8000${publication.cover}`}
+              alt={`Cover for ${publication.title}`}
+            />
+          )}
+          <button
+            className="p-3 bg-gray-300 rounded-full shadow-lg hover:bg-gray-400 transition-colors duration-200"
+            onClick={(e) => {
+              onPlayAudio({
+                id: publication.id,
+                title: publication.title,
+                author,
+              })
+            }}
+          >
+            <PlayIcon />
+          </button>
+        </div>
+        <h3 className="ml-auto text-lg font-bold text-gray-800">{publication.title}{isExpanded && " - Edit publication"}</h3>
+        {isSelf && <div className="flex gap-2 ml-4">
           <EditIcon onClick={onEdit} />
           <DeleteIcon onClick={handleDeleteClick} />
         </div>}
