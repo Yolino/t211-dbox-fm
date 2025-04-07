@@ -54,6 +54,8 @@ class Query(graphene.ObjectType):
             user = info.context.user
         else:
             user = None
+        if not user.is_active and not (info.context.user.is_authenticated and info.context.user.has_perm("moderation.view_reportuser")):
+            raise GraphQLError("You are not allowed to view this User")
         if not user:
             raise GraphQLError("User not found")
         return ProfileType(user=user)

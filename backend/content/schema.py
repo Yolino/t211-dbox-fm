@@ -60,10 +60,14 @@ class Query(graphene.ObjectType):
             publication = Publication.objects.get(id=id)
         except Publication.DoesNotExist:
             raise GraphQLError("This Publication does not exist")
+        if publication.is_banned and not (info.context.user.is_authenticated and info.context.user.has_perm("moderation.view_reportpublication")):
+            raise GraphQLError("You are not allowed to view this Publication")
         return publication
 
     def resolve_publications(root, info, count=None, order_by=None, author=None):
         result = Publication.objects.select_related("author")
+        if not (info.context.user.is_authenticated and info.context.user.has_perm("moderation.view_reportpublication")):
+            result = result.filter(is_banned=False)
         if author:
             result = result.filter(author__username__iexact=author)
         if order_by:
@@ -76,7 +80,10 @@ class Query(graphene.ObjectType):
         return Tag.objects.all()
    
     def resolve_commentsByPublication(root, info, publicationId):
-        return Comment.objects.filter(publication=publicationId)
+        comments = Comment.objects.filter(publication=publicationId)
+        if not (info.context.user.is_authenticated and info.context.user.has_perm("moderation.view_reportcomment")):
+            comments.filter(is_banned=False)
+        return comments
 
 class CreatePublication(graphene.Mutation):
     class Arguments:
