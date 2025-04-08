@@ -25,14 +25,19 @@ interface Publication {
 interface TileProps {
   publication: Publication;
   group: string;
+  onPlayAudio: () => void;
+  onTileClick: () => void;
+  onTileVote: () => void;
+  onError: () => void;
 }
 
-const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote }: TileProps) => {
+const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote, onError }: TileProps) => {
   const navigate = useNavigate();
   const [createVote] = useMutation(CREATE_VOTE_MUTATION);
   const [updateVote] = useMutation(UPDATE_VOTE_MUTATION);
   const [deleteVote] = useMutation(DELETE_VOTE_MUTATION);
   const handleCreateVote = (type, e) => {
+    onError("");
     createVote({
       variables: {
         publicationId: +publication.id,
@@ -41,9 +46,13 @@ const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote }: Tile
       onCompleted: (data) => {
         if (data.createVote.voteCount !== null) onTileVote();
       },
+      onError: (err) => {
+        onError(err.message);
+      },
     });
   };
   const handleUpdateVote = (type, e) => {
+    onError("");
     updateVote({
       variables: {
         publicationId: +publication.id,
@@ -52,15 +61,22 @@ const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote }: Tile
       onCompleted: (data) => {
         if (data.updateVote.voteCount !== null) onTileVote();
       },
+      onError: (err) => {
+        onError(err.message);
+      },
     });
   }
   const handleDeleteVote = (e) => {
+    onError("");
     deleteVote({
       variables: {
         publicationId: +publication.id,
       },
       onCompleted: (data) => {
         if (data.deleteVote.voteCount !== null) onTileVote();
+      },
+      onError: (err) => {
+        onError(err.message);
       },
     });
   }

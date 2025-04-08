@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 from django.conf import settings
 from .models import Publication, View, Vote, Comment, Tag
+from moderation.models import ReportPublication
 from .validators import validate_image, validate_audio
 
 class PublicationType(DjangoObjectType):
@@ -138,6 +139,10 @@ class UpdatePublication(graphene.Mutation):
             raise GraphQLError("This Publication does not exist")
         if not publication.author == user:
             raise GraphQLError("You cannot update a Publication you do not own")
+        if publication.is_banned:
+            raise GraphQLError("This Publication has been banned. You can no longer view, update or delete it")
+        if ReportPublication.objects.filter(reported_publication=publication, is_reviewed=False).exists():
+            raise GraphQLError("This Publication is currently flagged. You cannot update or delete it")
         if not title and not cover and not tag and not description:
             raise GraphQLError("You need to specify at least one field in order to update this publication")
         if title:
@@ -175,6 +180,10 @@ class DeletePublication(graphene.Mutation):
             raise GraphQLError("This Publication does not exist")
         if not publication.author == user:
             raise GraphQLError("You cannot delete a Publication you do not own")
+        if publication.is_banned:
+            raise GraphQLError("This Publication has been banned. You can no longer view, update or delete it")
+        if ReportPublication.objects.filter(reported_publication=publication, is_reviewed=False).exists():
+            raise GraphQLError("This Publication is currently flagged. You cannot update or delete it")
         publication.delete()
         return DeletePublication(success=True)
 
@@ -190,11 +199,12 @@ class CreateView(graphene.Mutation):
             return CreateView(view_count=None)
         if View.objects.filter(publication_id=publication_id, user=user).exists():
             return CreateView(view_count=None)
-        
         try:
             publication = Publication.objects.get(id=publication_id)
         except Publication.DoesNotExist:
             raise GraphQLError("This Publication does not exist")
+        if publication.is_banned:
+            raise GraphQLError("This Publication has been banned. You can no longer access it")
         View.objects.create(publication=publication, user=user)
         publication.refresh_from_db()
         return CreateView(view_count=publication.view_count)
@@ -214,11 +224,12 @@ class CreateVote(graphene.Mutation):
             raise GraphQLError("You are not allowed to have such a weight for your vote")
         if Vote.objects.filter(publication_id=publication_id, user=user).exists():
             return CreateVote(vote_count=None)
-        
         try:
             publication = Publication.objects.get(id=publication_id)
         except Publication.DoesNotExist:
             raise GraphQLError("This Publication does not exist")
+        if publication.is_banned:
+            raise GraphQLError("This Publication has been banned. You can no longer access it")
         Vote.objects.create(publication=publication, user=user, type=type)
         publication.refresh_from_db()
         return CreateVote(vote_count=publication.vote_count)
@@ -240,11 +251,14 @@ class UpdateVote(graphene.Mutation):
             vote = Vote.objects.get(publication_id=publication_id, user=user)
         except Vote.DoesNotExist:
             raise GraphQLError("This Vote does not exist")
+        publication = Publication.objects.get(id=publication_id)
+        if publication.is_banned:
+            raise GraphQLError("This Publication has been banned. You can no longer access it")
         if vote.type == type:
             return UpdateVote(vote_count=None)
         vote.type = type
         vote.save()
-        publication = Publication.objects.get(id=publication_id)
+        publication.refresh_from_db()
         return UpdateVote(vote_count=publication.vote_count)
 
 class DeleteVote(graphene.Mutation):
@@ -261,8 +275,10 @@ class DeleteVote(graphene.Mutation):
             vote = Vote.objects.get(publication_id=publication_id, user=user)
         except Vote.DoesNotExist:
             raise GraphQLError("This Vote does not exist")
-        vote.delete()
         publication = Publication.objects.get(id=publication_id)
+        if publication.is_banned:
+            raise GraphQLError("This Publication has been banned. You can no longer access it")
+        vote.delete()
         return DeleteVote(vote_count=publication.vote_count)
 
 class CreateComment(graphene.Mutation):
@@ -274,12 +290,15 @@ class CreateComment(graphene.Mutation):
     comment = graphene.Field(CommentType)
 
     def mutate(self, info, publication, text, parent=None):
-        if not info.context.user.is_authenticated:
+        author = info.context.user
+        if not author.is_authenticated:
             raise GraphQLError("You must be logged in to comment")
         try:
             publication_instance = Publication.objects.get(id=publication)
         except Publication.DoesNotExist:
             raise GraphQLError("This Publication does not exist")
+        if publication_instance.is_banned:
+            raise GraphQLError("This Publication has been banned. You can no longer access it")
         parent_comment = None
         if parent:
             try:
@@ -288,8 +307,6 @@ class CreateComment(graphene.Mutation):
                 raise GraphQLError("This parent Comment does not exist")
             if not parent_comment.publication == publication_instance:
                 raise GraphQLError("The parent comment's publication does not match this commment's")
-
-        author = info.context.user
         comment = Comment(publication = publication_instance, parent=parent_comment, text=text, author=author)
         comment.save()
         return CreateComment(comment=comment)

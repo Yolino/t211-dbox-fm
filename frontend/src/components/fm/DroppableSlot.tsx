@@ -30,7 +30,7 @@ const DroppableSlot = ({ label, timeSlot, schedule, handleDrop, handleDeleteSche
                 />}
                 <div className="flex-1 bg-gray-200 rounded-md p-2">
                   <p className="text-gray-800 cursor-default">{s.time.split("T")[1].split("+")[0]}</p>
-                  <p onClick={() => { navigate(`/profile/${s.publication.author.username}`) }} className="text-gray-800 cursor-pointer">{s.publication.author.username}</p>
+                  <p onClick={() => { navigate(`/profile/${s.publication.author.username}`) }} className="text-gray-800 cursor-pointer hover:underline">{s.publication.author.username}</p>
                   <h4 className="text-gray-800 font-bold cursor-default">{s.publication.title}</h4>
                 </div>
                 {handleDeleteScheduling && <DeleteIcon onClick={() => {handleDeleteScheduling(s.id)}} />}

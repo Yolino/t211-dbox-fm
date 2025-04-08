@@ -102,7 +102,7 @@ const PublishButton = () => {
               <option disabled>Error loading tags</option> : 
               <option value="">Select a tag</option> 
             }
-            {data.tags.map((tag) => (
+            {data?.tags.map((tag) => (
               <option key={tag.id} value={tag.id}>
                 {tag.name}
               </option>

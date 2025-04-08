@@ -4,7 +4,12 @@ import { useQuery } from "@apollo/client";
 import PUBLICATION_DETAIL_QUERY from "../../graphql/publicationDetailQuery.ts";
 import CommentMain from "./CommentMain.tsx";
 
-const TileExpanded = ({ tileId }) => {
+interface TileExpandedProps {
+  tileId: number;
+  onError: () => void;
+}
+
+const TileExpanded = ({ tileId, onError }: TileExpandedProps) => {
   const navigate = useNavigate();
   const { loading, error, data } = useQuery(PUBLICATION_DETAIL_QUERY, {
     variables: { publicationId: +tileId },
@@ -14,7 +19,6 @@ const TileExpanded = ({ tileId }) => {
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error</p>;
-  // Formater la date
   const date = new Date(publication.createdAt);
   const formattedDatePublication = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
 
@@ -41,7 +45,7 @@ const TileExpanded = ({ tileId }) => {
           <p className="text-gray-400 text-xs mt-2 cursor-default">{publication.voteCount} votes</p>
         </div>
       </div>
-      <CommentMain publicationId={tileId} />
+      <CommentMain publicationId={tileId} onError={onError} />
     </div>
   );
 };

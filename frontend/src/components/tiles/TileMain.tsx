@@ -7,22 +7,25 @@ import CREATE_VIEW_MUTATION from "../../graphql/createViewMutation.ts";
 const TileMain = ({ onPlayAudio }) => {
   const SORT_TYPES = ["-created_at", "-vote_count"];
   const [expandedTile, setExpandedTile] = useState(null);
-
+  const [error, setError] = useState(null);
   const [incrementViewCount] = useMutation(CREATE_VIEW_MUTATION);
 
   const handlePlayAudio = (tileId) => {
     onPlayAudio(tileId);
   };
-
   const handleExpandTile = (tileId, groupId) => {
     setExpandedTile(
       expandedTile?.tileId === tileId && expandedTile.groupId === groupId ? null : { tileId, groupId }
     );
     if ((!expandedTile?.tileId) || (expandedTile?.tileId === +tileId)) incrementViewCount({variables : {publicationId: +tileId} }).catch(console.error);
   };
+  const handleError = (message) => {
+    setError(message);
+  };
 
   return (
     <div>
+      {error && <p className="text-red-500">{error}</p>}
       {SORT_TYPES.map((orderBy) => {
 	let groupTitle="Unexpected"
 
@@ -39,8 +42,9 @@ const TileMain = ({ onPlayAudio }) => {
             orderBy={orderBy}
             onPlayAudio={handlePlayAudio}
             onTileClick={handleExpandTile}
+            onError={handleError}
           />
-          {expandedTile?.groupId === orderBy && <TileExpanded tileId={expandedTile.tileId} />}
+          {expandedTile?.groupId === orderBy && <TileExpanded tileId={expandedTile.tileId} onError={handleError} />}
         </React.Fragment>
 	);
       })}
