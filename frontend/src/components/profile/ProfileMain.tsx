@@ -4,7 +4,7 @@ import PROFILE_QUERY from "../../graphql/profileQuery.ts";
 import MainBlock from "../MainBlock.tsx";
 import ProfileTile from "./ProfileTile.tsx";
 
-const ProfileMain = ({ username }) => {
+const ProfileMain = ({ username, onPlayAudio }) => {
   const [expandedTile, setExpandedTile] = useState(null);
   const { loading, error, data, refetch } = useQuery(PROFILE_QUERY, {
     variables: { username },
@@ -32,12 +32,15 @@ const ProfileMain = ({ username }) => {
           {profile.publications.map((p, i) => (
             <ProfileTile
               key={i}
+              author={profile.user.username}
               publication={p}
               index={i} 
               isSelf={profile.isSelf}
               onEdit={() => { setExpandedTile(i) }}
+              onCloseTile={() => { setExpandedTile(null) }}
               isExpanded={ i === expandedTile }
               onProfileUpdate={refetchProfile}
+              onPlayAudio={onPlayAudio}
             />
           ))}
         </ul>

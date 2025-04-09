@@ -10,6 +10,7 @@ const PROFILE_QUERY = gql`
       publications {
         id
         title
+        description
         cover
         tag {
           id

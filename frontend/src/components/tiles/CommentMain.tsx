@@ -4,7 +4,12 @@ import COMMENT_QUERY from "../../graphql/commentQuery.ts";
 import CREATE_COMMENT_MUTATION from "../../graphql/createCommentMutation.ts";
 import CommentTile from "./CommentTile.tsx";
 
-const CommentMain = ({ publicationId }) => {
+interface CommentMainProps {
+  publicationId: number;
+  onError: () => void;
+}
+
+const CommentMain = ({ publicationId, onError }: CommentMainProps) => {
   const [enabledCommentZone, setEnabledCommentZone] = useState(null);
   const [commentText, setCommentText] = useState("");
   const { loading, error, data } = useQuery(COMMENT_QUERY, {
@@ -13,6 +18,9 @@ const CommentMain = ({ publicationId }) => {
 
   const [createComment] = useMutation(CREATE_COMMENT_MUTATION, {
     refetchQueries: [{ query: COMMENT_QUERY, variables: { publicationId: +publicationId } }],
+    onError: (err) => {
+      onError(err.message);
+    },
   });
 
   const comments = data?.commentsByPublication || [];

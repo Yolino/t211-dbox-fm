@@ -25,7 +25,7 @@ const LoginCard = ({ onClose, onLoginSuccess }: LoginCardProps) => {
       }
     },
     onError: (error) => {
-      setError("An error occured whilst trying to log you in.");
+      setError(error.message);
     },
   });
 
@@ -66,6 +66,7 @@ const LoginCard = ({ onClose, onLoginSuccess }: LoginCardProps) => {
                 placeholder="Enter your username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
+                required
               />
               <ProfileIcon />
             </div>
@@ -84,6 +85,7 @@ const LoginCard = ({ onClose, onLoginSuccess }: LoginCardProps) => {
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
               />
               <PasswordIcon />
             </div>
@@ -91,7 +93,7 @@ const LoginCard = ({ onClose, onLoginSuccess }: LoginCardProps) => {
 
           {/* Error displaying */}
           {error && (
-            <div className="mb-4 text-sm text-red-600">
+            <div className="mb-4 text-sm text-red-600 text-center">
               {error}
             </div>
           )}

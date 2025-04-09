@@ -30,17 +30,11 @@ const SignupCard = ({ onClose, onSignupSuccess }: SignupCardProps) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // Vérifier que les mots de passe correspondent
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
       return;
     }
-
-    // Réinitialiser l'erreur
     setError("");
-
-    // Appeler la mutation pour créer un utilisateur
     createUser({ variables: { username, email, password } });
   };
 
@@ -75,6 +69,7 @@ const SignupCard = ({ onClose, onSignupSuccess }: SignupCardProps) => {
                 placeholder="Enter your username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
+                required
               />
               <ProfileIcon />
             </div>
@@ -93,6 +88,7 @@ const SignupCard = ({ onClose, onSignupSuccess }: SignupCardProps) => {
                 placeholder="Enter your email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                required
               />
               <EmailIcon />
             </div>
@@ -111,6 +107,7 @@ const SignupCard = ({ onClose, onSignupSuccess }: SignupCardProps) => {
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
               />
               <PasswordIcon />
             </div>
@@ -129,6 +126,7 @@ const SignupCard = ({ onClose, onSignupSuccess }: SignupCardProps) => {
                 placeholder="Confirm your password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
+                required
               />
               <PasswordIcon />
             </div>

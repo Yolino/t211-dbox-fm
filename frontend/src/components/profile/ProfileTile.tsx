@@ -5,6 +5,7 @@ import UPDATE_PUBLICATION_MUTATION from "../../graphql/updatePublicationMutation
 import DELETE_PUBLICATION_MUTATION from "../../graphql/deletePublicationMutation.ts";
 import GET_MEDIA from "../../context/mediaUrl.ts";
 import DeletePublicationCard from "./DeletePublicationCard.tsx";
+import PlayIcon from "../../svg/PlayIcon.tsx";
 import EditIcon from "../../svg/EditIcon.tsx";
 import DeleteIcon from "../../svg/DeleteIcon.tsx";
 
@@ -23,9 +24,10 @@ interface ProfileTileProps {
   onEdit: () => void;
   isExpanded: boolean;
   onDeletePublication: () => void;
+  onPlayAudio: () => void;
 };
 
-const ProfileTile = ({ publication, index, isSelf, onEdit, isExpanded, onProfileUpdate }: ProfileTileProps) => {
+const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, isExpanded, onProfileUpdate, onPlayAudio }: ProfileTileProps) => {
   const [isDeleteCardOpen, setIsDeleteCardOpen] = useState(false);
   const handleDeleteClick = () => {
     setIsDeleteCardOpen(true);
@@ -39,6 +41,7 @@ const ProfileTile = ({ publication, index, isSelf, onEdit, isExpanded, onProfile
     tag: NaN,
     description: "",
     cover: null as File | null,
+    removeCover: false,
   });
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEditedPublication({
@@ -60,6 +63,12 @@ const ProfileTile = ({ publication, index, isSelf, onEdit, isExpanded, onProfile
       });
     }
   };
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  setEditedPublication({
+    ...editedPublication,
+    removeCover: event.target.checked,
+  });
+};
 
   const { loading, error, data } = useQuery(TAGS_QUERY);
   const [errorMessage, setErrorMessage] = useState("");
@@ -68,6 +77,7 @@ const ProfileTile = ({ publication, index, isSelf, onEdit, isExpanded, onProfile
       if (data.updatePublication.success) {
         setErrorMessage("");
         onProfileUpdate();
+        onCloseTile();
       }
     },
     onError: (err) => {
@@ -94,6 +104,7 @@ const ProfileTile = ({ publication, index, isSelf, onEdit, isExpanded, onProfile
       tag: editedPublication.tag === +publication.tag.id ? null : editedPublication.tag,
       description: editedPublication.description === "" ? null : editedPublication.description,
       cover: editedPublication.cover,
+      removeCover: editedPublication.removeCover,
     }});
   };
   const handleDeletePublication = (id) => {
@@ -101,15 +112,31 @@ const ProfileTile = ({ publication, index, isSelf, onEdit, isExpanded, onProfile
   };
 
   return (
-    <div className="p-4 bg-gray-200 rounded-lg shadow-sm">
-      <li key={index} className="flex justify-between items-center">
-        {publication.cover && <img
-          className="h-16 object-cover rounded mb-2"
-          src={GET_MEDIA(publication.cover)}
-          alt={`Cover for ${publication.title}`}
-        />}
-        <h3 className="text-lg font-bold text-gray-800">{publication.title}{isExpanded && " - Edit publication"}</h3>
-        {isSelf && <div className="flex gap-2">
+    <div className="p-4 bg-gray-200 rounded-lg shadow-sm group">
+      <li key={index} className="relative flex items-center">
+        <div className="flex items-center">
+          {publication.cover && (
+            <img
+              className="h-16 object-cover rounded mr-2"
+              src={GET_MEDIA(publication.cover)}
+              alt={`Cover for ${publication.title}`}
+            />
+          )}
+          <button
+            className="p-3 bg-gray-300 rounded-full shadow-lg hover:bg-gray-400 transition-colors duration-200"
+            onClick={(e) => {
+              onPlayAudio({
+                id: publication.id,
+                title: publication.title,
+                author,
+              })
+            }}
+          >
+            <PlayIcon />
+          </button>
+        </div>
+        <h3 className="ml-auto text-lg font-bold text-gray-800">{publication.title}{isExpanded && " - Edit publication"}</h3>
+        {isSelf && <div className="flex gap-2 ml-4">
           <EditIcon onClick={onEdit} />
           <DeleteIcon onClick={handleDeleteClick} />
         </div>}
@@ -121,7 +148,7 @@ const ProfileTile = ({ publication, index, isSelf, onEdit, isExpanded, onProfile
             <input
               type="text"
               name="title"
-              placeholder={publication.title}
+              defaultValue={publication.title}
               onChange={handleInputChange}
               className="mt-0 w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -148,18 +175,27 @@ const ProfileTile = ({ publication, index, isSelf, onEdit, isExpanded, onProfile
             <input
               type="text"
               name="description"
-              placeholder={publication.description}
+              defaultValue={publication.description}
               onChange={handleInputChange}
               className="mt-0 w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div className="flex items-center gap-4 w-full">
-            <label className="w-1/6 font-bold text-gray-800 whitespace-nowrap">Cover Image</label>
+            <label className="w-1/6 font-bold text-gray-800 whitespace-nowrap">Cover image</label>
             <input
               type="file"
               name="cover"
               onChange={handleFileChange}
               className="mt-0 w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div className="flex items-center gap-4 w-full">
+            <label className="w-1/6 font-bold text-gray-800">Remove current cover image</label>
+            <input
+              type="checkbox"
+              name="remove-cover"
+              onChange={handleCheckboxChange}
+              className="h-4 w-4 bg-gray-800 border border-gray-600 rounded-md text-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />
           </div>
           <input

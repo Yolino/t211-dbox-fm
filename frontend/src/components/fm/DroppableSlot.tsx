@@ -1,9 +1,11 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { useDrop } from "react-dnd";
 import GET_MEDIA from "../../context/mediaUrl.ts";
 import DeleteIcon from "../../svg/DeleteIcon.tsx";
 
 const DroppableSlot = ({ label, timeSlot, schedule, handleDrop, handleDeleteScheduling }) => {
+  const navigate = useNavigate();
   const [{ isOver }, drop] = useDrop({
     accept: "publication",
     drop: (item) => {
@@ -28,8 +30,9 @@ const DroppableSlot = ({ label, timeSlot, schedule, handleDrop, handleDeleteSche
                   alt={`Cover for ${s.publication.title}`}
                 />}
                 <div className="flex-1 bg-gray-200 rounded-md p-2">
-                  <p className="text-gray-800">{s.publication.author.username}</p>
-                  <h4 className="text-gray-800 font-bold">{s.publication.title}</h4>
+                  <p className="text-gray-800 cursor-default">{s.time.split("T")[1].split("+")[0]}</p>
+                  <p onClick={() => { navigate(`/profile/${s.publication.author.username}`) }} className="text-gray-800 cursor-pointer hover:underline">{s.publication.author.username}</p>
+                  <h4 className="text-gray-800 font-bold cursor-default">{s.publication.title}</h4>
                 </div>
                 {handleDeleteScheduling && <DeleteIcon onClick={() => {handleDeleteScheduling(s.id)}} />}
               </div>

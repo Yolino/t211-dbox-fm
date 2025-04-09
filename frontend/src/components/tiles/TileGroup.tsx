@@ -5,10 +5,14 @@ import PUBLICATIONS_QUERY from "../../graphql/publicationsQuery.ts";
 import ShowMoreIcon from "../../svg/ShowMoreIcon.tsx";
 
 interface TileGroupProps {
+  groupTitle: string;
   orderBy: string;
+  onPlayAudio: () => void;
+  onTileClick: () => void;
+  onError: () => void;
 }
 
-const TileGroup = ({ groupTitle="Default", orderBy="-created_at", onPlayAudio, onTileClick }: TileGroupProps) => {
+const TileGroup = ({ groupTitle="Default", orderBy="-created_at", onPlayAudio, onTileClick, onError }: TileGroupProps) => {
   const [count, setCount] = useState(6);
   const { loading, error, data, refetch } = useQuery(PUBLICATIONS_QUERY, {
     variables: { orderBy, count },
@@ -33,6 +37,7 @@ const TileGroup = ({ groupTitle="Default", orderBy="-created_at", onPlayAudio, o
             onPlayAudio={onPlayAudio}
             onTileClick={onTileClick}
             onTileVote={onTileVote}
+            onError={onError}
           />
         ))}
         <div className="flex items-center justify-center">
