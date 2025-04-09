@@ -39,3 +39,5 @@ db_data/
 #backend
 **/media/
 **/audio/
+
+.secrets
