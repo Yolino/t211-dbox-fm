@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model, authenticate, login, logout
 from django.contrib.auth.password_validation import validate_password
 from content.models import Publication
 from content.schema import PublicationType
+from users.utils import send_verification_email
 
 User = get_user_model()
 
@@ -80,9 +81,10 @@ class CreateUser(graphene.Mutation):
         except ValidationError as e:
             raise GraphQLError(f"Invalid password: {', '.join(e.messages)}")
 
-        user = User(username=username, email=email)
+        user = User(username=username, email=email, is_active=False)
         user.set_password(password)
         user.save()
+        send_verification_email(user)
         return CreateUser(user=user)
 
 class LoginUser(graphene.Mutation):

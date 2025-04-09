@@ -171,3 +171,8 @@ SESSION_ENGINE = "django.contrib.sessions.backends.db"
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SECURE = False
 SESSION_COOKIE_SAMESITE = "Lax"
+
+# EMAIL PARAMETERS #
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'no-reply@dbox-fm.be'
