@@ -40,6 +40,7 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
     tag: NaN,
     description: "",
     cover: null as File | null,
+    removeCover: false,
   });
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEditedPublication({
@@ -61,6 +62,12 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
       });
     }
   };
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  setEditedPublication({
+    ...editedPublication,
+    removeCover: event.target.checked,
+  });
+};
 
   const { loading, error, data } = useQuery(TAGS_QUERY);
   const [errorMessage, setErrorMessage] = useState("");
@@ -96,6 +103,7 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
       tag: editedPublication.tag === +publication.tag.id ? null : editedPublication.tag,
       description: editedPublication.description === "" ? null : editedPublication.description,
       cover: editedPublication.cover,
+      removeCover: editedPublication.removeCover,
     }});
   };
   const handleDeletePublication = (id) => {
@@ -172,12 +180,21 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
             />
           </div>
           <div className="flex items-center gap-4 w-full">
-            <label className="w-1/6 font-bold text-gray-800 whitespace-nowrap">Cover Image</label>
+            <label className="w-1/6 font-bold text-gray-800 whitespace-nowrap">Cover image</label>
             <input
               type="file"
               name="cover"
               onChange={handleFileChange}
               className="mt-0 w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div className="flex items-center gap-4 w-full">
+            <label className="w-1/6 font-bold text-gray-800">Remove current cover image</label>
+            <input
+              type="checkbox"
+              name="remove-cover"
+              onChange={handleCheckboxChange}
+              className="h-4 w-4 bg-gray-800 border border-gray-600 rounded-md text-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />
           </div>
           <input

@@ -124,12 +124,13 @@ class UpdatePublication(graphene.Mutation):
         publication_id = graphene.Int(required=True)
         title = graphene.String()
         cover = Upload()
+        remove_cover = graphene.Boolean(required=True)
         tag = graphene.Int()
         description = graphene.String()
 
     success = graphene.Boolean()
 
-    def mutate(root, info, publication_id, title, cover, tag, description):
+    def mutate(root, info, publication_id, title, cover, remove_cover, tag, description):
         user = info.context.user
         if not user.is_authenticated:
             raise GraphQLError("You cannot update a Publication if you are not authenticated")
@@ -143,11 +144,15 @@ class UpdatePublication(graphene.Mutation):
             raise GraphQLError("This Publication has been banned. You can no longer view, update or delete it")
         if ReportPublication.objects.filter(reported_publication=publication, is_reviewed=False).exists():
             raise GraphQLError("This Publication is currently flagged. You cannot update or delete it")
-        if not title and not cover and not tag and not description:
+        if not title and not cover and not remove_cover and not tag and not description:
             raise GraphQLError("You need to specify at least one field in order to update this publication")
         if title:
             publication.title = title
-        if cover:
+        if remove_cover:
+            if publication.cover:
+                publication.cover.delete(save=False)
+            publication.cover = None
+        elif cover:
             try:
                 validate_image(cover)
             except ValidationError as e:
