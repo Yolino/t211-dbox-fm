@@ -16,7 +16,7 @@ class ReportPublicationType(DjangoObjectType):
 class ReportedPublicationType(DjangoObjectType):
     class Meta:
         model = Publication
-        fields = ("id", "author", "cover", "description", "is_banned")
+        fields = ("id", "title", "author", "cover", "description", "is_banned")
     
     report_count = graphene.Int()
     def resolve_report_count(root, info):
@@ -28,5 +28,5 @@ class ReportCommentType(DjangoObjectType):
         fields = ("id", "reporter", "reported_comment", "is_reviewed")
 
 class Query(graphene.ObjectType):
-    reported_publications = graphene.List(graphene.NonNull(ReportedPublicationType))
+    pass
 
