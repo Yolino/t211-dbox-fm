@@ -27,6 +27,9 @@ interface ProfileTileProps {
 };
 
 const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, isExpanded, onProfileUpdate, onPlayAudio }: ProfileTileProps) => {
+  
+  const [successMessage, setSuccessMessage] = useState("");
+  
   const [isDeleteCardOpen, setIsDeleteCardOpen] = useState(false);
   const handleDeleteClick = () => {
     setIsDeleteCardOpen(true);
@@ -75,24 +78,28 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
     onCompleted: (data) => {
       if (data.updatePublication.success) {
         setErrorMessage("");
+        setSuccessMessage("Publication successfully updated");
         onProfileUpdate();
         onCloseTile();
       }
     },
     onError: (err) => {
       setErrorMessage(err.message);
+      setSuccessMessage("");
     },
   });
   const [deletePublication] = useMutation(DELETE_PUBLICATION_MUTATION, {
     onCompleted: (data) => {
       if (data.deletePublication.success) {
         setErrorMessage("");
+        setSuccessMessage("");
         setIsDeleteCardOpen(false);
         onProfileUpdate();
       }
     },
     onError: (err) => {
       setErrorMessage(err.message);
+      setSuccessMessage("");
     },
   });
   const handleEditPublication = (event: React.FormEvent) => {
@@ -205,6 +212,7 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
         </form>
       )}
       {errorMessage && <p className="mb-4 mt-1 text-sm text-center text-red-600">{errorMessage}</p>}
+      {successMessage && <p className="mb-4 mt-1 text-sm text-center text-green-600">{successMessage}</p>}
       {isDeleteCardOpen && (
         <DeletePublicationCard
           id={publication.id}
