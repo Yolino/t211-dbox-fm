@@ -4,6 +4,7 @@ import { useQuery } from "@apollo/client";
 import PUBLICATION_DETAIL_QUERY from "../../graphql/publicationDetailQuery.ts";
 import GET_MEDIA from "../../context/mediaUrl.ts";
 import CommentMain from "./CommentMain.tsx";
+import AudioIcon from "../../svg/AudioIcon.tsx";
 
 interface TileExpandedProps {
   tileId: number;
@@ -26,12 +27,16 @@ const TileExpanded = ({ tileId, onError }: TileExpandedProps) => {
   return (
     <div className="w-full p-6 bg-gray-100 rounded-lg shadow-md mt-4 animate-fade-in">
       <div className="flex gap-4">
-        {/* Cover Image */}
-        <img
+      {(publication.cover) ? <img
           className="w-32 h-32 object-cover rounded-lg shadow-md"
           src={GET_MEDIA(publication.cover)}
           alt={`Cover for ${publication.title}`}
-        />
+        /> : <div
+          className=" w-32 h-32 object-cover rounded-lg shadow-md flex items-center justify-center"
+        >
+          <AudioIcon styleClass="w-12 h-12 text-gray-800" />
+        </div>
+      }
 
         {/* Text Content */}
         <div className="flex flex-col flex-1">

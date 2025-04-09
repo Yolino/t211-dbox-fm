@@ -39,7 +39,7 @@ const HomePage = () => {
         <Routes>
           <Route path="/" element={<TileMain onPlayAudio={handlePlayAudio} />} />
           <Route path="/publish" element={<PublishMain />} />
-          <Route path="/profile" element={<ProfileWrapper />} />
+          <Route path="/profile" element={<ProfileWrapper onPlayAudio={handlePlayAudio} />} />
           <Route path="/profile/:username" element={<ProfileWrapper onPlayAudio={handlePlayAudio} />} />
           <Route path="/fm" element={<FmMain />} />
           <Route path="/moderation" element={<ModerationMain />} />
