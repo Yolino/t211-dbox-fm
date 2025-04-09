@@ -108,11 +108,6 @@ const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote, onErro
       onClick={() => onTileClick(publication.id, group)}
     >
       {/* Image de couverture */}
-      <img
-        className="w-full h-32 object-cover rounded mb-2"
-        src={GET_MEDIA(publication.cover)}
-        alt={`Cover for ${publication.title}`}
-      />
       {(publication.cover) ? <img
           className="w-full h-32 object-cover rounded mb-2"
           src={GET_MEDIA(publication.cover)}
