@@ -1,4 +1,5 @@
 import graphene
+from graphene_django import DjangoObjectType
 from .models import ReportUser, ReportPublication, ReportComment
 from content.models import Publication, Comment
 
@@ -23,7 +24,7 @@ class ReportedPublicationType(DjangoObjectType):
 
 class ReportCommentType(DjangoObjectType):
     class Meta:
-        model = ReportCpùùent
+        model = ReportComment
         fields = ("id", "reporter", "reported_comment", "is_reviewed")
 
 class Query(graphene.ObjectType):

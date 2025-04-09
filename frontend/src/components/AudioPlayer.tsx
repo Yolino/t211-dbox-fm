@@ -16,7 +16,7 @@ interface AudioPlayerProps {
   onClose: () => void;
 }
 
-const AudioPlayer = ({ audio, onClose }) => {
+const AudioPlayer = ({ audio, onClose }: AudioPlayerProps) => {
   const navigate = useNavigate();
   const audioRef = useRef(null);
   const controllerRef = useRef(new AbortController());
