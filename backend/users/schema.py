@@ -84,7 +84,7 @@ class CreateUser(graphene.Mutation):
         user = User(username=username, email=email, is_active=False)
         user.set_password(password)
         user.save()
-        send_verification_email(user)
+        send_verification_email(user, info.context)
         return CreateUser(user=user)
 
 class LoginUser(graphene.Mutation):

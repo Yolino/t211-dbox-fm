@@ -9,6 +9,7 @@ urlpatterns = [
     path("graphql/", FileUploadGraphQLView.as_view(graphiql=True)),
     path("api/", include("content.urls")),
     path("api/", include("live.urls")),
+    path("", include("users.urls")),
 ]
 
 if settings.DEBUG:
