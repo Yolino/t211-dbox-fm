@@ -8,5 +8,8 @@ while ! nc -z db 5432; do
 done
 echo "PostgreSQL container ready !"
 
-echo "Starting Django server..."
-exec python manage.py runserver 0.0.0.0:8000
+echo "Collecting static Django files..."
+python manage.py collectstatic --noinput
+echo "Static Django files successfully collected !"
+echo "Starting Gunicorn server..."
+exec gunicorn --bind 0.0.0.0:8000 --workers 3 --threads 2 --worker-class=gthread --timeout 120 backend.wsgi:application
