@@ -25,7 +25,13 @@ SECRET_KEY = get_secret("django_key")
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['localhost']
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    'backend',
+    'dbox-fm.be',
+    'www.dbox-fm.be',
+]
 
 # Application definition
 
@@ -137,8 +143,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOW_CREDENTIALS = True
 
-CORS_ALLOWED_ORIGINS = [ 
-    'http://localhost',
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://dbox-fm.be",
+    "https://dbox-fm.be",
 ]
 
 CORS_ALLOW_METHODS = ['GET', 'POST', 'OPTIONS', 'DELETE', 'PATCH', 'PUT']
