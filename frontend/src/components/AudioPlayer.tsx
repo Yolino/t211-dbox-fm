@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import LoadingIcon from "../svg/LoadingIcon.tsx";
 import PlayIcon from "../svg/PlayIcon.tsx";
 import PauseIcon from "../svg/PauseIcon.tsx";
 import AudioIcon from "../svg/AudioIcon.tsx";
@@ -21,18 +22,22 @@ const AudioPlayer = ({ audio, onClose }: AudioPlayerProps) => {
   const audioRef = useRef(null);
   const controllerRef = useRef(new AbortController());
   const [audioBlob, setAudioBlob] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const fetchAudio = async(id) => {
     try {
+      setIsLoading(true);
       const response = await fetch(`http://localhost:8000/api/audio/${id}/`);
       const blob = await response.blob();
+      setIsLoading(false);
       setAudioBlob(blob);
     } catch (error) {
-      console.log(`Error fetching audio ${id}: ${error}`);
+      setErrorMessage(`Error fetching audio ${id}: ${error}`);
     }
   };
 
@@ -46,7 +51,6 @@ const AudioPlayer = ({ audio, onClose }: AudioPlayerProps) => {
     if (audioBlob && audioRef.current) {
       const controller = new AbortController();
       controllerRef.current = controller;
-
       // Create a URL for the blob
       const audioUrl = URL.createObjectURL(audioBlob);
       // Set the URL as the source for the audio
@@ -55,7 +59,7 @@ const AudioPlayer = ({ audio, onClose }: AudioPlayerProps) => {
       audioRef.current.play().then(() => {
         setIsPlaying(true);
       }).catch((error) => {
-        console.log("Playback error :", error);
+        setErrorMessage(`Playback error : ${error}`);
       });
       return () => {
         controller.abort();
@@ -70,6 +74,7 @@ const AudioPlayer = ({ audio, onClose }: AudioPlayerProps) => {
       audioRef.current.play();
     }
     setIsPlaying(!isPlaying);
+    setIsLoading(false);
   };
 
   const handleTimeUpdate = () => {
@@ -120,8 +125,9 @@ const AudioPlayer = ({ audio, onClose }: AudioPlayerProps) => {
         <button
           onClick={togglePlayPause}
           className="p-3 bg-gray-700 rounded-full hover:bg-gray-600 transition-colors duration-200 text-white"
+          disabled={isLoading}
         >
-          {isPlaying ? (<PauseIcon />) : (<PlayIcon />)}
+          {isLoading ? (<LoadingIcon />) : isPlaying ? (<PauseIcon />) : (<PlayIcon />)}
         </button>
         {/* Progress Bar */}
         <div className="flex items-center space-x-4 flex-1 mx-4">
