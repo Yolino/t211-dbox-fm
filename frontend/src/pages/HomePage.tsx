@@ -24,10 +24,10 @@ const HomePage = () => {
   const handlePlayAudio = (audio) => {
     setDisplayPlayer(true);
     setCurrentAudio(audio);
-  }
+  };
   const handleClosePlayer = () => {
     setDisplayPlayer(false);
-  }
+  };
   const location = useLocation();
   const message = location.state?.message;
 
@@ -43,7 +43,7 @@ const HomePage = () => {
           <Route path="/profile/:username" element={<ProfileWrapper onPlayAudio={handlePlayAudio} />} />
           <Route path="/fm" element={<FmMain />} />
           <Route path="/moderation" element={<ModerationMain />} />
-        </Routes> 
+        </Routes>
       </main>
       {displayPlayer && <AudioPlayer audio={currentAudio} onClose={handleClosePlayer} />}
     </div>
