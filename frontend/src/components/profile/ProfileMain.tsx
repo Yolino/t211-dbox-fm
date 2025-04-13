@@ -7,6 +7,11 @@ import LoadingIcon from "../../svg/LoadingIcon.tsx";
 
 const ProfileMain = ({ username, onPlayAudio }) => {
   const [expandedTile, setExpandedTile] = useState(null);
+  const [message, setMessage] = useState({
+    tileId: NaN,
+    isError: false,
+    text: "",
+  });
   const { loading, error, data, refetch } = useQuery(PROFILE_QUERY, {
     variables: { username },
   });
@@ -44,6 +49,8 @@ const ProfileMain = ({ username, onPlayAudio }) => {
               onEdit={() => { handleExpandTile(i) }}
               onCloseTile={() => { setExpandedTile(null) }}
               isExpanded={ i === expandedTile }
+              message={i === message.tileId ? {isError: message.isError, text: message.text} : null}
+              onSetMessage={(m) => { setMessage(m) }}
               onProfileUpdate={refetchProfile}
               onPlayAudio={onPlayAudio}
             />

@@ -26,8 +26,7 @@ interface ProfileTileProps {
   onPlayAudio: () => void;
 };
 
-const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, isExpanded, onProfileUpdate, onPlayAudio }: ProfileTileProps) => {
-  const [successMessage, setSuccessMessage] = useState("");
+const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, isExpanded, message, onSetMessage, onProfileUpdate, onPlayAudio }: ProfileTileProps) => {
   const [isDeleteCardOpen, setIsDeleteCardOpen] = useState(false);
   const handleDeleteClick = () => {
     setIsDeleteCardOpen(true);
@@ -64,40 +63,51 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
     }
   };
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-  setEditedPublication({
-    ...editedPublication,
-    removeCover: event.target.checked,
-  });
-};
+    setEditedPublication({
+      ...editedPublication,
+      removeCover: event.target.checked,
+    });
+  };
 
   const { loading: loadingTags, error, data } = useQuery(TAGS_QUERY);
-  const [errorMessage, setErrorMessage] = useState("");
   const [updatePublication, { loading: loadingUpdate }] = useMutation(UPDATE_PUBLICATION_MUTATION, {
     onCompleted: (data) => {
       if (data.updatePublication.success) {
-        setErrorMessage("");
-        setSuccessMessage("Publication successfully updated");
+        onSetMessage({
+          tileId: index,
+          isError: false,
+          text: "Publication successfully updated",
+        });
         onProfileUpdate();
         onCloseTile();
       }
     },
     onError: (err) => {
-      setErrorMessage(err.message);
-      setSuccessMessage("");
+      onSetMessage({
+        tileId: index,
+        isError: true,
+        text: err.message,
+      });
     },
   });
   const [deletePublication] = useMutation(DELETE_PUBLICATION_MUTATION, {
     onCompleted: (data) => {
       if (data.deletePublication.success) {
-        setErrorMessage("");
-        setSuccessMessage("");
+        onSetMessage({
+          tileId: NaN,
+          isError: false,
+          text: "",
+        });
         setIsDeleteCardOpen(false);
         onProfileUpdate();
       }
     },
     onError: (err) => {
-      setErrorMessage(err.message);
-      setSuccessMessage("");
+      onSetMessage({
+        tileId: index,
+        isError: true,
+        text: err.message,
+      });
     },
   });
   const handleEditPublication = (event: React.FormEvent) => {
@@ -210,8 +220,7 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
           />
         </form>
       )}
-      {errorMessage && <p className="mb-4 mt-1 text-sm text-center text-red-600">{errorMessage}</p>}
-      {successMessage && <p className="mb-4 mt-1 text-sm text-center text-green-600">{successMessage}</p>}
+      {message && <p className={`mb-4 mt-1 text-sm text-center ${message.isError ? "text-red-500" : "text-green-500"}`}>{message.text}</p>}
       {isDeleteCardOpen && (
         <DeletePublicationCard
           id={publication.id}
