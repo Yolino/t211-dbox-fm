@@ -138,23 +138,23 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [ 
-                        'frontend',
+    'https://dbox-fm.be',
+    'https://www.dbox-fm.be',
 ]
 
 CORS_ALLOW_METHODS = ['GET', 'POST', 'OPTIONS', 'DELETE', 'PATCH', 'PUT']
 
 CORS_ALLOW_HEADERS = ["content-type", "authorization", "x-csrftoken"]
 
-#CSRF_TRUSTED_ORIGINS = [
-#    'http://localhost:3000',
-#    'http://frontend:3000',
-#    'http://0.0.0.0:3000',
-#]
+CSRF_TRUSTED_ORIGINS = [
+    'https://dbox-fm.be',
+    'https://www.dbox-fm.be',
+]
 
-#CSRF_COOKIE_HTTPONLY = False
-#CSRF_COOKIE_SAMESITE = 'Lax'
-#CSRF_COOKIE_SECURE = False
-#CSRF_USE_SESSIONS = False
+CSRF_COOKIE_HTTPONLY = False
+CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SECURE = False
+CSRF_USE_SESSIONS = False
 
 GRAPHENE = {
     'SCHEMA': 'backend.schema.schema'
