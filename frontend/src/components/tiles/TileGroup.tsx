@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useQuery } from "@apollo/client";
 import Tile from "./Tile.tsx";
 import PUBLICATIONS_QUERY from "../../graphql/publicationsQuery.ts";
+import LoadingIcon from "../../svg/LoadingIcon.tsx";
 import ShowMoreIcon from "../../svg/ShowMoreIcon.tsx";
 
 interface TileGroupProps {
@@ -21,33 +22,46 @@ const TileGroup = ({ groupTitle="Default", orderBy="-created_at", onPlayAudio, o
     refetch();
   };
   const pubs = data?.publications || [];
-  
-  if (loading) return <p>Loading...</p>
-  if (error) return <p>Error</p>
 
   return (
     <div id={orderBy} className="my-4">
       <p className="text-black text-3xl font-semibold mb-2">{groupTitle}</p>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-4">
-        {pubs.map((p) => (
-          <Tile
-            key={p.id}
-            publication={p}
-            group={orderBy}
-            onPlayAudio={onPlayAudio}
-            onTileClick={onTileClick}
-            onTileVote={onTileVote}
-            onError={onError}
-          />
-        ))}
-        <div className="flex items-center justify-center">
-        <button
-          onClick={() => setCount(count + 6)}
-          className="flex justify-center items-center w-16 h-16 rounded-full bg-gray-200 text-gray-800 hover:bg-gray-300 focus:outline-none"
-        >
-          <ShowMoreIcon />
-        </button>
-        </div>
+        {(loading || error) ? (
+          <div className="group flex-shrink-0 w-48 p-4 bg-gray-100 rounded-lg shadow-md hover:bg-gray-200 hover:scale-105 hover:shadow-lg transition-all duration-300 relative">
+            <div
+              className="w-full h-32 flex items-center justify-center rounded mb-2 bg-gray-100"
+            >
+              <LoadingIcon />
+            </div>
+            <div className="p-10">
+              {loading && <p>Loading...</p>}
+              {error && <p>{error}</p>}
+            </div>
+          </div>
+        ) : (
+          <>
+            {pubs.map((p) => (
+              <Tile
+                key={p.id}
+                publication={p}
+                group={orderBy}
+                onPlayAudio={onPlayAudio}
+                onTileClick={onTileClick}
+                onTileVote={onTileVote}
+                onError={onError}
+              />
+            ))}
+            <div className="flex items-center justify-center">
+              <button
+                onClick={() => setCount(count + 6)}
+                className="flex justify-center items-center w-16 h-16 rounded-full bg-gray-200 text-gray-800 hover:bg-gray-300 focus:outline-none"
+              >
+                <ShowMoreIcon />
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
