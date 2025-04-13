@@ -32,6 +32,7 @@ services:
       - django_key
     volumes:
       - prod_media_files:/media
+      - prod_static_files:/usr/share/nginx/html/static
     networks:
       - prod_orm
       - prod_api
@@ -44,6 +45,7 @@ services:
     container_name: dbox-frontend-prod
     volumes:
       - prod_media_files:/usr/share/nginx/html/media
+      - prod_static_files:/usr/share/nginx/html/static/django
     networks:
       - prod_api
     ports:
@@ -64,6 +66,7 @@ secrets:
 volumes:
   prod_db_data:
   prod_media_files:
+  prod_static_files:
 
 networks:
   prod_api:
