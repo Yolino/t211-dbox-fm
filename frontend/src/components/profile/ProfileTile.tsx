@@ -27,7 +27,6 @@ interface ProfileTileProps {
 };
 
 const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, isExpanded, onProfileUpdate, onPlayAudio }: ProfileTileProps) => {
-  
   const [successMessage, setSuccessMessage] = useState("");
   const [isDeleteCardOpen, setIsDeleteCardOpen] = useState(false);
   const handleDeleteClick = () => {
@@ -71,9 +70,9 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
   });
 };
 
-  const { loading, error, data } = useQuery(TAGS_QUERY);
+  const { loading: loadingTags, error, data } = useQuery(TAGS_QUERY);
   const [errorMessage, setErrorMessage] = useState("");
-  const [updatePublication] = useMutation(UPDATE_PUBLICATION_MUTATION, {
+  const [updatePublication, { loading: loadingUpdate }] = useMutation(UPDATE_PUBLICATION_MUTATION, {
     onCompleted: (data) => {
       if (data.updatePublication.success) {
         setErrorMessage("");
@@ -166,7 +165,7 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
               onChange={handleTagChange}
               className="mt-0 w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              {loading && <option disabled>Loading...</option>}
+              {loadingTags && <option disabled>Loading...</option>}
               {error && <option disabled>Error</option>}
               {data.tags.map((tag) => (
                 <option key={tag.id} value={tag.id}>
@@ -205,8 +204,9 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
           </div>
           <input
             type="submit"
-            value="Edit"
+            value={loadingUpdate ? "Editing..." : "Edit"}
             className="w-full px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200"
+            disabled={loadingUpdate}
           />
         </form>
       )}

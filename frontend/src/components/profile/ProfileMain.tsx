@@ -25,7 +25,7 @@ const ProfileMain = ({ username, onPlayAudio }) => {
           {loading && <LoadingIcon />}
           <h1 className="text-3xl font-bold text-white">User Profile {profile?.user?.username ? ` - ${profile.user.username}` : username ? ` - ${username}` : ""}</h1>
         </div>
-        {error && <p className="text-center text-red-500">{error}</p>}
+        {error && <p className="text-center text-red-500">{error.message}</p>}
         {profile?.isSelf && (
           <p className="mt-2 text-sm text-gray-400">This is your profile</p>
         )}

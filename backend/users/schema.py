@@ -31,7 +31,7 @@ class ProfileType(graphene.ObjectType):
         return root.user
 
     def resolve_publications(root, info):
-        return Publication.objects.filter(author=root.user)
+        return Publication.objects.filter(author=root.user).order_by("id")
 
     def resolve_is_self(root, info):
         return root.user == info.context.user
