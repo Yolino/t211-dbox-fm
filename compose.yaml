@@ -1,0 +1,70 @@
+services:
+  db:
+    image: slyven/dbox:db-0.1
+    container_name: dbox-db
+    secrets:
+      - db_name
+      - db_user
+      - db_password
+      - db_django_password
+    environment:
+      - POSTGRES_DB_FILE=/run/secrets/db_name
+      - POSTGRES_USER_FILE=/run/secrets/db_user
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db_password
+    volumes:
+      - prod_db_data:/var/lib/postgresql/data
+    networks:
+      - prod_orm
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: dbox-backend
+    secrets:
+      - db_name
+      - db_user
+      - db_django_password
+      - django_key
+    volumes:
+      - prod_media_files:/media
+    networks:
+      - prod_orm
+      - prod_api
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: dbox-frontend
+    volumes:
+      - prod_media_files:/usr/share/nginx/html/media
+      - ./certbot/www:/var/www/certbot:ro
+      - ./certbot/conf:/etc/nginx/ssl:ro
+    networks:
+      - prod_api
+    ports:
+      - "80:80"
+      - "443:443"
+
+secrets:
+  db_name:
+    file: ./.secrets/prod/db_name.txt
+  db_user:
+    file: ./.secrets/prod/db_user.txt
+  db_password:
+    file: ./.secrets/prod/db_password.txt
+  db_django_password:
+    file: ./.secrets/prod/db_django_password.txt
+  django_key:
+    file: ./.secrets/prod/django_key.txt
+
+volumes:
+  prod_db_data:
+    name: dbox_prod_db_data
+  prod_media_files:
+    name: dbox_prod_media_files
+
+networks:
+  prod_api:
+  prod_orm: 
