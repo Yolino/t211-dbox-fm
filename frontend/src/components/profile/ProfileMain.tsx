@@ -9,6 +9,9 @@ const ProfileMain = ({ username, onPlayAudio }) => {
   const { loading, error, data, refetch } = useQuery(PROFILE_QUERY, {
     variables: { username },
   });
+  const handleExpandTile = (i) => {
+    (i === expandedTile) ? setExpandedTile(null) : setExpandedTile(i);
+  }
   const refetchProfile = () => {
     refetch();
   };
@@ -36,7 +39,7 @@ const ProfileMain = ({ username, onPlayAudio }) => {
               publication={p}
               index={i} 
               isSelf={profile.isSelf}
-              onEdit={() => { setExpandedTile(i) }}
+              onEdit={() => { handleExpandTile(i) }}
               onCloseTile={() => { setExpandedTile(null) }}
               isExpanded={ i === expandedTile }
               onProfileUpdate={refetchProfile}

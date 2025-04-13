@@ -29,7 +29,6 @@ interface ProfileTileProps {
 const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, isExpanded, onProfileUpdate, onPlayAudio }: ProfileTileProps) => {
   
   const [successMessage, setSuccessMessage] = useState("");
-  
   const [isDeleteCardOpen, setIsDeleteCardOpen] = useState(false);
   const handleDeleteClick = () => {
     setIsDeleteCardOpen(true);
