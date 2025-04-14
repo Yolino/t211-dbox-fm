@@ -1,6 +1,7 @@
 import React from "react";
 import MainBlock from "../MainBlock.tsx";
 import DroppableSlot from "./DroppableSlot.tsx";
+import ShowMoreIcon from "../../svg/ShowMoreIcon.tsx";
 import LoadingIcon from "../../svg/LoadingIcon.tsx";
 
 const FmSchedule = ({ date, loading, error, schedule, setDate, incrementDate, handleDrop, handleDeleteScheduling }) => {
@@ -13,12 +14,14 @@ const FmSchedule = ({ date, loading, error, schedule, setDate, incrementDate, ha
   }));
 
   return (
-    <MainBlock styleClass="w-1/3">
-      <div className="flex justify-center items-center space-x-10">
+    <MainBlock styleClass="w-full">
+      <div className="flex justify-center items-center space-x-2">
         <button
           onClick={() => { incrementDate(-1) }}
-          className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >Previous</button>
+          className="rotate-180 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <ShowMoreIcon />
+        </button>
         <input
           type="date"
           value={date}
@@ -28,7 +31,9 @@ const FmSchedule = ({ date, loading, error, schedule, setDate, incrementDate, ha
         <button
           onClick={() => { incrementDate(1) }}
           className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >Next</button>
+        >
+          <ShowMoreIcon />
+        </button>
       </div>
       {error && <p className="text-center text-red-500">{error}</p>}
       <div className="flex justify-center items-center text-white space-x-4">

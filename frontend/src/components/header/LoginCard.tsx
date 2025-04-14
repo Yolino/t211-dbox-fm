@@ -98,7 +98,7 @@ const LoginCard = ({ onClose, onLoginSuccess }: LoginCardProps) => {
             </div>
           )}
 
-          {/* Boutons */}
+          {/* Buttons */}
           <div className="flex justify-between items-center">
             <button
               type="button"
