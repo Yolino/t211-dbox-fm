@@ -33,6 +33,9 @@ ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'corsheaders',
+
+    'users', # Move needed for new html on password reset
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -42,7 +45,6 @@ INSTALLED_APPS = [
     'graphene_django',
     'rest_framework',
 
-    'users',
     'content',
     'moderation',
     'live',
@@ -64,7 +66,7 @@ ROOT_URLCONF = 'backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')], # To search for templates
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
