@@ -12,8 +12,7 @@ def delete_user_after_timeout(user):
         if not user.is_active:
             user.delete()
     except user.DoesNotExist:
-        print('This user DoesNotExist')
-        pass
+        print(f"Error while trying to delete user {user} : this User does not exist")
 
 class TimedTokenGenerator(PasswordResetTokenGenerator):
     def __init__(self, timeout_minutes=10):

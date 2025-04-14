@@ -38,7 +38,7 @@ def create_html_answer(state=False):
     <body>
         <div class="card">
             <div class="success">{'✅ Email Verified!' if state else '❌ Invalid or Expired Link'}</div>
-            <p>Your email has been successfully verified. You may now log in.</p>
+            <p>{'Your email has been successfully verified. You may now log in.' if state else ''}</p>
             <a href="http://localhost:3000/">{'Go to Login' if state else 'Retry signup'}</a>
         </div>
     </body>
@@ -62,6 +62,4 @@ def verify_email_view(request):
         user.save()
         return HttpResponse(create_html_answer(True), status=200)
     else:
-        if not user.is_active:
-            user.delete()
         return HttpResponse(create_html_answer(False), status=400)
