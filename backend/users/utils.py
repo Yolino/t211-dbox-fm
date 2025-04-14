@@ -5,6 +5,15 @@ from django.urls import reverse
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from datetime import timedelta, datetime
 from django.conf import settings
+import threading
+
+def delete_user_after_timeout(user):
+    try:
+        if not user.is_active:
+            user.delete()
+    except user.DoesNotExist:
+        print('This user DoesNotExist')
+        pass
 
 class TimedTokenGenerator(PasswordResetTokenGenerator):
     def __init__(self, timeout_minutes=10):
@@ -36,7 +45,6 @@ def send_verification_email(user, request):
         reverse('verify-email') + f'?uid={uid}&token={token}'
     )
     try:
-        print('test')
         send_mail(
             subject="Verification to your email address",
             message=f"Your verification link: {verify_url}\nYou have 5 minutes to use it",
@@ -44,7 +52,8 @@ def send_verification_email(user, request):
             recipient_list=[user.email],
             fail_silently=False,
         )
-        print('test2')
     except Exception as e:
         print(f'nope {e}')
-
+ 
+    timer = threading.Timer(300, delete_user_after_timeout, args=[user])
+    timer.start()
