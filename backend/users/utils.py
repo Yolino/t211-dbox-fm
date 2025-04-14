@@ -4,6 +4,7 @@ from django.utils.encoding import force_bytes
 from django.urls import reverse
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from datetime import timedelta, datetime
+from django.conf import settings
 
 class TimedTokenGenerator(PasswordResetTokenGenerator):
     def __init__(self, timeout_minutes=10):
@@ -26,7 +27,6 @@ token_generator = TimedTokenGenerator(timeout_minutes=5)
 
 def send_verification_email(user, request):
 
-    # token_generator = TimedTokenGenerator(timeout_minutes=1)
     timestamp = token_generator._num_seconds(datetime.now())
 
     token = token_generator._make_token_with_timestamp(user, timestamp, None)
@@ -35,11 +35,16 @@ def send_verification_email(user, request):
     verify_url = request.build_absolute_uri(
         reverse('verify-email') + f'?uid={uid}&token={token}'
     )
-
-    send_mail(
-        subject="Verification to your email address",
-        message=f"Your verification link: {verify_url}\nYou have 5 minutes to use it",
-        from_email="no-reply@dbox-fm.be",
-        recipient_list=[user.email],
-    )
+    try:
+        print('test')
+        send_mail(
+            subject="Verification to your email address",
+            message=f"Your verification link: {verify_url}\nYou have 5 minutes to use it",
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            fail_silently=False,
+        )
+        print('test2')
+    except Exception as e:
+        print(f'nope {e}')
 

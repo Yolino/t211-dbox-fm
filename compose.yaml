@@ -29,6 +29,7 @@ services:
       - db_name
       - db_django_password
       - django_key
+      - email_password
     volumes:
       - ./backend:/app
       - dev_media_files:/media
@@ -67,6 +68,8 @@ secrets:
     file: ./.secrets/dev/db_django_password.txt
   django_key:
     file: ./.secrets/dev/django_key.txt
+  email_password:
+    file: ./.secrets/dev/email_password.txt
 
 volumes:
   dev_db_data:

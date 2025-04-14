@@ -174,5 +174,12 @@ SESSION_COOKIE_SAMESITE = "Lax"
 
 # EMAIL PARAMETERS #
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = 'no-reply@dbox-fm.be'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+DEFAULT_FROM_EMAIL = 'noreply@dbox-fm.be'
+EMAIL_HOST_PASSWORD = get_secret("email_password")
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+EMAIL_HOST = "dbox-fm.be"
+EMAIL_HOST_USER = "noreply@dbox-fm.be"
+# ACCOUNT_EMAIL_VERIFICATION = 'none'
