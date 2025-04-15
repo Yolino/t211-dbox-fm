@@ -1,8 +1,8 @@
 import { gql } from "@apollo/client";
 
 const REVIEW_REPORT_MUTATION = gql`
-  mutation ReviewReport($reportId: Int!, $reportType: String!, $isSafe: Boolean!) {
-    reviewReport(reportId: $reportId, reportType: $reportType, isSafe: $isSafe) {
+  mutation ReviewReport($reportedId: Int!, $reportType: String!, $isSafe: Boolean!) {
+    reviewReport(reportedId: $reportedId, reportType: $reportType, isSafe: $isSafe) {
       success
     }
   }

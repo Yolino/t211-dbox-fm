@@ -136,60 +136,54 @@ class CreateReport(graphene.Mutation):
 
 class ReviewReport(graphene.Mutation):
     class Arguments:
-        report_id = graphene.Int(required=True)
+        reported_id = graphene.Int(required=True)
         report_type = graphene.String(required=True)
         is_safe = graphene.Boolean(required=True)
 
     success = graphene.Boolean()
 
-    def mutate(root, info, report_id, report_type, is_safe):
+    def mutate(root, info, reported_id, report_type, is_safe):
         user = info.context.user
         if not (user.is_authenticated and user.has_perm("moderation.change_reportuser") and user.has_perm("moderation.change_reportpublication") and user.has_perm("moderation.change_reportcomment")):
             raise GraphQLError("You do not have permission to review Reports")
 
         if report_type == "user":
             try:
-                report_user = ReportUser.objects.get(id=report_id)
-            except ReportUser.DoesNotExist:
-                raise GraphQLError("This ReportUser does not exist")
-            if report_user.is_reviewed:
-                raise GraphQLError("This ReportUser has already been reviewed")
+                reported_user = User.objects.get(id=reported_id)
+            except User.DoesNotExist:
+                raise GraphQLError("This User does not exist")
             if not is_safe:
-                user = report_user.reported_user
-                user.is_active = False
-                user.save()
-            report_user.is_reviewed = True
-            report_user.save()
+                reported_user.is_active = False
+                reported_user.save()
+            for report in ReportUser.objects.filter(reported_user_id=reported_id, is_reviewed=False):
+                report.is_reviewed = True
+                report.save()
             return ReviewReport(success=True)
 
         if report_type == "publication":
             try:
-                report_publication = ReportPublication.objects.get(id=report_id)
-            except ReportPublication.DoesNotExist:
-                raise GraphQLError("This ReportPublication does not exist")
-            if report_publication.is_reviewed:
-                raise GraphQLError("This ReportPublication has already been reviewed")
+                reported_publication = Publication.objects.get(id=reported_id)
+            except Publication.DoesNotExist:
+                raise GraphQLError("This Publication does not exist")
             if not is_safe:
-                publication = report_publication.reported_publication
-                publication.is_banned = True
-                publication.save()
-            report_publication.is_reviewed = True
-            report_publication.save()
+                reported_publication.is_banned = True
+                reported_publication.save()
+                for report in ReportPublication.objects.filter(reported_publication_id=reported_id, is_reviewed=False):
+                    report.is_reviewed = True
+                    report.save()
             return ReviewReport(success=True)
 
         if report_type == "comment":
             try:
-                report_comment = ReportComment.objects.get(id=report_id)
-            except ReportComment.DoesNotExist:
-                raise GraphQLError("This ReportComment does not exist")
-            if report_comment.is_reviewed:
-                raise GraphQLError("This ReportComment has already been reviewed")
+                reported_comment = Comment.objects.get(id=reported_id)
+            except Comment.DoesNotExist:
+                raise GraphQLError("This Comment does not exist")
             if not is_safe:
-                comment = report_comment.reported_comment
-                comment.is_banned = True
-                comment.save()
-            report_comment.is_reviewed = True
-            report_comment.save()
+                reported_comment.is_banned = True
+                reported_comment.save()
+            for report in ReportComment.objects.filter(reported_comment_id=reported_id, is_reviewed=False):
+                report.is_reviewed = True
+                report.save()
             return ReviewReport(success=True)
 
         raise GraphQLError("Received unexpected content type argument")

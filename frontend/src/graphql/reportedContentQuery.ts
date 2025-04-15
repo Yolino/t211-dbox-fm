@@ -6,15 +6,18 @@ const REPORTED_CONTENT_QUERY = gql`
       users {
         id
         username
+        reportCount
       }
       publications {
         id
         title
         description
+        reportCount
       }
       comments {
         id
         text
+        reportCount
       }
     }
   }

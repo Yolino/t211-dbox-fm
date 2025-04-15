@@ -1,54 +1,33 @@
 import React from "react";
 import { useMutation } from "@apollo/client";
 import REVIEW_REPORT_MUTATION from "../../graphql/reviewReportMutation.ts";
+import ApproveIcon from "../../svg/ApproveIcon.tsx";
+import CloseIcon from "../../svg/CloseIcon.tsx";
 
 interface ModerationTileProps {
-  reportId: number;
+  reportedId: number;
   reportType: "user" | "publication" | "comment";
   title: string;
-  contentType: string;
   reportCount: number;
-  onDecision: () => void; // Callback après une action
+  expanded: boolean;
+  onExpandTile: () => void;
+  onDecision: () => void;
 }
 
-const ModerationTile = ({
-  reportId,
-  reportType,
-  title,
-  contentType,
-  reportCount,
-  onDecision
-}: ModerationTileProps) => {
+const ModerationTile = ({ reportedId, reportType, title, contentType, reportCount, onDecision }: ModerationTileProps) => {
   const [reviewReport, { loading }] = useMutation(REVIEW_REPORT_MUTATION);
-
   const handleDecision = async (isSafe: boolean) => {
     try {
       const { data } = await reviewReport({
         variables: {
-          reportId,
+          reportedId: +reportedId,
           reportType,
           isSafe
         }
       });
-
-      if (data?.reviewReport?.success) {
-        alert(`Action ${isSafe ? "d'approbation" : "de bannissement"} réussie`);
-        onDecision();
-      } else {
-        alert("Erreur lors du traitement");
-      }
+      if (data?.reviewReport?.success) onDecision();
     } catch (error) {
       console.error("Erreur:", error);
-      alert("Une erreur est survenue");
-    }
-  };
-
-  const getBadgeColor = () => {
-    switch(contentType) {
-      case "publication": return "bg-purple-100 text-purple-800";
-      case "user": return "bg-blue-100 text-blue-800";
-      case "comment": return "bg-green-100 text-green-800";
-      default: return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -57,32 +36,26 @@ const ModerationTile = ({
       <div className="flex justify-between items-start">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
-            <span className={`px-2 py-1 text-xs font-medium rounded ${getBadgeColor()}`}>
-              {contentType}
-            </span>
-            <span className="px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded">
+            <span className="px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded cursor-default">
               {reportCount} report{reportCount > 1 ? "s" : ""}
             </span>
+            <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
           </div>
-          <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
         </div>
-        
         <div className="flex gap-2 ml-4">
           <button
+            onClick={() => handleDecision(true)}
             className={`px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-md transition-colors flex items-center gap-1`}
           >
             {loading ? (
               "Traitement..."
             ) : (
               <>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
+                <ApproveIcon />
                 Approve
               </>
             )}
           </button>
-          
           <button
             onClick={() => handleDecision(false)}
             disabled={loading}
@@ -92,9 +65,7 @@ const ModerationTile = ({
               "Traitement..."
             ) : (
               <>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <CloseIcon />
                 Ban
               </>
             )}
