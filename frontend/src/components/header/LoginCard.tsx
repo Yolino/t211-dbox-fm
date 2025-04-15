@@ -88,12 +88,13 @@ const LoginCard = ({ onClose, onLoginSuccess }: LoginCardProps) => {
                 required
               />
               <PasswordIcon />
-			  <a
-			  className="text-gray-800 hover:text-gray-600 hover:underline"
-			  href="http://localhost:8000/password_reset/">
-			  Forgot your password?
-			  </a>
             </div>
+            <a
+			        className="block m-2 text-center text-gray-800 hover:text-gray-600 hover:underline"
+			        href="http://localhost:8000/password_reset/"
+            >
+			        Forgot your password?
+			      </a>
           </div>
 
           {/* Error displaying */}
