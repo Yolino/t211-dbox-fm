@@ -6,10 +6,11 @@ import CREATE_PUBLICATION_MUTATION from "../graphql/createPublicationMutation.ts
 import TAGS_QUERY from "../graphql/tagsQuery.ts";
 import MainBlock from "./MainBlock.tsx";
 
-const PublishButton = () => {
+const PublishMain = ({ refetchPublications }) => {
   const navigate = useNavigate();
   const { privileges } = usePrivileges();
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [missingFields, setMissingFields] = useState({
     audio: false,
     title: false,
@@ -51,6 +52,7 @@ const PublishButton = () => {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
+    setSuccessMessage("");
     setMissingFields({
       audio: false,
       title: false,
@@ -75,8 +77,9 @@ const PublishButton = () => {
         cover: publication.cover,
       },
     }).then((response) => {
-      const message = `You successfully published "${response?.data.createPublication.publication.title}"`;
-        navigate("/", {state: { message }});
+      setSuccessMessage(`You successfully published "${response?.data.createPublication.publication.title}. You will be redirected shortly"`);
+      setTimeout(() => { window.location.href = window.location.href; }, 3000);
+      navigate("/");
     }).catch((err) => {
       setErrorMessage(err.message);
     });
@@ -145,11 +148,12 @@ const PublishButton = () => {
           />
         </div>
         {errorMessage && <p className="mb-4 text-sm text-red-600 text-center">{errorMessage}</p>}
+        {successMessage && <p className="mb-4 text-sm text-green-600 text-center">{successMessage}</p>}
         <div>
           <button
             type="submit"
             className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            disabled={loading}
+            disabled={loading || successMessage}
           >
             {(loading) ? "Processing publication..." : "Publish"}
           </button>
@@ -159,4 +163,4 @@ const PublishButton = () => {
   );
 };
 
-export default PublishButton;
+export default PublishMain;
