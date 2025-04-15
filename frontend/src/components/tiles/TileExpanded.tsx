@@ -1,7 +1,8 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@apollo/client";
+import { useQuery, useMutation } from "@apollo/client";
 import PUBLICATION_DETAIL_QUERY from "../../graphql/publicationDetailQuery.ts";
+import CREATE_REPORT_MUTATION from "../../graphql/createReportMutation.ts"
 import CommentMain from "./CommentMain.tsx";
 import AudioIcon from "../../svg/AudioIcon.tsx";
 
@@ -12,11 +13,54 @@ interface TileExpandedProps {
 
 const TileExpanded = ({ tileId, onError }: TileExpandedProps) => {
   const navigate = useNavigate();
+  const [createReport] = useMutation(CREATE_REPORT_MUTATION);
+
   const { loading, error, data } = useQuery(PUBLICATION_DETAIL_QUERY, {
     variables: { publicationId: +tileId },
   });
 
   const publication = data?.publication || {};
+
+  const handleReportPublication = async () => {
+    try {
+      const { data } = await createReport({
+        variables: {
+          reportedId: +tileId,
+          contentType: "publication"
+        }
+      });
+      
+      if (data?.createReport?.success) {
+        alert("Publication signalée avec succès");
+      } else {
+        alert("Vous avez déjà signalé cette publication");
+      }
+    } catch (err) {
+      console.error("Erreur lors du signalement:", err);
+      alert("Erreur lors du signalement");
+    }
+  };
+
+  const handleReportAuthor = async () => {
+    try {
+      const { data } = await createReport({
+        variables: {
+          reportedId: +publication.author.id,
+          contentType: "user"
+        }
+      });
+      
+      if (data?.createReport?.success) {
+        alert("Utilisateur signalé avec succès");
+      } else {
+        alert("Vous avez déjà signalé cet utilisateur");
+      }
+    } catch (err) {
+      console.error("Erreur lors du signalement:", err);
+      alert("Erreur lors du signalement");
+    }
+  };
+
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error</p>;
@@ -41,10 +85,25 @@ const TileExpanded = ({ tileId, onError }: TileExpandedProps) => {
         <div className="flex flex-col flex-1">
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-bold text-black">{publication.title}</h2>
+            <button
+              onClick={handleReportPublication}
+              className="text-xs text-red-500 hover:text-red-700 ml-2"
+              title="Report this publication"
+
+            >
+              Report Pub
+            </button>
             <button className="text-gray-600 hover:text-black transition-colors"></button>
           </div>
           <p className="text-gray-700 cursor-default">
             by <span className="cursor-pointer" onClick={() => { navigate(`/profile/${publication.author.username}`) }}>{publication.author.username}</span> on {formattedDatePublication}</p>
+            <button
+              onClick={handleReportAuthor}
+              className="text-xs text-red-500 hover:text-red-700 ml-2"
+              title="Report the Auteur"
+            >
+              Report Auth
+            </button>
           <p className="text-gray-600 text-sm mt-2 cursor-default">{publication.description || "No description available."}</p>
           <p className="text-gray-400 text-xs mt-2 cursor-default">{publication.viewCount} views</p>
           <p className="text-gray-400 text-xs mt-2 cursor-default">{publication.voteCount} votes</p>
