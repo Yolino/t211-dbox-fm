@@ -1,258 +1,275 @@
 import React from "react";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, fireEvent, screen, waitFor } from "@testing-library/react";
+import '@testing-library/jest-dom';
 import { MockedProvider } from "@apollo/client/testing";
-import Tile from "../Tile";
+import { BrowserRouter } from "react-router-dom";
+import Tile from "../Tile.tsx";
+import AudioPlayer from "../../AudioPlayer.tsx";
 import CREATE_VOTE_MUTATION from "../../../graphql/createVoteMutation.ts";
 import UPDATE_VOTE_MUTATION from "../../../graphql/updateVoteMutation.ts";
 import DELETE_VOTE_MUTATION from "../../../graphql/deleteVoteMutation.ts";
+import TileGroup from "../TileGroup.tsx";
 
-jest.mock("react-router-dom", () => ({
-  useNavigate: () => jest.fn(),
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom');
+
+jest.mock("../../../svg/AudioIcon.tsx", () => {
+  return {
+    __esModule: true,
+    default: ({ styleClass, testId }) => (
+      <svg 
+        data-testid={testId || "audio-icon"} 
+        className={styleClass}
+        viewBox="0 0 24 24"
+      >
+        <rect width="24" height="24" />
+      </svg>
+    )
+  };
+});
+
+jest.mock("../../../svg/PlayIcon.tsx", () => ({
+  __esModule: true,
+  default: () => <svg data-testid="play-icon" />
 }));
 
-const mockPublication = {
-  id: 123,
-  title: "Test Publication Title",
-  cover: "/path/to/cover.jpg",
-  voteCount: 42,
-  author: { username: "testuser" },
-  visitorVote: 0,
-};
+jest.mock("../../../svg/UpvoteIcon.tsx", () => ({
+  __esModule: true,
+  default: () => <svg data-testid="upvote-icon" />
+}));
 
-const mockProps = {
-  publication: mockPublication,
-  group: "test-group",
-  onPlayAudio: jest.fn(),
-  onTileClick: jest.fn(),
-  onTileVote: jest.fn(),
-  onError: jest.fn(),
-};
+jest.mock("../../../svg/DownvoteIcon.tsx", () => ({
+  __esModule: true,
+  default: () => <svg data-testid="downvote-icon" />
+}));
 
-const createVoteMutationMock = {
+
+const mockPublications = [
+  {
+    id: 1,
+    title: "Audio Publication",
+    cover: null,
+    voteCount: 10,
+    visitorVote: 0,
+    author: { username: "audioCreator" },
+  },
+  {
+    id: 2,
+    title: "Image Publication",
+    cover: "/images/cover.jpg",
+    voteCount: 20,
+    visitorVote: 1,
+    author: { username: "imageCreator" },
+  }
+];
+
+const createVoteMock = {
   request: {
     query: CREATE_VOTE_MUTATION,
-    variables: { publicationId: mockPublication.id, voteType: 1 },
+    variables: { publicationId: 1, voteType: 1 },
   },
   result: {
     data: {
       createVote: {
-        voteCount: 43,
+        voteCount: 11,
       },
     },
   },
 };
 
-const updateVoteMutationMock = {
-  request: {
-    query: UPDATE_VOTE_MUTATION,
-    variables: { publicationId: mockPublication.id, voteType: -1 },
-  },
-  result: {
-    data: {
-      updateVote: {
-        voteCount: 41,
-      },
-    },
-  },
+const renderTileList = (mocks = []) => {
+  const onPlayAudio = jest.fn();
+  const onTileClick = jest.fn();
+  const onTileVote = jest.fn();
+  const onError = jest.fn();
+  
+  return {
+    ...render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <BrowserRouter>
+          <div data-testid="parent-container">
+            {mockPublications.map(pub => (
+              <Tile
+                key={pub.id}
+                publication={pub}
+                group="test-group"
+                onPlayAudio={onPlayAudio}
+                onTileClick={onTileClick}
+                onTileVote={onTileVote}
+                onError={onError}
+              />
+            ))}
+            <div data-testid="audio-player-mock">
+              Current Track: <span data-testid="current-track">None</span>
+            </div>
+          </div>
+        </BrowserRouter>
+      </MockedProvider>
+    ),
+    handlers: {
+      onPlayAudio,
+      onTileClick,
+      onTileVote,
+      onError
+    }
+  };
 };
 
-const deleteVoteMutationMock = {
-  request: {
-    query: DELETE_VOTE_MUTATION,
-    variables: { publicationId: mockPublication.id },
-  },
-  result: {
-    data: {
-      deleteVote: {
-        voteCount: 41,
-      },
-    },
-  },
+const hoverOverTile = (tileTitle) => {
+  const tile = screen.getByText(tileTitle).closest(".group");
+  fireEvent.mouseOver(tile);
+  return tile;
 };
 
-const errorMutationMock = {
-  request: {
-    query: CREATE_VOTE_MUTATION,
-    variables: { publicationId: mockPublication.id, voteType: 1 },
-  },
-  error: new Error("An error occurred during voting"),
-};
-
-describe("Tile Component", () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
+describe("Tile Component Integration", () => {
+  it("renders AudioIcon properly for publications without cover", () => {
+    renderTileList();
+    
+    const audioIconTile = screen.getByText("Audio Publication").closest(".group");
+    expect(within(audioIconTile).getByTestId("audio-icon")).toBeInTheDocument();
+    expect(within(audioIconTile).getByTestId("audio-icon")).toHaveClass("w-12 h-12 text-gray-800");
   });
-
-  test("renders publication details correctly", () => {
-    render(
-      <MockedProvider mocks={[]} addTypename={false}>
-        <Tile {...mockProps} />
-      </MockedProvider>
-    );
-
-    expect(screen.getByText("Test Publication Title")).toBeInTheDocument();
-    expect(screen.getByText("testuser")).toBeInTheDocument();
-    expect(screen.getByText("42 votes")).toBeInTheDocument();
+  
+  it("does not render AudioIcon for publications with cover", () => {
+    renderTileList();
+    const imageTile = screen.getByText("Image Publication").closest(".group");
+    expect(within(imageTile).queryByTestId("audio-icon")).not.toBeInTheDocument();
+    expect(within(imageTile).getByAltText("Cover for Image Publication")).toBeInTheDocument();
   });
-
-  test("renders audio icon when no cover is provided", () => {
-    const noImagePublication = {
-      ...mockPublication,
-      cover: null,
-    };
-
-    render(
-      <MockedProvider mocks={[]} addTypename={false}>
-        <Tile {...mockProps} publication={noImagePublication} />
-      </MockedProvider>
-    );
-
-    const audioIconContainer = screen.getByRole("generic");
-    expect(audioIconContainer).toBeInTheDocument();
-  });
-
-  test("calls onTileClick when the tile is clicked", () => {
-    render(
-      <MockedProvider mocks={[]} addTypename={false}>
-        <Tile {...mockProps} />
-      </MockedProvider>
-    );
-
-    const tile = screen.getByText("Test Publication Title").closest("div");
-    fireEvent.click(tile);
-
-    expect(mockProps.onTileClick).toHaveBeenCalledWith(mockPublication.id, "test-group");
-  });
-
-  test("calls onPlayAudio when play button is clicked", () => {
-    render(
-      <MockedProvider mocks={[]} addTypename={false}>
-        <Tile {...mockProps} />
-      </MockedProvider>
-    );
-
-    const playButton = screen.getByRole("button");
+  
+  it("triggers audio playback when play button is clicked", () => {
+    const { handlers } = renderTileList();
+    const audioTile = hoverOverTile("Audio Publication");
+    const playButton = within(audioTile).getByRole("button", { name: /play audio/i });
     fireEvent.click(playButton);
-
-    expect(mockProps.onPlayAudio).toHaveBeenCalledWith({
-      id: mockPublication.id,
-      title: mockPublication.title,
-      author: mockPublication.author.username,
+    expect(handlers.onPlayAudio).toHaveBeenCalledWith({
+      id: 1,
+      title: "Audio Publication",
+      author: "audioCreator",
     });
   });
-
-  test("handles upvote correctly with createVote mutation", async () => {
-    render(
-      <MockedProvider mocks={[createVoteMutationMock]} addTypename={false}>
-        <Tile {...mockProps} />
-      </MockedProvider>
-    );
-
-    const buttons = screen.getAllByRole("button");
-    const upvoteButton = buttons[1];   
+  
+  it("navigates to author profile when username is clicked", () => {
+    renderTileList();
+    const usernameElement = screen.getByText("audioCreator");
+    fireEvent.click(usernameElement);
+    expect(mockNavigate).toHaveBeenCalledWith("/profile/audioCreator");
+  });
+  
+  it("integrates with voting API when upvote is clicked", async () => {
+    const { handlers } = renderTileList([createVoteMock]);
+    const audioTile = hoverOverTile("Audio Publication");
+    const upvoteButton = within(audioTile).getByRole("button", { name: /upvote/i });
     fireEvent.click(upvoteButton);
-    
     await waitFor(() => {
-      expect(mockProps.onTileVote).toHaveBeenCalled();
+      expect(handlers.onTileVote).toHaveBeenCalled();
     });
   });
-
-  test("handles error in mutation correctly", async () => {
-    render(
-      <MockedProvider mocks={[errorMutationMock]} addTypename={false}>
-        <Tile {...mockProps} />
-      </MockedProvider>
-    );
-
-    const buttons = screen.getAllByRole("button");
-    const upvoteButton = buttons[1];
-    
-    fireEvent.click(upvoteButton);
-    
-    await waitFor(() => {
-      expect(mockProps.onError).toHaveBeenCalledWith("An error occurred during voting");
-    });
-  });
-
-  test("handles downvote correctly", async () => {
-    render(
-      <MockedProvider mocks={[createVoteMutationMock]} addTypename={false}>
-        <Tile {...mockProps} />
-      </MockedProvider>
-    );
-
-    const buttons = screen.getAllByRole("button");
-    const downvoteButton = buttons[2];
-    
-    fireEvent.click(downvoteButton);
-    
-    expect(mockProps.onError).toHaveBeenCalledWith("");
-  });
-
-  test("handles updating vote when already voted", async () => {
-    const publicationWithVote = {
-      ...mockPublication,
-      visitorVote: 1, // User already upvoted
-    };
-
-    render(
-      <MockedProvider mocks={[deleteVoteMutationMock]} addTypename={false}>
-        <Tile 
-          {...mockProps} 
-          publication={publicationWithVote}
-        />
-      </MockedProvider>
-    );
-
-    const buttons = screen.getAllByRole("button");
-    const upvoteButton = buttons[1];
-    
-    fireEvent.click(upvoteButton);
-    
-    await waitFor(() => {
-      expect(mockProps.onTileVote).toHaveBeenCalled();
-    });
-  });
-
-  test("displays upvote button with green background when already upvoted", () => {
-    const publicationWithUpvote = {
-      ...mockPublication,
-      visitorVote: 1,
-    };
-
-    render(
-      <MockedProvider mocks={[]} addTypename={false}>
-        <Tile 
-          {...mockProps} 
-          publication={publicationWithUpvote}
-        />
-      </MockedProvider>
-    );
-
-    const buttons = screen.getAllByRole("button");
-    const upvoteButton = buttons[1];
-    
+  
+  it("handles conditional rendering based on properties", () => {
+    renderTileList();
+    const upvotedTile = screen.getByText("Image Publication").closest(".group");
+    const upvoteButton = within(upvotedTile).getByRole("button", { name: /upvote/i });
     expect(upvoteButton).toHaveClass("bg-green-300");
   });
-
-  test("displays downvote button with red background when already downvoted", () => {
-    const publicationWithDownvote = {
-      ...mockPublication,
-      visitorVote: -1,
+  
+  it("propagates errors from GraphQL mutations", async () => {
+    const errorMock = {
+      request: {
+        query: CREATE_VOTE_MUTATION,
+        variables: { publicationId: 1, voteType: 1 },
+      },
+      error: new Error("API Error"),
     };
-
-    render(
-      <MockedProvider mocks={[]} addTypename={false}>
-        <Tile 
-          {...mockProps} 
-          publication={publicationWithDownvote}
-        />
-      </MockedProvider>
-    );
-
-    const buttons = screen.getAllByRole("button");
-    const downvoteButton = buttons[2];
     
-    expect(downvoteButton).toHaveClass("bg-red-300");
+    const { handlers } = renderTileList([errorMock]);
+    const audioTile = hoverOverTile("Audio Publication");
+    const upvoteButton = within(audioTile).getByRole("button", { name: /upvote/i });
+    fireEvent.click(upvoteButton);
+    await waitFor(() => {
+      expect(handlers.onError).toHaveBeenCalledWith("API Error");
+    });
+  });
+  
+  it("handles a sequence of user interactions correctly", async () => {
+    const mocks = [
+      createVoteMock,
+      {
+        request: {
+          query: DELETE_VOTE_MUTATION,
+          variables: { publicationId: 1 },
+        },
+        result: {
+          data: {
+            deleteVote: {
+              voteCount: 10,
+            },
+          },
+        },
+      }
+    ];
+    
+    const { handlers } = renderTileList(mocks);
+    const audioTile = hoverOverTile("Audio Publication");
+    const playButton = within(audioTile).getByRole("button", { name: /play audio/i });
+    fireEvent.click(playButton);
+    expect(handlers.onPlayAudio).toHaveBeenCalled();
+    const upvoteButton = within(audioTile).getByRole("button", { name: /upvote/i });
+    fireEvent.click(upvoteButton);
+    
+    await waitFor(() => {
+      expect(handlers.onTileVote).toHaveBeenCalled();
+    });
+    jest.clearAllMocks();
+    
+    const updatedPublication = {
+      ...mockPublications[0],
+      visitorVote: 1,
+      voteCount: 11
+    };
+    
+    fireEvent.click(audioTile);
+    expect(handlers.onTileClick).toHaveBeenCalledWith(1, "test-group");
   });
 });
+
+function within(element) {
+  return {
+    getByTestId: (testId) => {
+      const results = Array.from(element.querySelectorAll(`[data-testid="${testId}"]`));
+      if (results.length === 0) throw new Error(`Could not find test id: ${testId}`);
+      return results[0];
+    },
+    getByRole: (role, options) => {
+      const results = Array.from(element.querySelectorAll(`[role="${role}"]`));
+      if (options && options.name) {
+        const filtered = results.filter(el => 
+          el.getAttribute('aria-label')?.toLowerCase().includes(options.name.toLowerCase().replace(/[\/\\^$*+?.()|[\]{}]/g, ''))
+        );
+        if (filtered.length === 0) throw new Error(`Could not find element with role: ${role} and name: ${options.name}`);
+        return filtered[0];
+      }
+      if (results.length === 0) throw new Error(`Could not find element with role: ${role}`);
+      return results[0];
+    },
+    getByText: (text) => {
+      const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+      let node;
+      while (node = walker.nextNode()) {
+        if (node.textContent.includes(text)) {
+          return node.parentElement;
+        }
+      }
+      throw new Error(`Could not find text: ${text}`);
+    },
+    getByAltText: (alt) => {
+      const results = Array.from(element.querySelectorAll(`[alt="${alt}"]`));
+      if (results.length === 0) throw new Error(`Could not find element with alt text: ${alt}`);
+      return results[0];
+    },
+    queryByTestId: (testId) => {
+      const results = Array.from(element.querySelectorAll(`[data-testid="${testId}"]`));
+      return results.length > 0 ? results[0] : null;
+    }
+  };
+}

@@ -129,6 +129,7 @@ const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote, onErro
               author: publication.author.username,
             });
           }}
+          aria-label="Play audio"
         >
           <PlayIcon />
         </button>
@@ -150,6 +151,7 @@ const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote, onErro
             <button
               className={`p-1 ${publication.visitorVote > 0 ? "bg-green-300" : "bg-gray-200"} rounded-full hover:bg-gray-300 transition-colors duration-200`}
               onClick={(e) => handleUpvote(e)}
+              aria-label="Upvote"
             >
               <UpvoteIcon />
             </button> 
@@ -157,6 +159,7 @@ const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote, onErro
             <button
               className={`p-1 ${publication.visitorVote < 0 ? "bg-red-300" : "bg-gray-200"} rounded-full hover:bg-gray-300 transition-colors duration-200`}
               onClick={(e) => handleDownvote(e)}
+              aria-label="Downvote"
             >
               <DownvoteIcon />
             </button>
