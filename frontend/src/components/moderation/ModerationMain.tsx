@@ -16,22 +16,34 @@ const ModerationMain = () => {
   return (
     <MainBlock>
       <h2 className="text-2xl font-bold text-white mb-6">Moderation Panel</h2>
-      <div className="m-2 p-4 bg-gray-200 rounded-md">
+      <div className="m-4 p-4 bg-gray-200 rounded-md">
         <h3>Users</h3>
-        {data?.reportedContent.users.map((d) => (
-          <ModerationTile />
+        {data?.reportedContent.users.map((u, i) => (
+          <ModerationTile
+            key={i}
+            reportedId={u.id}
+            title={u.username}
+          />
         ))}
       </div>
-      <div className="m-2 p-4 bg-gray-200 rounded-md">
+      <div className="m-4 p-4 bg-gray-200 rounded-md">
         <h3>Publications</h3>
-        {data?.reportedContent.publications.map((d) => (
-          <ModerationTile />
+        {data?.reportedContent.publications.map((p, i) => (
+          <ModerationTile
+            key={i}
+            reportedId={p.id}
+            title={p.title}
+          />
         ))}
       </div>
-      <div className="m-2 p-4 bg-gray-200 rounded-md">
+      <div className="m-4 p-4 bg-gray-200 rounded-md">
         <h3>Comments</h3>
-        {data?.reportedContent.comments.map((d) => (
-          <ModerationTile />
+        {data?.reportedContent.comments.map((c, i) => (
+          <ModerationTile
+            key={i}
+            reportedId={c.id}
+            title={c.text}
+          />
         ))}
       </div>
     </MainBlock>
