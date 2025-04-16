@@ -5,7 +5,7 @@ import TileMain from "../components/tiles/TileMain.tsx";
 import PublishMain from "../components/PublishMain.tsx";
 import ProfileMain from "../components/profile/ProfileMain.tsx";
 import FmMain from "../components/fm/FmMain.tsx";
-import ModerationMain from "../components/ModerationMain.tsx";
+import ModerationMain from "../components/moderation/ModerationMain.tsx";
 import AudioPlayer from "../components/AudioPlayer.tsx";
 
 const ProfileWrapper = ({ onPlayAudio }) => {
@@ -24,10 +24,10 @@ const HomePage = () => {
   const handlePlayAudio = (audio) => {
     setDisplayPlayer(true);
     setCurrentAudio(audio);
-  }
+  };
   const handleClosePlayer = () => {
     setDisplayPlayer(false);
-  }
+  };
   const location = useLocation();
   const message = location.state?.message;
 
@@ -43,7 +43,7 @@ const HomePage = () => {
           <Route path="/profile/:username" element={<ProfileWrapper onPlayAudio={handlePlayAudio} />} />
           <Route path="/fm" element={<FmMain />} />
           <Route path="/moderation" element={<ModerationMain />} />
-        </Routes> 
+        </Routes>
       </main>
       {displayPlayer && <AudioPlayer audio={currentAudio} onClose={handleClosePlayer} />}
     </div>

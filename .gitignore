@@ -39,6 +39,7 @@ db_data/
 #backend
 **/media/
 **/audio/
-
+.secrets
 .secrets/dev/*
 .secrets/prod/*
+**/migrations/

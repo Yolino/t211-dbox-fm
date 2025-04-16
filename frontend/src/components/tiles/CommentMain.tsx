@@ -7,9 +7,10 @@ import CommentTile from "./CommentTile.tsx";
 interface CommentMainProps {
   publicationId: number;
   onError: () => void;
+  onReportComment: () => void;
 }
 
-const CommentMain = ({ publicationId, onError }: CommentMainProps) => {
+const CommentMain = ({ publicationId, onError, onReportComment }: CommentMainProps) => {
   const [enabledCommentZone, setEnabledCommentZone] = useState(null);
   const [commentText, setCommentText] = useState("");
   const { loading, error, data } = useQuery(COMMENT_QUERY, {
@@ -58,6 +59,7 @@ const CommentMain = ({ publicationId, onError }: CommentMainProps) => {
           onReply={(replyText) => handleReply(comment.id, replyText)}
           onEnableCommentZone={setEnabledCommentZone}
           enableCommentZone={enabledCommentZone === comment.id}
+          onReportComment={() => { onReportComment(comment.id) }}
         />
         {comment.children.length > 0 && renderComments(comment.children, level + 1)}
       </div>

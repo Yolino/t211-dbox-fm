@@ -6,6 +6,7 @@ const PUBLICATION_DETAIL_QUERY = gql`
       title
       author {
         username
+        id
       }
       cover
       tag {

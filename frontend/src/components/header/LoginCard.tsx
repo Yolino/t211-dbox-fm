@@ -89,6 +89,12 @@ const LoginCard = ({ onClose, onLoginSuccess }: LoginCardProps) => {
               />
               <PasswordIcon />
             </div>
+            <a
+			        className="block m-2 text-center text-gray-800 hover:text-gray-600 hover:underline"
+			        href="http://localhost:8000/password_reset/"
+            >
+			        Forgot your password?
+			      </a>
           </div>
 
           {/* Error displaying */}
@@ -98,7 +104,7 @@ const LoginCard = ({ onClose, onLoginSuccess }: LoginCardProps) => {
             </div>
           )}
 
-          {/* Boutons */}
+          {/* Buttons */}
           <div className="flex justify-between items-center">
             <button
               type="button"

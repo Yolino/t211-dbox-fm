@@ -53,8 +53,8 @@ class TagType(DjangoObjectType):
 class Query(graphene.ObjectType):
     publication = graphene.Field(PublicationType, id=graphene.Int(required=True))
     publications = graphene.List(graphene.NonNull(PublicationType), count=graphene.Int(), order_by=graphene.String(), author=graphene.String())
-    commentsByPublication = graphene.List(graphene.NonNull(CommentType), publicationId=graphene.Int(required=True))
-    tags= graphene.List(TagType)
+    comments_by_publication = graphene.List(graphene.NonNull(CommentType), publication_id=graphene.Int(required=True))
+    tags = graphene.List(TagType)
    
     def resolve_publication(root, info, id):
         try:
@@ -80,8 +80,8 @@ class Query(graphene.ObjectType):
     def resolve_tags(root, info):
         return Tag.objects.all()
    
-    def resolve_commentsByPublication(root, info, publicationId):
-        comments = Comment.objects.filter(publication=publicationId)
+    def resolve_comments_by_publication(root, info, publication_id):
+        comments = Comment.objects.filter(publication=publication_id)
         if not (info.context.user.is_authenticated and info.context.user.has_perm("moderation.view_reportcomment")):
             comments.filter(is_banned=False)
         return comments

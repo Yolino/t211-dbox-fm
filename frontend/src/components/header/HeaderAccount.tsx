@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { usePrivileges } from "../../context/PrivilegesContext.tsx";
 import LoginCard from "./LoginCard.tsx";
 import SignupCard from "./SignupCard.tsx";
-import HeaderProfile from "./HeaderProfile.tsx";
 
 const HeaderAccount = ({ onSwitchPage }) => {
   const { privileges, refreshPrivileges } = usePrivileges();
@@ -34,32 +33,28 @@ const HeaderAccount = ({ onSwitchPage }) => {
   };
 
   return (
-    <div className="LogButtons">
-      {privileges?.isLoggedIn ? ( // Si l'utilisateur est connecté
-        <HeaderProfile onSwitchPage={onSwitchPage} />
-      ) : ( // Si l'utilisateur n'est pas connecté
-        <>
+    <div className="w-full">
+      {!privileges?.isLoggedIn && (
+        <div className="flex flex-col sm:flex-row w-full gap-2">
           <button
             id="logIn"
-            className="bg-white hover:bg-gray-200 text-black font-bold py-3 px-4 rounded"
+            className="w-full px-6 py-3 whitespace-nowrap bg-white hover:bg-gray-200 text-black font-semibold rounded-lg shadow-lg focus:outline-none transition-all duration-300"
             onClick={handleLoginClick}
           >
             Log In
           </button>
           <button
             id="signIn"
-            className="bg-black hover:bg-gray-900 text-white font-bold py-3 px-6 rounded ml-5 mr-2"
+            className="w-full px-6 py-3 whitespace-nowrap bg-black hover:bg-gray-900 text-white font-semibold rounded-lg shadow-lg focus:outline-none transition-all duration-300"
             onClick={handleSignupClick}
           >
             Sign Up
           </button>
-        </>
+        </div>
       )}
-
       {isLoginCardOpen && (
         <LoginCard onClose={handleCloseLoginCard} onLoginSuccess={handleLoginSuccess} />
       )}
-
       {isSignupCardOpen && (
         <SignupCard onClose={handleCloseSignupCard} onSignupSuccess={handleSignupSuccess} />
       )}

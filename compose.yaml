@@ -30,6 +30,7 @@ services:
       - db_user
       - db_django_password
       - django_key
+      - email_password
     volumes:
       - prod_media_files:/media
       - prod_static_files:/usr/share/nginx/html/static
@@ -62,6 +63,8 @@ secrets:
     file: ./.secrets/prod/db_django_password.txt
   django_key:
     file: ./.secrets/prod/django_key.txt
+  email_password:
+    file: ./.secrets/prod/email_password.txt
 
 volumes:
   prod_db_data:

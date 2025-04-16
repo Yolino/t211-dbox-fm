@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model, authenticate, login, logout
 from django.contrib.auth.password_validation import validate_password
 from content.models import Publication
 from content.schema import PublicationType
+from users.utils import send_verification_email
 
 User = get_user_model()
 
@@ -30,7 +31,7 @@ class ProfileType(graphene.ObjectType):
         return root.user
 
     def resolve_publications(root, info):
-        return Publication.objects.filter(author=root.user)
+        return Publication.objects.filter(author=root.user).order_by("id")
 
     def resolve_is_self(root, info):
         return root.user == info.context.user
@@ -53,7 +54,7 @@ class Query(graphene.ObjectType):
         elif info.context.user.is_authenticated:
             user = info.context.user
         else:
-            user = None
+            return ProfileType(user=None)
         if not user.is_active and not (info.context.user.is_authenticated and info.context.user.has_perm("moderation.view_reportuser")):
             raise GraphQLError("You are not allowed to view this User")
         if not user:
@@ -80,9 +81,10 @@ class CreateUser(graphene.Mutation):
         except ValidationError as e:
             raise GraphQLError(f"Invalid password: {', '.join(e.messages)}")
 
-        user = User(username=username, email=email)
+        user = User(username=username, email=email, is_active=False)
         user.set_password(password)
         user.save()
+        send_verification_email(user, info.context)
         return CreateUser(user=user)
 
 class LoginUser(graphene.Mutation):

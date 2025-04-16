@@ -27,10 +27,7 @@ interface ProfileTileProps {
   onPlayAudio: () => void;
 };
 
-const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, isExpanded, onProfileUpdate, onPlayAudio }: ProfileTileProps) => {
-  
-  const [successMessage, setSuccessMessage] = useState("");
-  
+const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, isExpanded, message, onSetMessage, onProfileUpdate, onPlayAudio }: ProfileTileProps) => {
   const [isDeleteCardOpen, setIsDeleteCardOpen] = useState(false);
   const handleDeleteClick = () => {
     setIsDeleteCardOpen(true);
@@ -67,40 +64,51 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
     }
   };
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-  setEditedPublication({
-    ...editedPublication,
-    removeCover: event.target.checked,
-  });
-};
+    setEditedPublication({
+      ...editedPublication,
+      removeCover: event.target.checked,
+    });
+  };
 
-  const { loading, error, data } = useQuery(TAGS_QUERY);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [updatePublication] = useMutation(UPDATE_PUBLICATION_MUTATION, {
+  const { loading: loadingTags, error, data } = useQuery(TAGS_QUERY);
+  const [updatePublication, { loading: loadingUpdate }] = useMutation(UPDATE_PUBLICATION_MUTATION, {
     onCompleted: (data) => {
       if (data.updatePublication.success) {
-        setErrorMessage("");
-        setSuccessMessage("Publication successfully updated");
+        onSetMessage({
+          tileId: index,
+          isError: false,
+          text: "Publication successfully updated",
+        });
         onProfileUpdate();
         onCloseTile();
       }
     },
     onError: (err) => {
-      setErrorMessage(err.message);
-      setSuccessMessage("");
+      onSetMessage({
+        tileId: index,
+        isError: true,
+        text: err.message,
+      });
     },
   });
   const [deletePublication] = useMutation(DELETE_PUBLICATION_MUTATION, {
     onCompleted: (data) => {
       if (data.deletePublication.success) {
-        setErrorMessage("");
-        setSuccessMessage("");
+        onSetMessage({
+          tileId: NaN,
+          isError: false,
+          text: "",
+        });
         setIsDeleteCardOpen(false);
         onProfileUpdate();
       }
     },
     onError: (err) => {
-      setErrorMessage(err.message);
-      setSuccessMessage("");
+      onSetMessage({
+        tileId: index,
+        isError: true,
+        text: err.message,
+      });
     },
   });
   const handleEditPublication = (event: React.FormEvent) => {
@@ -168,7 +176,7 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
               onChange={handleTagChange}
               className="mt-0 w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              {loading && <option disabled>Loading...</option>}
+              {loadingTags && <option disabled>Loading...</option>}
               {error && <option disabled>Error</option>}
               {data.tags.map((tag) => (
                 <option key={tag.id} value={tag.id}>
@@ -207,13 +215,13 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
           </div>
           <input
             type="submit"
-            value="Edit"
+            value={loadingUpdate ? "Editing..." : "Edit"}
             className="w-full px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200"
+            disabled={loadingUpdate}
           />
         </form>
       )}
-      {errorMessage && <p className="mb-4 mt-1 text-sm text-center text-red-600">{errorMessage}</p>}
-      {successMessage && <p className="mb-4 mt-1 text-sm text-center text-green-600">{successMessage}</p>}
+      {message && <p className={`mb-4 mt-1 text-sm text-center ${message.isError ? "text-red-500" : "text-green-500"}`}>{message.text}</p>}
       {isDeleteCardOpen && (
         <DeletePublicationCard
           id={publication.id}

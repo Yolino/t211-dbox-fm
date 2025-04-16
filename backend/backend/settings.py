@@ -37,6 +37,9 @@ ALLOWED_HOSTS = [
 
 INSTALLED_APPS = [
     'corsheaders',
+
+    'users', # Move needed for new html on password reset
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -46,7 +49,6 @@ INSTALLED_APPS = [
     'graphene_django',
     'rest_framework',
 
-    'users',
     'content',
     'moderation',
     'live',
@@ -68,7 +70,7 @@ ROOT_URLCONF = 'backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')], # To search for templates
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -177,3 +179,15 @@ SESSION_COOKIE_SECURE = False
 SESSION_COOKIE_SAMESITE = "Lax"
 
 APPEND_SLASH = True
+
+# EMAIL PARAMETERS #
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+DEFAULT_FROM_EMAIL = 'noreply@dbox-fm.be'
+EMAIL_HOST_PASSWORD = get_secret("email_password")
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+EMAIL_HOST = "dbox-fm.be"
+EMAIL_HOST_USER = "noreply@dbox-fm.be"
+# ACCOUNT_EMAIL_VERIFICATION = 'none'

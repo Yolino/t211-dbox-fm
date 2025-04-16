@@ -61,10 +61,8 @@ const FmMain = () => {
   return (
     <DndProvider backend={HTML5Backend}>
       {errorMessage && <div className="mb-4 text-center text-sm text-red-600">{errorMessage}</div>}
-      <div className="flex justify-center items-center">
-        {loading && <p>Loading...</p>}
-        {error && <p>Error</p>}
-        <FmSchedule date={date} schedule={schedule} incrementDate={incrementDate} handleDrop={handleDrop} handleDeleteScheduling={privileges?.isModerator ? handleDeleteScheduling : null} />
+      <div className="flex justify-center items-center gap-2">
+        <FmSchedule date={date} loading={loading} error={error} schedule={schedule} setDate={setDate} incrementDate={incrementDate} handleDrop={handleDrop} handleDeleteScheduling={privileges?.isModerator ? handleDeleteScheduling : null} />
         {displayTimeForm && <FmTimeForm time={displayTimeForm} handleFormSubmit={handleFormSubmit} handleFormClose={() => { setDisplayTimeForm(null) }} />}
         {privileges?.isModerator && <FmUpdate />}
       </div>
