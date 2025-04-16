@@ -52,7 +52,7 @@ def send_verification_email(user, request):
             fail_silently=False,
         )
     except Exception as e:
-        print(f'nope {e}')
+        print(f'An error occured while sending an email : {e}')
  
     timer = threading.Timer(300, delete_user_after_timeout, args=[user])
     timer.start()
