@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth import get_user_model
+from django.conf import settings
 from users.utils import token_generator
 
 def create_html_answer(state=False):
@@ -39,7 +40,7 @@ def create_html_answer(state=False):
         <div class="card">
             <div class="success">{'✅ Email Verified!' if state else '❌ Invalid or Expired Link'}</div>
             <p>{'Your email has been successfully verified. You may now log in.' if state else ''}</p>
-            <a href="http://localhost:3000/">{'Go to Login' if state else 'Retry signup'}</a>
+            <a href={settings.WEBSITE_URL}>{'Go to Login' if state else 'Retry signup'}</a>
         </div>
     </body>
     </html>
