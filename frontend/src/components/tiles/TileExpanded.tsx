@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@apollo/client";
 import PUBLICATION_DETAIL_QUERY from "../../graphql/publicationDetailQuery.ts";
@@ -13,8 +13,8 @@ interface TileExpandedProps {
 
 const TileExpanded = ({ tileId, onError }: TileExpandedProps) => {
   const navigate = useNavigate();
+  const [reportMessage, setReportMessage] = useState("");
   const [createReport] = useMutation(CREATE_REPORT_MUTATION);
-
   const { loading, error, data } = useQuery(PUBLICATION_DETAIL_QUERY, {
     variables: { publicationId: +tileId },
   });
@@ -29,18 +29,16 @@ const TileExpanded = ({ tileId, onError }: TileExpandedProps) => {
           contentType: "publication"
         }
       });
-      
+
       if (data?.createReport?.success) {
-        alert("Publication signalée avec succès");
+        setReportMessage("Publication successfully reported");
       } else {
-        alert("Vous avez déjà signalé cette publication");
+        setReportMessage("You have already reported this publication");
       }
     } catch (err) {
-      console.error("Erreur lors du signalement:", err);
-      alert("Erreur lors du signalement");
+      setReportMessage("Error raised while submitting report");
     }
   };
-
   const handleReportAuthor = async () => {
     try {
       const { data } = await createReport({
@@ -49,18 +47,32 @@ const TileExpanded = ({ tileId, onError }: TileExpandedProps) => {
           contentType: "user"
         }
       });
-      
       if (data?.createReport?.success) {
-        alert("Utilisateur signalé avec succès");
+        setReportMessage("User successfully reported");
       } else {
-        alert("Vous avez déjà signalé cet utilisateur");
+        setReportMessage("You have already reported this user");
       }
     } catch (err) {
-      console.error("Erreur lors du signalement:", err);
-      alert("Erreur lors du signalement");
+      setReportMessage("Error raised while submitting report :", err);
     }
   };
-
+  const handleReportComment = async (i) => {
+    try {
+      const { data } = await createReport({
+        variables: {
+          reportedId: +i,
+          contentType: "comment"
+        }
+      });
+      if (data?.createReport?.success) {
+        setReportMessage("Comment successfully reported");
+      } else {
+        setReportMessage("You have already reported this comment");
+      }
+    } catch (err) {
+      setReportMessage("Error raised while submitting report :", err);
+    }
+  };
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error</p>;
@@ -69,6 +81,7 @@ const TileExpanded = ({ tileId, onError }: TileExpandedProps) => {
 
   return (
     <div className="w-full p-6 bg-gray-100 rounded-lg shadow-md mt-4 animate-fade-in">
+      {reportMessage && <p className="text-red-500">{reportMessage}</p>}
       <div className="flex gap-4">
       {(publication.cover) ? <img
           className="w-32 h-32 object-cover rounded-lg shadow-md"
@@ -87,29 +100,30 @@ const TileExpanded = ({ tileId, onError }: TileExpandedProps) => {
             <h2 className="text-xl font-bold text-black">{publication.title}</h2>
             <button
               onClick={handleReportPublication}
-              className="text-xs text-red-500 hover:text-red-700 ml-2"
-              title="Report this publication"
-
+              className="px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded"
+              title="Report this Publication"
             >
-              Report Pub
+              Report Publication
             </button>
-            <button className="text-gray-600 hover:text-black transition-colors"></button>
           </div>
-          <p className="text-gray-700 cursor-default">
-            by <span className="cursor-pointer" onClick={() => { navigate(`/profile/${publication.author.username}`) }}>{publication.author.username}</span> on {formattedDatePublication}</p>
+          <div className="flex justify-between items-center">
+            <p className="text-gray-700 cursor-default">
+              by <span className="cursor-pointer" onClick={() => { navigate(`/profile/${publication.author.username}`) }}>{publication.author.username}</span> on {formattedDatePublication}
+            </p>
             <button
               onClick={handleReportAuthor}
-              className="text-xs text-red-500 hover:text-red-700 ml-2"
-              title="Report the Auteur"
+              className="px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded"
+              title="Report the Author"
             >
-              Report Auth
+              Report Author
             </button>
+          </div>
           <p className="text-gray-600 text-sm mt-2 cursor-default">{publication.description || "No description available."}</p>
           <p className="text-gray-400 text-xs mt-2 cursor-default">{publication.viewCount} views</p>
           <p className="text-gray-400 text-xs mt-2 cursor-default">{publication.voteCount} votes</p>
         </div>
       </div>
-      <CommentMain publicationId={tileId} onError={onError} />
+      <CommentMain publicationId={tileId} onError={onError} onReportComment={handleReportComment} />
     </div>
   );
 };

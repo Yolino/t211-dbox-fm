@@ -17,16 +17,16 @@ interface CommentProps {
   level: number;
   onReply: (replyText: string) => void;
   enableCommentZone: boolean;
+  onReportComment: () => void;
 };
 
-const CommentTile = ({ comment, level, onReply, onEnableCommentZone, enableCommentZone }: CommentProps) => {
+const CommentTile = ({ comment, level, onReply, onEnableCommentZone, enableCommentZone, onReportComment }: CommentProps) => {
   const [replyText, setReplyText] = useState("");
   const handleReplySubmit = () => {
     onReply(replyText);
     setReplyText("");
     onEnableCommentZone(null);
-  };
-  // Formater la date
+  }; 
   const date = new Date(comment.createdAt);
   const formattedDateComment = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
 
@@ -40,9 +40,15 @@ const CommentTile = ({ comment, level, onReply, onEnableCommentZone, enableComme
       <div className="flex">
         <button 
           onClick={() => { onEnableCommentZone(comment.id) }}
-          className="h-7 text-xs text-gray-400 pl-2 pr-2 pt-1 pb-1 ml-5 mb-6 mt-1 rounded-md hover:text-white hover:bg-gray-800"
+          className="text-xs text-gray-400 px-2 py-1 ml-5 mb-6 mt-1 rounded-md hover:text-white hover:bg-gray-800"
         >
           Reply
+        </button>
+        <button
+          onClick={onReportComment}
+          className="text-xs text-gray-400 px-2 py-1 ml-5 mb-6 mt-1 rounded-md hover:text-red-800 hover:bg-red-100" 
+        >
+          Report comment
         </button>
         {enableCommentZone && 
           <div className="w-1/3">
@@ -53,7 +59,7 @@ const CommentTile = ({ comment, level, onReply, onEnableCommentZone, enableComme
               onChange={(e) => setReplyText(e.target.value)}
             />
             <button 
-              className="text-xs pl-2 pr-2 pt-1 pb-1 rounded-md text-white bg-gray-800"
+              className="text-xs px-2 py-1 rounded-md text-white bg-gray-800"
               onClick={handleReplySubmit}
             >
               Reply

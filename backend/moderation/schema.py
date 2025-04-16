@@ -101,10 +101,10 @@ class CreateReport(graphene.Mutation):
             if not reported_user.is_active:
                 raise GraphQLError("You cannot report a User that is already banned")
             if ReportUser.objects.filter(reporter=reporter, reported_user=reported_user).exists():
-                return CreateReportUser(success=False)
+                return CreateReport(success=False)
             report_user = ReportUser(reporter=reporter, reported_user=reported_user)
             report_user.save()
-            return CreateReportUser(success=True)
+            return CreateReport(success=True)
 
         if content_type == "publication":
             try:
@@ -114,7 +114,7 @@ class CreateReport(graphene.Mutation):
             if reported_publication.is_banned:
                 raise GraphQLError("You cannot report a Publication that is already banned")
             if ReportPublication.objects.filter(reporter=reporter, reported_publication=reported_publication):
-                return CreateReportPublication(success=False)
+                return CreateReport(success=False)
             report_publication = ReportPublication(reporter=reporter, reported_publication=reported_publication)
             report_publication.save()
             return CreateReport(success=True)
@@ -127,7 +127,7 @@ class CreateReport(graphene.Mutation):
             if reported_comment.is_banned:
                 raise GraphQLError("You cannot report a Comment that is already banned")
             if ReportComment.objects.filter(reporter=reporter, reported_comment=reported_comment).exists():
-                return CreateReportComment(success=False)
+                return CreateReport(success=False)
             report_comment = ReportComment(reporter=reporter, reported_comment=reported_comment)
             report_comment.save()
             return CreateReport(success=True)
@@ -168,9 +168,9 @@ class ReviewReport(graphene.Mutation):
             if not is_safe:
                 reported_publication.is_banned = True
                 reported_publication.save()
-                for report in ReportPublication.objects.filter(reported_publication_id=reported_id, is_reviewed=False):
-                    report.is_reviewed = True
-                    report.save()
+            for report in ReportPublication.objects.filter(reported_publication_id=reported_id, is_reviewed=False):
+                report.is_reviewed = True
+                report.save()
             return ReviewReport(success=True)
 
         if report_type == "comment":
