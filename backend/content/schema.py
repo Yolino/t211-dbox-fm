@@ -326,3 +326,4 @@ class Mutation(graphene.ObjectType):
     delete_vote = DeleteVote.Field()
     create_comment = CreateComment.Field()
 
+schema = graphene.Schema(query=Query, mutation=Mutation)
