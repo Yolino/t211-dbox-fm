@@ -37,7 +37,7 @@ const TileExpanded = ({ tileId, onError }: TileExpandedProps) => {
         setReportMessage("You have already reported this publication");
       }
     } catch (err) {
-      setReportMessage("Error raised while submitting report");
+      setReportMessage(`Error raised while submitting report : ${err.message}`);
     }
   };
   const handleReportAuthor = async () => {
@@ -54,7 +54,7 @@ const TileExpanded = ({ tileId, onError }: TileExpandedProps) => {
         setReportMessage("You have already reported this user");
       }
     } catch (err) {
-      setReportMessage("Error raised while submitting report :", err);
+      setReportMessage(`Error raised while submitting report : ${err.message}`);
     }
   };
   const handleReportComment = async (i) => {
@@ -71,7 +71,7 @@ const TileExpanded = ({ tileId, onError }: TileExpandedProps) => {
         setReportMessage("You have already reported this comment");
       }
     } catch (err) {
-      setReportMessage("Error raised while submitting report :", err);
+      setReportMessage(`Error raised while submitting report : ${err.message}`);
     }
   };
 

@@ -91,7 +91,7 @@ class CreateReport(graphene.Mutation):
     def mutate(root, info, reported_id, content_type):
         reporter = info.context.user
         if not reporter.is_authenticated:
-            raise GraphQLError("You must be logged in to report a Comment")
+            raise GraphQLError("You must be logged in to submit reports")
 
         if content_type == "user":
             try:
