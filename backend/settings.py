@@ -14,6 +14,8 @@ from pathlib import Path
 import os
 from .secrets import get_secret
 
+WEBSITE_URL = "https://dbox-fm.be"
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -31,6 +33,7 @@ ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'corsheaders',
+    'users',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -40,7 +43,6 @@ INSTALLED_APPS = [
     'graphene_django',
     'rest_framework',
 
-    'users',
     'content',
     'moderation',
     'live',
@@ -62,7 +64,7 @@ ROOT_URLCONF = 'backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -169,3 +171,13 @@ SESSION_COOKIE_SECURE = False
 SESSION_COOKIE_SAMESITE = "Lax"
 
 APPEND_SLASH = True
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+DEFAULT_FROM_EMAIL = 'noreply@dbox-fm.be'
+EMAIL_HOST_PASSWORD = get_secret("email_password")
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+EMAIL_HOST = "mail.dbox-fm.be"
+EMAIL_HOST_USER = "noreply@dbox-fm.be"
+

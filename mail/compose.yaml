@@ -17,6 +17,8 @@ services:
       - ./docker-data/dms/config/:/tmp/docker-mailserver/
       - /etc/localtime:/etc/localtime:ro
       - ../certbot/conf:/etc/letsencrypt:ro
+    networks:
+      - dbox_mail
     restart: always
     stop_grace_period: 1m
     # Uncomment if using `ENABLE_FAIL2BAN=1`:
@@ -30,3 +32,8 @@ services:
 volumes:
   dbox_cert:
     external: true
+
+networks:
+  dbox_mail:
+    external: true
+    name: dbox_prod_mail
