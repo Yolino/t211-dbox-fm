@@ -24,7 +24,7 @@ const ProfileMain = ({ username, onPlayAudio }) => {
   const profile = data?.profile;
 
   return (
-    <MainBlock>
+    <MainBlock styleClass="w-2/3">
       <div className="text-center">
         <div className="flex justify-center items-center text-white space-x-4">
           {loading && <LoadingIcon />}

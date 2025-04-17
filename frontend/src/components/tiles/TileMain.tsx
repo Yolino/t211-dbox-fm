@@ -26,9 +26,6 @@ const TileMain = ({ onPlayAudio }) => {
 
   return (
     <div className="flex gap-10 h-[calc(100vh-250px)] min-h-96">
-      <MainBlock styleClass="w-1/3 h-full overflow-y-auto">
-        {expandedTile && <TileExpanded tileId={expandedTile.tileId} onError={handleError} />}
-      </MainBlock>
       <MainBlock styleClass="w-2/3 h-full overflow-y-auto">
         {error && <p className="text-red-500">{error}</p>}
         {SORT_TYPES.map((orderBy) => {
@@ -50,6 +47,9 @@ const TileMain = ({ onPlayAudio }) => {
             </React.Fragment>
 	        );
         })}
+      </MainBlock>
+      <MainBlock styleClass="w-1/3 h-full overflow-y-auto">
+        {expandedTile && <TileExpanded tileId={expandedTile.tileId} onError={handleError} />}
       </MainBlock>
     </div>
   );
