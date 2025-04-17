@@ -14,42 +14,40 @@ const TileMain = ({ onPlayAudio }) => {
   const handlePlayAudio = (tileId) => {
     onPlayAudio(tileId);
   };
-  const handleExpandTile = (tileId, groupId) => {
-    setExpandedTile(
-      expandedTile?.tileId === tileId && expandedTile.groupId === groupId ? null : { tileId, groupId }
-    );
-    if ((!expandedTile?.tileId) || (expandedTile?.tileId === +tileId)) incrementViewCount({variables : {publicationId: +tileId} }).catch(console.error);
-  };
   const handleError = (message) => {
     setError(message);
   };
 
   return (
-    <div className="flex gap-10 h-[calc(100vh-250px)] min-h-96">
-      <MainBlock styleClass="w-2/3 h-full overflow-y-auto">
-        {error && <p className="text-red-500">{error}</p>}
-        {SORT_TYPES.map((orderBy) => {
-	        let groupTitle="Unexpected"
-	        if(orderBy==="-created_at") {
-		        groupTitle="Recent"
-	        } else if (orderBy==="-vote_count") {
-		        groupTitle="Most voted"
-		      }
-	        return (
-            <React.Fragment key={orderBy}>
-              <TileGroup
-	              groupTitle={groupTitle}
-                orderBy={orderBy}
-                onPlayAudio={handlePlayAudio}
-                onTileClick={handleExpandTile}
-                onError={handleError}
-              />
-            </React.Fragment>
-	        );
-        })}
+    <div className="flex flex-col lg:flex-row gap-10 h-[calc(100vh-250px)] min-h-96">
+      <MainBlock styleClass="w-full lg:w-2/3 h-96 lg:h-full overflow-y-auto">
+        <div className="h-full overflow-y-auto">
+          {error && <p className="text-red-500">{error}</p>}
+          {SORT_TYPES.map((orderBy) => {
+            let groupTitle="Unexpected"
+            if(orderBy==="-created_at") {
+              groupTitle="Recent"
+            } else if (orderBy==="-vote_count") {
+              groupTitle="Most voted"
+            }
+            return (
+              <React.Fragment key={orderBy}>
+                <TileGroup
+                  groupTitle={groupTitle}
+                  orderBy={orderBy}
+                  onPlayAudio={handlePlayAudio}
+                  onTileClick={(tileId) => { setExpandedTile(tileId) }}
+                  onError={handleError}
+                />
+              </React.Fragment>
+            );
+          })}
+        </div>
       </MainBlock>
-      <MainBlock styleClass="w-1/3 h-full overflow-y-auto">
-        {expandedTile && <TileExpanded tileId={expandedTile.tileId} onError={handleError} />}
+      <MainBlock styleClass="w-full lg:w-1/3 h-96 lg:h-full overflow-y-auto">
+        <div className="h-full overflow-y-auto">
+          {expandedTile && <TileExpanded tileId={expandedTile} onError={handleError} />}
+        </div>
       </MainBlock>
     </div>
   );

@@ -14,7 +14,7 @@ interface TileGroupProps {
 }
 
 const TileGroup = ({ groupTitle="Default", orderBy="-created_at", onPlayAudio, onTileClick, onError }: TileGroupProps) => {
-  const [count, setCount] = useState(6);
+  const [count, setCount] = useState(3);
   const { loading, error, data, refetch } = useQuery(PUBLICATIONS_QUERY, {
     variables: { orderBy, count },
   });
@@ -25,12 +25,12 @@ const TileGroup = ({ groupTitle="Default", orderBy="-created_at", onPlayAudio, o
 
   return (
     <div id={orderBy} className="my-4">
-      <p className="text-black text-3xl font-semibold mb-2">{groupTitle}</p>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-4">
+      <p className="text-white text-3xl font-semibold mb-2">{groupTitle}</p>
+      <div className="flex">
         {(loading || error) ? (
           <div className="group flex-shrink-0 w-48 p-4 bg-gray-100 rounded-lg shadow-md hover:bg-gray-200 hover:scale-105 hover:shadow-lg transition-all duration-300 relative">
             <div
-              className="w-full h-32 flex items-center justify-center rounded mb-2 bg-gray-100"
+              className="h-32 flex items-center justify-center rounded mb-2 bg-gray-100"
             >
               <LoadingIcon />
             </div>
@@ -54,8 +54,8 @@ const TileGroup = ({ groupTitle="Default", orderBy="-created_at", onPlayAudio, o
             ))}
             <div className="flex items-center justify-center">
               <button
-                onClick={() => setCount(count + 6)}
-                className="flex justify-center items-center w-16 h-16 rounded-full bg-gray-200 text-gray-800 hover:bg-gray-300 focus:outline-none"
+                onClick={() => setCount(count + 3)}
+                className="flex justify-center items-center w-8 h-16 rounded-full bg-gray-200 text-gray-800 hover:bg-gray-300 focus:outline-none"
               >
                 <ShowMoreIcon />
               </button>

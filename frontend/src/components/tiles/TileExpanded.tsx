@@ -80,21 +80,20 @@ const TileExpanded = ({ tileId, onError }: TileExpandedProps) => {
   const formattedDatePublication = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
 
   return (
-    <div className="w-full p-6 bg-gray-100 rounded-lg shadow-md mt-4 animate-fade-in">
-      {reportMessage && <p className="text-red-500">{reportMessage}</p>}
-      <div className="flex gap-4">
-      {(publication.cover) ? <img
-          className="w-32 h-32 object-cover rounded-lg shadow-md"
-          src={`http://localhost:8000${publication.cover}`}
-          alt={`Cover for ${publication.title}`}
-        /> : <div
-          className=" w-32 h-32 object-cover rounded-lg shadow-md flex items-center justify-center"
-        >
-          <AudioIcon styleClass="w-12 h-12 text-gray-800" />
-        </div>
-      }
-
-        {/* Text Content */}
+    <div className="flex gap-2 flex-col">
+      <div className="w-full p-6 bg-gray-100 rounded-lg shadow-md mt-4 animate-fade-in">
+        {reportMessage && <p className="text-red-500">{reportMessage}</p>}
+        <div className="flex gap-4">
+        {(publication.cover) ? <img
+            className="w-32 h-32 object-cover rounded-lg shadow-md"
+            src={`http://localhost:8000${publication.cover}`}
+            alt={`Cover for ${publication.title}`}
+          /> : <div
+            className="w-32 h-32 object-cover rounded-lg shadow-md flex items-center justify-center"
+          >
+            <AudioIcon styleClass="w-12 h-12 text-gray-800" />
+          </div>
+        }
         <div className="flex flex-col flex-1">
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-bold text-black">{publication.title}</h2>
@@ -123,7 +122,10 @@ const TileExpanded = ({ tileId, onError }: TileExpandedProps) => {
           <p className="text-gray-400 text-xs mt-2 cursor-default">{publication.voteCount} votes</p>
         </div>
       </div>
+    </div>
+    <div className="w-full p-6 bg-gray-100 rounded-lg shadow-md mt-4 animate-fade-in">
       <CommentMain publicationId={tileId} onError={onError} onReportComment={handleReportComment} />
+    </div>
     </div>
   );
 };
