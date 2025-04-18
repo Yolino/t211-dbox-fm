@@ -48,7 +48,6 @@ def create_html_answer(state=False):
     return html
 
 def verify_email_view(request):
-    print('hello')
 
     uid = request.GET.get('uid')
     token = request.GET.get('token')
