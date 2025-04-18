@@ -24,9 +24,10 @@ interface ProfileTileProps {
   isExpanded: boolean;
   onDeletePublication: () => void;
   onPlayAudio: () => void;
+  onPublicationClick: () => void;
 };
 
-const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, isExpanded, message, onSetMessage, onProfileUpdate, onPlayAudio }: ProfileTileProps) => {
+const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, isExpanded, message, onSetMessage, onProfileUpdate, onPlayAudio, onPublicationClick }: ProfileTileProps) => {
   const [isDeleteCardOpen, setIsDeleteCardOpen] = useState(false);
   const handleDeleteClick = () => {
     setIsDeleteCardOpen(true);
@@ -126,7 +127,10 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
   };
 
   return (
-    <div className="p-4 bg-gray-200 rounded-lg shadow-sm group">
+    <div
+      onClick={() => { onPublicationClick(publication.id) }}
+      className="p-4 bg-gray-200 rounded-lg shadow-sm group"
+    >
       <li key={index} className="relative flex items-center">
         <div className="flex items-center">
           {publication.cover && (
@@ -138,13 +142,7 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
           )}
           <button
             className="p-3 bg-gray-300 rounded-full shadow-lg hover:bg-gray-400 transition-colors duration-200"
-            onClick={(e) => {
-              onPlayAudio({
-                id: publication.id,
-                title: publication.title,
-                author,
-              })
-            }}
+            onClick={() => { onPlayAudio(publication.id) }}
           >
             <PlayIcon />
           </button>

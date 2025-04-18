@@ -129,14 +129,7 @@ const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote, onErro
       <div className="absolute inset-x-0 top-1/4 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
         <button
           className="p-2 sm:p-3 bg-white rounded-full shadow-lg hover:bg-gray-400 transition-colors duration-200"
-          onClick={(e) => {
-            e.stopPropagation();
-            onPlayAudio({
-              id: publication.id,
-              title: publication.title,
-              author: publication.author.username,
-            });
-          }}
+          onClick={(e) => { onPlayAudio(publication.id) }}
           aria-label="Play audio"
         >
           <PlayIcon />
