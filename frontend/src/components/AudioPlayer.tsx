@@ -4,7 +4,6 @@ import LoadingIcon from "../svg/LoadingIcon.tsx";
 import PlayIcon from "../svg/PlayIcon.tsx";
 import PauseIcon from "../svg/PauseIcon.tsx";
 import AudioIcon from "../svg/AudioIcon.tsx";
-import CloseIcon from "../svg/CloseIcon.tsx";
 
 interface AudioPlayerProps {
   audio: number;

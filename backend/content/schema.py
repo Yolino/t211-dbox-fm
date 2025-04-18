@@ -30,6 +30,10 @@ class PublicationType(DjangoObjectType):
                 return None
         return None
 
+class PublicationPageType(graphene.ObjectType):
+    publications = graphene.List(graphene.NonNull(PublicationType))
+    has_next_page = graphene.Boolean()
+
 class ViewType(DjangoObjectType):
     class Meta:
         model = View
@@ -52,7 +56,7 @@ class TagType(DjangoObjectType):
 
 class Query(graphene.ObjectType):
     publication = graphene.Field(PublicationType, id=graphene.Int(required=True))
-    publications = graphene.List(graphene.NonNull(PublicationType), count=graphene.Int(), order_by=graphene.String(), author=graphene.String())
+    publication_page = graphene.Field(PublicationPageType, start=graphene.Int(), count=graphene.Int(), order_by=graphene.String(), author=graphene.String())
     comments_by_publication = graphene.List(graphene.NonNull(CommentType), publication_id=graphene.Int(required=True))
     tags = graphene.List(TagType)
    
@@ -65,17 +69,22 @@ class Query(graphene.ObjectType):
             raise GraphQLError("You are not allowed to view this Publication")
         return publication
 
-    def resolve_publications(root, info, count=None, order_by=None, author=None):
+    def resolve_publication_page(root, info, start=0, count=None, order_by=None, author=None):
         result = Publication.objects.select_related("author")
         if not (info.context.user.is_authenticated and info.context.user.has_perm("moderation.view_reportpublication")):
             result = result.filter(is_banned=False)
+        if start < 0:
+            start = 0
+        if (count is not None and count < 0):
+            count = None
         if author:
             result = result.filter(author__username__iexact=author)
         if order_by:
             result = result.order_by(order_by)
+        has_next_page = count is not None and (start + count) < result.count()
         if count and len(result) > count :
-            result = result[:count]
-        return result
+            result = result[start:start+count]
+        return {"publications": result, "has_next_page": has_next_page}
     
     def resolve_tags(root, info):
         return Tag.objects.all()

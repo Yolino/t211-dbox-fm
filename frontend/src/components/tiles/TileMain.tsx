@@ -15,6 +15,9 @@ const TileMain = () => {
   const [currentAudio, setCurrentAudio] = useState(null);
   const handlePlayAudio = (tileId) => {
     setCurrentAudio(tileId);
+    incrementViewCount({
+      variables: {publicationId: +tileId},
+    });
   };
   const handleError = (message) => {
     setError(message);

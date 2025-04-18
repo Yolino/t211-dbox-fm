@@ -11,9 +11,6 @@ const ProfileMain = ({ username }) => {
   const [expandedTile, setExpandedTile] = useState(null);
   const [shownPublication, setShownPublication] = useState(null);
   const [currentAudio, setCurrentAudio] = useState(null);
-  const handlePlayAudio = (tileId) => {
-    setCurrentAudio(tileId);
-  };
   const [message, setMessage] = useState({
     tileId: NaN,
     isError: false,
