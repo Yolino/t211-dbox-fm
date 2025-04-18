@@ -10,7 +10,9 @@ const PUBLICATION_PAGE_QUERY = gql`
         voteCount
         author {
           username
+          isActive
         }
+        isBanned
         visitorVote
       }
       hasNextPage

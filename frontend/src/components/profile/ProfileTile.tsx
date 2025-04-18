@@ -14,6 +14,7 @@ interface Publication {
   cover: string;
   viewCount: number;
   voteCount: number;
+  isBanned: boolean;
 };
 
 interface ProfileTileProps {
@@ -129,7 +130,7 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
   return (
     <div
       onClick={() => { onPublicationClick(publication.id) }}
-      className="p-4 bg-gray-200 rounded-lg shadow-sm group"
+      className={`p-4 bg-gray-200 rounded-lg shadow-sm group ${publication.isBanned ? "bg-red-200 hover:bg-red-300 text-red-800" : "bg-gray-100 hover:bg-gray-200 text-gray-800"}`}
     >
       <li key={index} className="relative flex items-center">
         <div className="flex items-center">
@@ -141,22 +142,22 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
             />
           )}
           <button
-            className="p-3 bg-gray-300 rounded-full shadow-lg hover:bg-gray-400 transition-colors duration-200"
+            className={`p-3 rounded-full shadow-lg transition-colors duration-200 ${publication.isBanned ? "hover:bg-red-400" : "hover:bg-gray-300"}`}
             onClick={() => { onPlayAudio(publication.id) }}
           >
             <PlayIcon />
           </button>
         </div>
-        <h3 className="ml-auto text-lg font-bold text-gray-800">{publication.title}{isExpanded && " - Edit publication"}</h3>
+        <h3 className="ml-auto text-lg font-bold cursor-default">{publication.title}{isExpanded && " - Edit publication"}</h3>
         {isSelf && <div className="flex gap-2 ml-4">
-          <EditIcon onClick={onEdit} />
-          <DeleteIcon onClick={handleDeleteClick} />
+          <EditIcon onClick={onEdit} styleClass={publication.isBanned && "text-red-800 hover:text-gray-800"} />
+          <DeleteIcon onClick={handleDeleteClick} styleClass={publication.isBanned && "text-red-800 hover:text-gray-800"} />
         </div>}
       </li>
       {isExpanded && (
         <form onSubmit={handleEditPublication} className="space-y-4 mt-4">
           <div className="flex items-center gap-4 w-full">
-            <label className="w-1/6 font-bold text-gray-800 whitespace-nowrap">Title</label>
+            <label className="w-1/6 font-bold whitespace-nowrap">Title</label>
             <input
               type="text"
               name="title"
@@ -166,7 +167,7 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
             />
           </div>
           <div className="flex items-center gap-4 w-full">
-            <label className="w-1/6 font-bold text-gray-800 whitespace-nowrap">Tag</label>
+            <label className="w-1/6 font-bold whitespace-nowrap">Tag</label>
             <select
               name="tag"
               defaultValue={publication.tag.id}
@@ -183,7 +184,7 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
             </select>
           </div>
           <div className="flex items-center gap-4 w-full">
-            <label className="w-1/6 font-bold text-gray-800 whitespace-nowrap">Description</label>
+            <label className="w-1/6 font-bold whitespace-nowrap">Description</label>
             <input
               type="text"
               name="description"
@@ -193,7 +194,7 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
             />
           </div>
           <div className="flex items-center gap-4 w-full">
-            <label className="w-1/6 font-bold text-gray-800 whitespace-nowrap">Cover image</label>
+            <label className="w-1/6 font-bold whitespace-nowrap">Cover image</label>
             <input
               type="file"
               name="cover"
@@ -202,7 +203,7 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
             />
           </div>
           <div className="flex items-center gap-4 w-full">
-            <label className="w-1/6 font-bold text-gray-800">Remove current cover image</label>
+            <label className="w-1/6 font-bold">Remove current cover image</label>
             <input
               type="checkbox"
               name="remove-cover"
@@ -213,7 +214,7 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
           <input
             type="submit"
             value={loadingUpdate ? "Editing..." : "Edit"}
-            className="w-full px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200"
+            className="w-full px-6 py-2 bg-blue-500 text-gray-800 rounded-lg hover:bg-blue-600 transition-colors duration-200"
             disabled={loadingUpdate}
           />
         </form>

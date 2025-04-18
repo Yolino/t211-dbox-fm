@@ -12,7 +12,7 @@ from .validators import validate_image, validate_audio
 class PublicationType(DjangoObjectType):
     class Meta:
         model = Publication
-        fields = ("id", "title", "author", "cover", "tag", "description", "view_count", "vote_count", "created_at")
+        fields = ("id", "title", "author", "cover", "tag", "description", "view_count", "vote_count", "created_at", "is_banned")
 
     cover = graphene.String()
     def resolve_cover(root, info):
@@ -47,7 +47,7 @@ class VoteType(DjangoObjectType):
 class CommentType(DjangoObjectType):
     class Meta:
         model = Comment
-        fields = ("id", "text", "author", "parent", "publication",  "created_at")
+        fields = ("id", "text", "author", "parent", "publication",  "created_at", "is_banned")
 
 class TagType(DjangoObjectType):
     class Meta:
@@ -82,7 +82,9 @@ class Query(graphene.ObjectType):
         if order_by:
             result = result.order_by(order_by)
         has_next_page = count is not None and (start + count) < result.count()
-        if count and len(result) > count :
+        if count and not has_next_page:
+            result = result[result.count()-count:]
+        elif count and len(result) > count :
             result = result[start:start+count]
         return {"publications": result, "has_next_page": has_next_page}
     
@@ -92,7 +94,7 @@ class Query(graphene.ObjectType):
     def resolve_comments_by_publication(root, info, publication_id):
         comments = Comment.objects.filter(publication=publication_id)
         if not (info.context.user.is_authenticated and info.context.user.has_perm("moderation.view_reportcomment")):
-            comments.filter(is_banned=False)
+            comments = comments.filter(is_banned=False)
         return comments
 
 class CreatePublication(graphene.Mutation):

@@ -17,6 +17,7 @@ const PROFILE_QUERY = gql`
         }
         viewCount
         voteCount
+        isBanned
       }
       isSelf
     }

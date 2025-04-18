@@ -95,7 +95,6 @@ const CommentMain = ({ publicationId, onError, onReportComment }: CommentMainPro
       });
     } catch (err) {
       console.error("Failed to post reply:", err.message);
-      // Affichez un message d'erreur à l'utilisateur si nécessaire
     }
   };
   

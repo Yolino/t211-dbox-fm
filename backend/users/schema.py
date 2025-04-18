@@ -13,7 +13,7 @@ User = get_user_model()
 class UserType(DjangoObjectType):
     class Meta:
         model = User
-        fields = ("id", "username", "email")
+        fields = ("id", "username", "email", "is_active")
 
 class PrivilegesType(graphene.ObjectType):
     is_logged_in = graphene.Boolean()

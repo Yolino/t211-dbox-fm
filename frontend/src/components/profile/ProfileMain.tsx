@@ -33,15 +33,15 @@ const ProfileMain = ({ username }) => {
         <div className="text-center">
           <div className="flex justify-center items-center text-white space-x-4">
             {loading && <LoadingIcon />}
-            <h1 className="text-3xl font-bold text-white">User Profile {profile?.user?.username ? ` - ${profile.user.username}` : username ? ` - ${username}` : ""}</h1>
+            <h1 className="text-3xl font-bold text-white cursor-default">User Profile {profile?.user?.username ? ` - ${profile.user.username}` : username ? ` - ${username}` : ""}</h1>
           </div>
-          {error && <p className="text-center text-red-500">{error.message}</p>}
+          {error && <p className="text-center text-red-500 cursor-default">{error.message}</p>}
           {profile?.isSelf && (
-            <p className="mt-2 text-sm text-gray-400">This is your profile</p>
+            <p className="mt-2 text-sm text-gray-400 cursor-default">This is your profile</p>
           )}
         </div>
         <div className="mt-8">
-          <h2 className="text-2xl font-semibold text-white mb-4">Publications</h2>
+          <h2 className="text-2xl font-semibold text-white mb-4 cursor-default">Publications</h2>
           <ul className="space-y-4">
             {profile?.publications.map((p, i) => (
               <ProfileTile
@@ -63,12 +63,12 @@ const ProfileMain = ({ username }) => {
           </ul>
         </div>
       </MainBlock>
-      {shownPublication && <MainBlock styleClass="w-full md:w-auto h-1/3 md:h-[calc(80vh)] overflow-y-auto">
+      <MainBlock styleClass="w-full md:w-auto h-1/3 md:h-[calc(80vh)] overflow-y-auto">
         <div className="h-full overflow-y-auto">
-          <TileExpanded tileId={shownPublication} />
+          {shownPublication && <TileExpanded tileId={shownPublication} />}
         </div>
         <AudioPlayer audio={currentAudio} />
-      </MainBlock>}
+      </MainBlock>
     </div>
   );
 };

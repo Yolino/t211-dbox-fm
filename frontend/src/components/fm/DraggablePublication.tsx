@@ -13,7 +13,7 @@ const DraggablePublication = ({ publication }) => {
   return (
     <div
       ref={drag}
-      className={`flex justify-center items-center gap-x-10 p-2 mb-4 bg-gray-200 text-white rounded-md cursor-pointer ${isDragging ? "opacity-50" : "opacity-100"}`}
+      className={`flex justify-center items-center gap-x-10 p-2 mb-4 ${publication.isBanned ? "bg-red-200 hover:bg-red-300" : "bg-gray-100 hover:bg-gray-200"} text-white rounded-md cursor-pointer ${isDragging ? "opacity-50" : "opacity-100"}`}
     >
       {publication.cover && <img
         className="h-full w-16 object-cover rounded-l-md"

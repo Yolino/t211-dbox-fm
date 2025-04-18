@@ -9,9 +9,8 @@ import CREATE_VIEW_MUTATION from "../../graphql/createViewMutation.ts";
 const TileMain = () => {
   const SORT_TYPES = ["-created_at", "-vote_count"];
   const [expandedTile, setExpandedTile] = useState(null);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
   const [incrementViewCount] = useMutation(CREATE_VIEW_MUTATION);
-
   const [currentAudio, setCurrentAudio] = useState(null);
   const handlePlayAudio = (tileId) => {
     setCurrentAudio(tileId);
@@ -51,7 +50,7 @@ const TileMain = () => {
       </MainBlock>
       <MainBlock styleClass="w-full lg:w-1/3 h-96 lg:h-full overflow-y-auto">
         <div className="h-full overflow-y-auto">
-          {expandedTile && <TileExpanded tileId={expandedTile} onError={handleError} />}
+          {expandedTile && <TileExpanded tileId={expandedTile} />}
         </div>
         <AudioPlayer audio={currentAudio} />
       </MainBlock>

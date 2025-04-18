@@ -31,25 +31,27 @@ const CommentTile = ({ comment, level, onReply, onEnableCommentZone, enableComme
   const formattedDateComment = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
 
   return (
-    <div key={comment.id} style={{ marginLeft: `${(level * 20) + 22}px` }}>
+    <div key={comment.id} style={{ marginLeft: `${(level * 20) + 22}px` }} className={`${comment.isBanned ? "bg-red-200 text-red-800" : "text-gray-800"} rounded-md p-1`}>
       <div className="flex items-center justify-between">
-        <p className="text-gray-700 font-medium">{comment.author.username}</p>
-        <p className="text-gray-400 text-xs">{formattedDateComment}</p>
+        <p className="font-medium">{comment.author.username}</p>
+        <p className="text-xs">{formattedDateComment}</p>
       </div>
-      <p className="text-gray-600 text-sm mt-1">{comment.text}</p>
+      <p className="text-sm mt-1">{comment.text}</p>
       <div className="flex">
-        <button 
-          onClick={() => { onEnableCommentZone(comment.id) }}
-          className="text-xs text-gray-400 px-2 py-1 ml-5 mb-6 mt-1 rounded-md hover:text-white hover:bg-gray-800"
-        >
-          Reply
-        </button>
-        <button
-          onClick={onReportComment}
-          className="text-xs text-gray-400 px-2 py-1 ml-5 mb-6 mt-1 rounded-md hover:text-red-800 hover:bg-red-100" 
-        >
-          Report comment
-        </button>
+        {!comment.isBanned && <div>
+          <button 
+            onClick={() => { onEnableCommentZone(comment.id) }}
+            className="text-xs px-2 py-1 ml-5 mb-6 mt-1 rounded-md hover:text-white hover:bg-gray-800"
+          >
+            Reply
+          </button>
+          <button
+            onClick={onReportComment}
+            className="text-xs px-2 py-1 ml-5 mb-6 mt-1 rounded-md hover:text-red-800 hover:bg-red-100" 
+          >
+            Report comment
+          </button>
+        </div>}
         {enableCommentZone && 
           <div className="w-1/3">
             <textarea
