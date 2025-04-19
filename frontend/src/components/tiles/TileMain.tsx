@@ -11,9 +11,8 @@ const TileMain = () => {
   const [expandedTile, setExpandedTile] = useState(null);
   const [error, setError] = useState("");
   const [incrementViewCount] = useMutation(CREATE_VIEW_MUTATION);
-  const [currentAudio, setCurrentAudio] = useState(null);
   const handlePlayAudio = (tileId) => {
-    setCurrentAudio(tileId);
+    setExpandedTile(tileId);
     incrementViewCount({
       variables: {publicationId: +tileId},
     });
@@ -52,7 +51,7 @@ const TileMain = () => {
         <div className="h-full overflow-y-auto">
           {expandedTile && <TileExpanded tileId={expandedTile} />}
         </div>
-        <AudioPlayer audio={currentAudio} />
+        <AudioPlayer audio={expandedTile} />
       </MainBlock>
     </div>
   );

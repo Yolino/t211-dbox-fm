@@ -176,7 +176,7 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
             >
               {loadingTags && <option disabled>Loading...</option>}
               {error && <option disabled>Error</option>}
-              {data.tags.map((tag) => (
+              {data?.tags.map((tag) => (
                 <option key={tag.id} value={tag.id}>
                   {tag.name}
                 </option>

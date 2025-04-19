@@ -60,7 +60,7 @@ const TileGroup = ({ groupTitle="Default", orderBy="-created_at", onPlayAudio, o
 
   return (
     <div id={orderBy} className="my-4">
-      <p className="text-white text-3xl font-semibold mb-2">{groupTitle}</p>
+      <p className="text-white text-3xl font-semibold mb-2 cursor-default">{groupTitle}</p>
       <div className="flex">
         {(loading || error) ? (
           <div className="group w-1/4 p-4 bg-gray-100 rounded-lg shadow-md hover:bg-gray-200 hover:scale-105 hover:shadow-lg transition-all duration-300 relative">

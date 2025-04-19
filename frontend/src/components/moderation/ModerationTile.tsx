@@ -12,9 +12,10 @@ interface ModerationTileProps {
   expanded: boolean;
   onExpandTile: () => void;
   onDecision: () => void;
+  onTileClick: () => void;
 }
 
-const ModerationTile = ({ reportedId, reportType, title, contentType, reportCount, onDecision }: ModerationTileProps) => {
+const ModerationTile = ({ reportedId, reportType, title, contentType, reportCount, onDecision, onTileClick }: ModerationTileProps) => {
   const [reviewReport, { loading }] = useMutation(REVIEW_REPORT_MUTATION);
   const handleDecision = async (isSafe: boolean) => {
     try {
@@ -32,14 +33,17 @@ const ModerationTile = ({ reportedId, reportType, title, contentType, reportCoun
   };
 
   return (
-    <div className="p-4 mb-4 bg-white rounded-lg shadow-md border-l-4 border-gray-300 hover:shadow-lg transition-shadow">
+    <div
+      onClick={onTileClick}
+      className="p-4 mb-4 bg-white rounded-lg shadow-md border-l-4 border-gray-300 hover:shadow-lg transition-shadow"
+    >
       <div className="flex justify-between items-start">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
             <span className="px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded cursor-default">
               {reportCount} report{reportCount > 1 ? "s" : ""}
             </span>
-            <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
+            <h3 className="text-lg font-semibold text-gray-800 cursor-default">{title}</h3>
           </div>
         </div>
         <div className="flex gap-2 ml-4">

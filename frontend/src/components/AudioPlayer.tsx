@@ -17,6 +17,7 @@ const AudioPlayer = ({ audio, onClose }: AudioPlayerProps) => {
   const [audioBlob, setAudioBlob] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [autoplay, setAutoplay] = useState(true);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
@@ -55,11 +56,12 @@ const AudioPlayer = ({ audio, onClose }: AudioPlayerProps) => {
       // Set the URL as the source for the audio
       audioRef.current.src = audioUrl;
       audioRef.current.load();
-      audioRef.current.play().then(() => {
+      if (autoplay) audioRef.current.play().then(() => {
         setIsPlaying(true);
       }).catch((error) => {
         setErrorMessage(`Playback error : ${error}`);
       });
+      handleTimeUpdate();
       return () => {
         controller.abort();
       };
@@ -72,6 +74,7 @@ const AudioPlayer = ({ audio, onClose }: AudioPlayerProps) => {
     } else {
       audioRef.current.play();
     }
+    setAutoplay(!autoplay);
     setIsPlaying(!isPlaying);
     setIsLoading(false);
   };

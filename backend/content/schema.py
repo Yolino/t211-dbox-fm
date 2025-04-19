@@ -30,6 +30,13 @@ class PublicationType(DjangoObjectType):
                 return None
         return None
 
+    is_owner = graphene.Boolean()
+    def resolve_is_owner(root, info):
+        user = info.context.user
+        if user.is_authenticated and user == root.author:
+            return True
+        return False
+
 class PublicationPageType(graphene.ObjectType):
     publications = graphene.List(graphene.NonNull(PublicationType))
     has_next_page = graphene.Boolean()

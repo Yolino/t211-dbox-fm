@@ -31,7 +31,7 @@ const CommentTile = ({ comment, level, onReply, onEnableCommentZone, enableComme
   const formattedDateComment = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
 
   return (
-    <div key={comment.id} style={{ marginLeft: `${(level * 20) + 22}px` }} className={`${comment.isBanned ? "bg-red-200 text-red-800" : "text-gray-800"} rounded-md p-1`}>
+    <div key={comment.id} style={{ marginLeft: `${(level * 20) + 22}px` }} className={`${comment.isBanned ? "bg-red-200 text-red-800" : "text-gray-800"} rounded-md p-1 m-1`}>
       <div className="flex items-center justify-between">
         <p className="font-medium">{comment.author.username}</p>
         <p className="text-xs">{formattedDateComment}</p>

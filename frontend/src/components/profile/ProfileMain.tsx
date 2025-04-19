@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useLocation } from "react-router-dom";
 import { useQuery } from "@apollo/client";
 import PROFILE_QUERY from "../../graphql/profileQuery.ts";
 import MainBlock from "../MainBlock.tsx";
@@ -8,8 +9,9 @@ import AudioPlayer from "../AudioPlayer.tsx";
 import LoadingIcon from "../../svg/LoadingIcon.tsx";
 
 const ProfileMain = ({ username }) => {
-  const [expandedTile, setExpandedTile] = useState(null);
-  const [shownPublication, setShownPublication] = useState(null);
+  const location = useLocation();
+  const [expandedTile, setExpandedTile] = useState(location.state?.expanded || null);
+  const [shownPublication, setShownPublication] = useState(location.state?.expanded || null);
   const [currentAudio, setCurrentAudio] = useState(null);
   const [message, setMessage] = useState({
     tileId: NaN,
@@ -50,9 +52,9 @@ const ProfileMain = ({ username }) => {
                 publication={p}
                 index={i} 
                 isSelf={profile.isSelf}
-                onEdit={() => { handleExpandTile(i) }}
+                onEdit={() => { handleExpandTile(p.id) }}
                 onCloseTile={() => { setExpandedTile(null) }}
-                isExpanded={ i === expandedTile }
+                isExpanded={ p.id === expandedTile }
                 message={i === message.tileId ? {isError: message.isError, text: message.text} : null}
                 onSetMessage={(m) => { setMessage(m) }}
                 onProfileUpdate={refetchProfile}
@@ -65,7 +67,7 @@ const ProfileMain = ({ username }) => {
       </MainBlock>
       <MainBlock styleClass="w-full md:w-auto h-1/3 md:h-[calc(80vh)] overflow-y-auto">
         <div className="h-full overflow-y-auto">
-          {shownPublication && <TileExpanded tileId={shownPublication} />}
+          {shownPublication && <TileExpanded tileId={shownPublication} showEditButton={false} />}
         </div>
         <AudioPlayer audio={currentAudio} />
       </MainBlock>

@@ -18,6 +18,7 @@ const PUBLICATION_DETAIL_QUERY = gql`
       voteCount
       createdAt
       isBanned
+      isOwner
     }
   }
 `;
