@@ -1,18 +1,16 @@
 import { gql } from "@apollo/client";
 
-const REPORTED_CONTENT_QUERY = gql`
-  query ReportedContent {
-    reportedContent {
+const BANNED_CONTENT_QUERY = gql`
+  query BannedContent {
+    bannedContent {
       users {
         id
         username
-        reportCount
       }
       publications {
         id
         title
         description
-        reportCount
       }
       comments {
         id
@@ -20,10 +18,9 @@ const REPORTED_CONTENT_QUERY = gql`
         publication {
           id
         }
-        reportCount
       }
     }
   }
 `;
 
-export default REPORTED_CONTENT_QUERY;
+export default BANNED_CONTENT_QUERY;

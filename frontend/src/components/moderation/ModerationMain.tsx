@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useQuery } from "@apollo/client";
 import { usePrivileges } from "../../context/PrivilegesContext.tsx";
 import REPORTED_CONTENT_QUERY from "../../graphql/reportedContentQuery.ts";
+import BANNED_CONTENT_QUERY from "../../graphql/bannedContentQuery.ts";
 import MainBlock from "../MainBlock.tsx";
 import ModerationTile from "./ModerationTile.tsx";
 import TileExpanded from "../tiles/TileExpanded.tsx";
@@ -13,11 +14,15 @@ const ModerationMain = () => {
   const [expandedTile, setExpandedTile] = useState(null);
   const [panelSwitch, setPanelSwitch] = useState(false);
   const notAllowed = !privileges?.isModerator;
-  const { data, error, refetch } = useQuery(REPORTED_CONTENT_QUERY, {
+  const { data: reportedData, error: reportedError, refetch: reportedRefetch } = useQuery(REPORTED_CONTENT_QUERY, {
+    skip: notAllowed,
+  });
+  const { data: bannedData, error: bannedError, refetch: bannedRefetch } = useQuery(BANNED_CONTENT_QUERY, {
     skip: notAllowed,
   });
   const onDecision = () => {
-    refetch();
+    reportedRefetch();
+    bannedRefetch();
   };
 
   if (notAllowed) return <p className="text-xl text-center text-red-600 font-bold">You cannot access the moderation panel</p>;
@@ -41,7 +46,7 @@ const ModerationMain = () => {
           {panelSwitch ? (
             <p>Banned users</p>
           ) : (
-            data?.reportedContent.users.map((u, i) => (
+            reportedData?.reportedContent.users.map((u, i) => (
               <ModerationTile
                 key={i}
                 reportedId={u.id}
@@ -56,9 +61,19 @@ const ModerationMain = () => {
         <div className="m-4 p-4 bg-gray-200 rounded-md">
           <h3 className="text-xl font-bold mb-2 cursor-default">Publications</h3>
           {panelSwitch ? (
-            <p>Banned publications</p>
+            bannedData?.bannedContent.publications.map((p, i) => (
+              <ModerationTile
+                key={i}
+                reportedId={p.id}
+                title={p.title}
+                reportType="publication"
+                onDecision={onDecision}
+                onTileClick={() => { setExpandedTile(p.id) }}
+                banned={true}
+              />
+            ))
           ) : (
-            data?.reportedContent.publications.map((p, i) => (
+            reportedData?.reportedContent.publications.map((p, i) => (
               <ModerationTile
                 key={i}
                 reportedId={p.id}
@@ -76,7 +91,7 @@ const ModerationMain = () => {
           {panelSwitch ? (
             <p>Banned comments</p>
           ) : (
-            data?.reportedContent.comments.map((c, i) => (
+            reportedData?.reportedContent.comments.map((c, i) => (
               <ModerationTile
                 key={i}
                 reportedId={c.id}
@@ -84,6 +99,7 @@ const ModerationMain = () => {
                 reportType="comment"
                 reportCount={c.reportCount}
                 onDecision={onDecision}
+                onTileClick={() => { setExpandedTile(c.publication.id) }}
               />
             ))
           )}

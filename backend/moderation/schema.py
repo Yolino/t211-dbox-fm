@@ -2,8 +2,8 @@ import graphene
 from graphene_django import DjangoObjectType
 from graphql import GraphQLError
 from django.db import models
-from django.contrib.auth.models import User
 from .models import ReportUser, ReportPublication, ReportComment
+from django.contrib.auth.models import User
 from content.models import Publication, Comment
 
 class ReportUserType(DjangoObjectType):
@@ -60,8 +60,12 @@ class ReportedContentType(graphene.ObjectType):
 class Query(graphene.ObjectType):
     reporters = graphene.List(ReportUnion, reported_id=graphene.Int(required=True), content_type=graphene.String(required=True))
     reported_content = graphene.Field(ReportedContentType)
+    banned_content = graphene.Field(ReportedContentType)
  
     def resolve_reporters(root, info, reported_id, content_type):
+        user = info.context.user
+        if not (user.is_authenticated and user.has_perm("moderation.view_reportuser") and user.has_perm("moderation.view_reportpublication") and user.has_perm("moderation.view_reportcomment")):
+            raise GraphQLError("You do not have permssion to view reports")
         if content_type == "user":
             return ReportUser.objects.filter(reported_user_id=reported_id, is_reviewed=False)
         if content_type == "publication":
@@ -73,12 +77,21 @@ class Query(graphene.ObjectType):
     def resolve_reported_content(root, info):
         user = info.context.user
         if not (user.is_authenticated and user.has_perm("moderation.view_reportuser") and user.has_perm("moderation.view_reportpublication") and user.has_perm("moderation.view_reportcomment")):
-            raise GraphQLError("You do not have permission to view Comment reports")
-
+            raise GraphQLError("You do not have permission to view reports")
         result = {}
         result["users"] = User.objects.filter(reports_received__is_reviewed=False).annotate(report_count=models.Count("reports_received", filter=models.Q(reports_received__is_reviewed=False))).distinct()
         result["publications"] = Publication.objects.filter(reportpublication__is_reviewed=False).annotate(report_count=models.Count("reportpublication", filter=models.Q(reportpublication__is_reviewed=False))).distinct()
         result["comments"] = Comment.objects.filter(reportcomment__is_reviewed=False).annotate(report_count=models.Count("reportcomment", filter=models.Q(reportcomment__is_reviewed=False))).distinct()
+        return result
+
+    def resolve_banned_content(root, info):
+        user = info.context.user
+        if not (user.is_authenticated and user.has_perm("moderation.view_reportuser") and user.has_perm("moderation.view_reportpublication") and user.has_perm("moderation.view_reportcomment")):
+            raise GraphQLError("You do not have permssion to view reports")
+        result = {}
+        result["users"] = User.objects.filter(is_active=False)
+        result["publications"] = Publication.objects.filter(is_banned=True)
+        result["comments"] = Comment.objects.filter(is_banned=True)
         return result
 
 class CreateReport(graphene.Mutation):
