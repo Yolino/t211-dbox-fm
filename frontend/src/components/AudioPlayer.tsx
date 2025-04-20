@@ -27,7 +27,9 @@ const AudioPlayer = ({ audio, onClose }: AudioPlayerProps) => {
     setErrorMessage("");
     setIsLoading(true);
     try {
-      const response = await fetch(`http://localhost:8000/api/audio/${id}/`);
+      const response = await fetch(`http://localhost:8000/api/audio/${id}/`, {
+        credentials: "include",
+      });
       if (!response.ok) {
         const audioError = await response.text();
         throw new Error(audioError || "Something went wrong")

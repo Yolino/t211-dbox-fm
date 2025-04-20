@@ -87,7 +87,7 @@ class Query(graphene.ObjectType):
     def resolve_banned_content(root, info):
         user = info.context.user
         if not (user.is_authenticated and user.has_perm("moderation.view_reportuser") and user.has_perm("moderation.view_reportpublication") and user.has_perm("moderation.view_reportcomment")):
-            raise GraphQLError("You do not have permssion to view reports")
+            raise GraphQLError("You do not have permission to view reports")
         result = {}
         result["users"] = User.objects.filter(is_active=False)
         result["publications"] = Publication.objects.filter(is_banned=True)
