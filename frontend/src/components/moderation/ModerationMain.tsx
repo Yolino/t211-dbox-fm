@@ -6,12 +6,16 @@ import BANNED_CONTENT_QUERY from "../../graphql/bannedContentQuery.ts";
 import MainBlock from "../MainBlock.tsx";
 import ModerationTile from "./ModerationTile.tsx";
 import TileExpanded from "../tiles/TileExpanded.tsx";
+import ProfilePublications from "../profile/ProfilePublications.tsx";
 import AudioPlayer from "../AudioPlayer.tsx";
 import LoadingIcon from "../../svg/LoadingIcon.tsx";
 
 const ModerationMain = () => {
   const { privileges } = usePrivileges();
-  const [expandedTile, setExpandedTile] = useState(null);
+  const [expandedTile, setExpandedTile] = useState({
+    tileType: null,
+    tileId: null,
+  });
   const [panelSwitch, setPanelSwitch] = useState(false);
   const notAllowed = !privileges?.isModerator;
   const { data: reportedData, error: reportedError, refetch: reportedRefetch } = useQuery(REPORTED_CONTENT_QUERY, {
@@ -44,7 +48,17 @@ const ModerationMain = () => {
         <div className="m-4 p-4 bg-gray-200 rounded-md">
           <h3 className="text-xl font-bold mb-2 cursor-default">Users</h3>
           {panelSwitch ? (
-            <p>Banned users</p>
+            bannedData?.bannedContent.users.map((u, i) => (
+              <ModerationTile
+                key={i}
+                reportedId={u.id}
+                title={u.username}
+                reportType="user"
+                onDecision={onDecision}
+                onTileClick={() => { setExpandedTile({tileType: "user", tileId: u.username}) }}
+                banned={true}
+              />
+            ))
           ) : (
             reportedData?.reportedContent.users.map((u, i) => (
               <ModerationTile
@@ -54,6 +68,7 @@ const ModerationMain = () => {
                 reportType="user"
                 reportCount={u.reportCount}
                 onDecision={onDecision}
+                onTileClick={() => { setExpandedTile({tileType: "user", tileId: u.username}) }}
               />
             ))
           )}
@@ -68,7 +83,7 @@ const ModerationMain = () => {
                 title={p.title}
                 reportType="publication"
                 onDecision={onDecision}
-                onTileClick={() => { setExpandedTile(p.id) }}
+                onTileClick={() => { setExpandedTile({tileType: "publication", tileId: p.id}) }}
                 banned={true}
               />
             ))
@@ -81,7 +96,7 @@ const ModerationMain = () => {
                 reportType="publication"
                 reportCount={p.reportCount}
                 onDecision={onDecision}
-                onTileClick={() => { setExpandedTile(p.id) }}
+                onTileClick={() => { setExpandedTile({tileType: "publication", tileId: p.id}) }}
               />
             ))
           )}
@@ -89,7 +104,17 @@ const ModerationMain = () => {
         <div className="m-4 p-4 bg-gray-200 rounded-md">
           <h3 className="text-xl font-bold mb-2 cursor-default">Comments</h3>
           {panelSwitch ? (
-            <p>Banned comments</p>
+            bannedData?.bannedContent.comments.map((c, i) => (
+              <ModerationTile
+                key={i}
+                reportedId={c.id}
+                title={c.text}
+                reportType="comment"
+                onDecision={onDecision}
+                onTileClick={() => { setExpandedTile({tileType: "publication", tileId: c.publication.id}) }}
+                banned={true}
+              />
+            ))
           ) : (
             reportedData?.reportedContent.comments.map((c, i) => (
               <ModerationTile
@@ -99,7 +124,7 @@ const ModerationMain = () => {
                 reportType="comment"
                 reportCount={c.reportCount}
                 onDecision={onDecision}
-                onTileClick={() => { setExpandedTile(c.publication.id) }}
+                onTileClick={() => { setExpandedTile({tileType: "publication", tileId: c.publication.id}) }}
               />
             ))
           )}
@@ -107,9 +132,23 @@ const ModerationMain = () => {
       </MainBlock>
       <MainBlock styleClass="w-full lg:w-1/3 h-96 lg:h-full overflow-y-auto">
         <div className="h-full overflow-y-auto">
-          {expandedTile && <TileExpanded tileId={expandedTile} />}
+          {expandedTile.tileType === "user" ? (
+            <ProfilePublications
+              username={expandedTile.tileId}
+              onPublicationClick={(tileId) => { setExpandedTile({tileType: "publication", tileId}) }}
+              isModerationContext={true}
+            />
+          ) : (
+            <div>
+              <TileExpanded
+                tileId={expandedTile.tileId}
+                isModerationContext={true}
+                setExpandedAuthor={(username) => { setExpandedTile({tileType: "user", tileId: username}) }}
+              />
+              <AudioPlayer audio={expandedTile.tileId} />
+            </div>
+          )}
         </div>
-        <AudioPlayer audio={expandedTile} />
       </MainBlock>
     </div>
   );

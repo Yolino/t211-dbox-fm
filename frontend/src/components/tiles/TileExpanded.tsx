@@ -8,10 +8,11 @@ import AudioIcon from "../../svg/AudioIcon.tsx";
 
 interface TileExpandedProps {
   tileId: number;
-  showEditButton: boolean;
+  isModerationContext: boolean;
+  setExpandedAuthor: (username: string) => void | null; // Used in moderation context to display the author without navigating
 }
 
-const TileExpanded = ({ tileId, showEditButton=true }: TileExpandedProps) => {
+const TileExpanded = ({ tileId, isModerationContext=false, setExpandedAuthor=null }: TileExpandedProps) => {
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState("");
   const [reportMessage, setReportMessage] = useState("");
@@ -112,7 +113,13 @@ const TileExpanded = ({ tileId, showEditButton=true }: TileExpandedProps) => {
             <p className="cursor-default">
               by <span 
                    className={`${!publication.author.isActive && "bg-red-200 p-1 rounded-md"} cursor-pointer`}
-                   onClick={() => { navigate(`/profile/${publication.author.username}`) }}>{publication.author.username}
+                   onClick={isModerationContext ? (
+                    () => { setExpandedAuthor(publication.author.username) }
+                   ) : (
+                    () => { navigate(`/profile/${publication.author.username}`) }
+                   )}
+                  >
+                   {publication.author.username}
                  </span> on {formattedDatePublication}
             </p>
             {publication.author.isActive && <button
@@ -126,7 +133,7 @@ const TileExpanded = ({ tileId, showEditButton=true }: TileExpandedProps) => {
           <p className="text-sm mt-2 cursor-default">{publication.description || "No description available."}</p>
           <p className="text-xs mt-2 cursor-default">{publication.viewCount} {+publication.viewCount === 1 ? "view" : "views"}</p>
           <p className="text-xs mt-2 cursor-default">{publication.voteCount} {+publication.voteCount === 1 ? "vote" : "votes"}</p>
-          {publication.isOwner && showEditButton && <button
+          {publication.isOwner && !isModerationContext && <button
               onClick={() => { navigate(`/profile/${publication.author.username}`, {state: { expanded: tileId }}) }}
               className="text-sm mt-1 p-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200">
             Edit Publication

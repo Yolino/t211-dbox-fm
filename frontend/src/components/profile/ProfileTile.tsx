@@ -26,9 +26,10 @@ interface ProfileTileProps {
   onDeletePublication: () => void;
   onPlayAudio: () => void;
   onPublicationClick: () => void;
+  isModerationContext: boolean;
 };
 
-const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, isExpanded, message, onSetMessage, onProfileUpdate, onPlayAudio, onPublicationClick }: ProfileTileProps) => {
+const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, isExpanded, message, onSetMessage, onProfileUpdate, onPlayAudio, onPublicationClick, isModerationContext=false }: ProfileTileProps) => {
   const [isDeleteCardOpen, setIsDeleteCardOpen] = useState(false);
   const handleDeleteClick = () => {
     setIsDeleteCardOpen(true);
@@ -141,12 +142,12 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
               alt={`Cover for ${publication.title}`}
             />
           )}
-          <button
+          {!isModerationContext && <button
             className={`p-3 rounded-full shadow-lg transition-colors duration-200 ${publication.isBanned ? "hover:bg-red-400" : "hover:bg-gray-300"}`}
             onClick={() => { onPlayAudio(publication.id) }}
           >
             <PlayIcon />
-          </button>
+          </button>}
         </div>
         <h3 className="ml-auto text-lg font-bold cursor-default">{publication.title}{isExpanded && " - Edit publication"}</h3>
         {isSelf && <div className="flex gap-2 ml-4">
@@ -202,15 +203,17 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
               className="mt-0 w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          <div className="flex items-center gap-4 w-full">
-            <label className="w-1/6 font-bold">Remove current cover image</label>
-            <input
-              type="checkbox"
-              name="remove-cover"
-              onChange={handleCheckboxChange}
-              className="h-4 w-4 bg-gray-800 border border-gray-600 rounded-md text-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            />
-          </div>
+          {publication.cover && (
+            <div className="flex items-center gap-4 w-full">
+              <label className="w-1/6 font-bold">Remove current cover image</label>
+              <input
+                type="checkbox"
+                name="remove-cover"
+                onChange={handleCheckboxChange}
+                className="h-4 w-4 bg-gray-800 border border-gray-600 rounded-md text-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              />
+            </div>
+          )}
           <input
             type="submit"
             value={loadingUpdate ? "Editing..." : "Edit"}

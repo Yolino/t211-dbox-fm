@@ -199,9 +199,51 @@ class ReviewReport(graphene.Mutation):
                 report.save()
             return ReviewReport(success=True)
 
+        raise GraphQLError("Received unexpected report type argument")
+
+class UnbanContent(graphene.Mutation):
+    class Arguments:
+        banned_id = graphene.Int(required=True)
+        content_type = graphene.String(required=True)
+
+    success = graphene.Boolean()
+
+    def mutate(root, info, banned_id, content_type):
+        user = info.context.user
+        if not (user.is_authenticated and user.has_perm("moderation.change_reportuser") and user.has_perm("moderation.change_reportpublication") and user.has_perm("moderation.change_reportcomment")):
+            raise GraphQLError("You do not have permission to unban content")
+
+        if content_type == "user":
+            try:
+                banned_user = User.objects.get(id=banned_id, is_active=False)
+            except User.DoesNotExist:
+                raise GraphQLError("This User either does not exist or is not banned")
+            banned_user.is_active = True
+            banned_user.save()
+            return UnbanContent(success=True)
+
+        if content_type == "publication":
+            try:
+                banned_publication = Publication.objects.get(id=banned_id, is_banned=True)
+            except Publication.DoesNotExist:
+                raise GraphQLError("This Publication either does not exist or is not banned")
+            banned_publication.is_banned = False
+            banned_publication.save()
+            return UnbanContent(success=True)
+
+        if content_type == "comment":
+            try:
+                banned_comment = Comment.objects.get(id=banned_id, is_banned=True)
+            except Comment.DoesNotExist:
+                raise GraphQLError("This Comment either does not exist or is not banned")
+            banned_comment.is_banned = False
+            banned_comment.save()
+            return UnbanContent(success=True)
+
         raise GraphQLError("Received unexpected content type argument")
 
 class Mutation(graphene.ObjectType):
     create_report = CreateReport.Field()
     review_report = ReviewReport.Field()
+    unban_content = UnbanContent.Field()
 
