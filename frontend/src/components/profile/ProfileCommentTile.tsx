@@ -1,4 +1,8 @@
 import React, { useState } from "react";
+import { useMutation } from "@apollo/client";
+import UPDATE_COMMENT_MUTATION from "../../graphql/updateCommentMutation.ts";
+import DELETE_COMMENT_MUTATION from "../../graphql/deleteCommentMutation.ts";
+import DeleteContentCard from "./DeleteContentCard.tsx";
 import EditIcon from "../../svg/EditIcon.tsx";
 import DeleteIcon from "../../svg/DeleteIcon.tsx";
 
@@ -13,6 +17,11 @@ interface Comment {
   isBanned: boolean;
 }
 
+interface Message {
+  isError: boolean;
+  text: string;
+}
+
 interface ProfileCommentTileProps {
   comment: Comment;
   index: number;
@@ -20,19 +29,83 @@ interface ProfileCommentTileProps {
   onEdit: () => void;
   onCloseTile: () => void;
   isExpanded: boolean;
+  message: Message;
+  onSetMessage: (m: Message) => void;
+  onProfileUpdate: () => void;
   onCommentClick: (i: number) => void;
 }
 
-const ProfileCommentTile = ({ comment, index, isSelf, onEdit, onCloseTile, isExpanded, onCommentClick }: ProfileCommentTileProps) => {
-  const handleDeleteClick = () => {console.log("placeholder func")};
-
+const ProfileCommentTile = ({ comment, index, isSelf, onEdit, onCloseTile, isExpanded, message, onSetMessage, onProfileUpdate, onCommentClick }: ProfileCommentTileProps) => {
+  const [isDeleteCardOpen, setIsDeleteCardOpen] = useState(false);
+  const handleDeleteClick = () => {
+    setIsDeleteCardOpen(true);
+  };
+  const handleCloseCard = () => {
+    setIsDeleteCardOpen(false);
+  };
   const [commentText, setCommentText] = useState("");
   const handleCommentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setCommentText(event.target.value);
   };
+
+  const [updateComment, {loading}] = useMutation(UPDATE_COMMENT_MUTATION, {
+    onCompleted: (data) => {
+      if (data.updateComment.success) {
+        onSetMessage({
+          tileId: index,
+          tileType: "comment",
+          isError: false,
+          text: "Comment successfully updated",
+        });
+        onCloseTile();
+        onProfileUpdate();
+      }
+    },
+    onError: (err) => {
+      onSetMessage({
+        tileId: index,
+        tileType: "comment",
+        isError: true,
+        text: err.message,
+      });
+    },
+  });
   const handleEditComment = (event: React.FormEvent) => {
     event.preventDefault();
-    console.log(commentText);
+    updateComment({
+      variables: {
+        commentId: +comment.id,
+        text: commentText,
+      },
+    });
+  };
+
+  const [deleteComment] = useMutation(DELETE_COMMENT_MUTATION, {
+    onCompleted: (data) => {
+      if (data.deleteComment.success) {
+        onSetMessage({
+          tileId: NaN,
+          tileType: null,
+          isError: false,
+          text: "",
+        });
+        setIsDeleteCardOpen(false);
+        onProfileUpdate();
+        onCommentClick(null);
+      }
+    },
+    onError: (err) => {
+      onSetMessage({
+        tileId: index,
+        tileType: "comment",
+        isError: true,
+        text: err.message,
+      });
+    },
+  });
+  const handleDeleteComment = (id: number) => {
+    deleteComment({ variables: { commentId: +id } });
+    onCloseTile();
   };
 
   return (
@@ -68,6 +141,14 @@ const ProfileCommentTile = ({ comment, index, isSelf, onEdit, onCloseTile, isExp
             </div>
           )}
       </li>
+      {message && <p className={`mb-4 mt-1 text-sm text-center ${message.isError ? "text-red-500" : "text-green-500"}`}>{message.text}</p>}
+      {isDeleteCardOpen && (
+        <DeleteContentCard
+          title={comment.text}
+          onDeleteContent={() => { handleDeleteComment(comment.id) }}
+          onClose={handleCloseCard}
+        />
+      )}
     </div>
   );
 };

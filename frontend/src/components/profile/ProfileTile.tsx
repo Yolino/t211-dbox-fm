@@ -3,7 +3,7 @@ import { useQuery, useMutation } from "@apollo/client";
 import TAGS_QUERY from "../../graphql/tagsQuery.ts";
 import UPDATE_PUBLICATION_MUTATION from "../../graphql/updatePublicationMutation.ts";
 import DELETE_PUBLICATION_MUTATION from "../../graphql/deletePublicationMutation.ts";
-import DeletePublicationCard from "./DeletePublicationCard.tsx";
+import DeleteContentCard from "./DeleteContentCard.tsx";
 import PlayIcon from "../../svg/PlayIcon.tsx";
 import EditIcon from "../../svg/EditIcon.tsx";
 import DeleteIcon from "../../svg/DeleteIcon.tsx";
@@ -25,7 +25,7 @@ interface ProfileTileProps {
   isExpanded: boolean;
   onDeletePublication: () => void;
   onPlayAudio: () => void;
-  onPublicationClick: () => void;
+  onPublicationClick: (i: number) => void;
   isModerationContext: boolean;
 };
 
@@ -78,36 +78,17 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
       if (data.updatePublication.success) {
         onSetMessage({
           tileId: index,
+          tileType: "publication",
           isError: false,
           text: "Publication successfully updated",
         });
         onProfileUpdate();
-        onCloseTile();
       }
     },
     onError: (err) => {
       onSetMessage({
         tileId: index,
-        isError: true,
-        text: err.message,
-      });
-    },
-  });
-  const [deletePublication] = useMutation(DELETE_PUBLICATION_MUTATION, {
-    onCompleted: (data) => {
-      if (data.deletePublication.success) {
-        onSetMessage({
-          tileId: NaN,
-          isError: false,
-          text: "",
-        });
-        setIsDeleteCardOpen(false);
-        onProfileUpdate();
-      }
-    },
-    onError: (err) => {
-      onSetMessage({
-        tileId: index,
+        tileType: "publication",
         isError: true,
         text: err.message,
       });
@@ -124,8 +105,33 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
       removeCover: editedPublication.removeCover,
     }});
   };
+
+  const [deletePublication] = useMutation(DELETE_PUBLICATION_MUTATION, {
+    onCompleted: (data) => {
+      if (data.deletePublication.success) {
+        onSetMessage({
+          tileId: NaN,
+          tileType: null,
+          isError: false,
+          text: "",
+        });
+        setIsDeleteCardOpen(false);
+        onProfileUpdate();
+        onPublicationClick(null);
+      }
+    },
+    onError: (err) => {
+      onSetMessage({
+        tileId: index,
+        tileType: "publication",
+        isError: true,
+        text: err.message,
+      });
+    },
+  });
   const handleDeletePublication = (id) => {
     deletePublication({ variables: { publicationId: +id } });
+    onCloseTile();
   };
 
   return (
@@ -233,10 +239,9 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
       )}
       {message && <p className={`mb-4 mt-1 text-sm text-center ${message.isError ? "text-red-500" : "text-green-500"}`}>{message.text}</p>}
       {isDeleteCardOpen && (
-        <DeletePublicationCard
-          id={publication.id}
+        <DeleteContentCard
           title={publication.title}
-          onDeletePublication={() => { handleDeletePublication(publication.id) }}
+          onDeleteContent={() => { handleDeletePublication(publication.id) }}
           onClose={handleCloseCard}
         />
       )}

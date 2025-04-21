@@ -14,12 +14,12 @@ interface ProfilePublicationsProps {
 }
 
 const ProfilePublications = ({ username, defaultExpandedTile, onPublicationClick, onPlayAudio, isModerationContext=false }: ProfilePublicationsProps) => {
-  const [expandedTile, setExpandedTile] = useState({
-    tileId: defaultExpandedTile.tileId,
-    tileType: defaultExpandedTile.tileType,
-  });
+  const [expandedTile, setExpandedTile] = useState(
+    defaultExpandedTile || { tileId: null, tileType: null }
+  );
   const [message, setMessage] = useState({
     tileId: NaN,
+    tileType: null,
     isError: false,
     text: "",
   });
@@ -27,7 +27,7 @@ const ProfilePublications = ({ username, defaultExpandedTile, onPublicationClick
     variables: { username },
   });
   const handleExpandTile = (i, t) => {
-    (i === expandedTile?.tileId && t === expandedTile?.tileType) ? setExpandedTile(null) : setExpandedTile({tileId: i, tileType: t});
+    (i === expandedTile?.tileId && t === expandedTile?.tileType) ? setExpandedTile({ tileId: null, tileType: null }) : setExpandedTile({tileId: i, tileType: t});
   }
   const refetchProfile = () => {
     refetch();
@@ -61,7 +61,7 @@ const ProfilePublications = ({ username, defaultExpandedTile, onPublicationClick
             onEdit={() => { handleExpandTile(p.id, "publication") }}
             onCloseTile={() => { handleExpandTile(null) }}
             isExpanded={p.id === expandedTile?.tileId && expandedTile?.tileType === "publication"}
-            message={i === message.tileId ? {isError: message.isError, text: message.text} : ""}
+            message={(i === message.tileId && message.tileType === "publication") ? {isError: message.isError, text: message.text} : null}
             onSetMessage={(m) => { setMessage(m) }}
             onProfileUpdate={refetchProfile}
             onPublicationClick={onPublicationClick}
@@ -84,6 +84,9 @@ const ProfilePublications = ({ username, defaultExpandedTile, onPublicationClick
             onEdit={() => { handleExpandTile(c.id, "comment") }}
             onCloseTile={() => { handleExpandTile(null) }}
             isExpanded={c.id === expandedTile?.tileId && expandedTile?.tileType === "comment" }
+            message={(i === message.tileId && message.tileType === "comment") ? {isError: message.isError, text: message.text} : null}
+            onSetMessage={(m) => { setMessage(m) }}
+            onProfileUpdate={refetchProfile}
             onCommentClick={onPublicationClick}
           />
         ))}

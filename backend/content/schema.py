@@ -357,7 +357,7 @@ class UpdateComment(graphene.Mutation):
             raise GraphQLError("This Comment is currently flagged. You cannot update or delete it")
         if text == comment.text:
             raise GraphQLError("You have to enter a different value in order to update this Comment")
-        comment.text = text()
+        comment.text = text
         comment.save()
         return UpdateComment(success=True)
 
