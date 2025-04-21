@@ -142,6 +142,7 @@ const ModerationMain = () => {
             <div>
               <TileExpanded
                 tileId={expandedTile.tileId}
+                showEditButton={false}
                 isModerationContext={true}
                 setExpandedAuthor={(username) => { setExpandedTile({tileType: "user", tileId: username}) }}
               />

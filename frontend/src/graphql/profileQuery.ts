@@ -19,6 +19,14 @@ const PROFILE_QUERY = gql`
         voteCount
         isBanned
       }
+      comments {
+        id
+        text
+        publication {
+          id
+        }
+        isBanned
+      }
       isSelf
     }
   }

@@ -15,14 +15,20 @@ const ProfileMain = ({ username }) => {
       <MainBlock styleClass="w-full md:w-2/3 h-1/3 md:h-[calc(80vh)] overflow-y-auto">
         <ProfilePublications
           username={username}
-          defaultExpandedTile={location.state?.expanded || null}
+          defaultExpandedTile={{
+            tileId: location.state?.expanded || null,
+            tileType: "publication",
+          }}
           onPublicationClick={setShownPublication}
           onPlayAudio={setCurrentAudio}
         />
       </MainBlock>
       <MainBlock styleClass="w-full md:w-auto h-1/3 md:h-[calc(80vh)] overflow-y-auto">
         <div className="h-full overflow-y-auto">
-          {shownPublication && <TileExpanded tileId={shownPublication} showEditButton={false} />}
+          {shownPublication && <TileExpanded
+            tileId={shownPublication}
+            showEditButton={false}
+          />}
         </div>
         <AudioPlayer audio={currentAudio} />
       </MainBlock>

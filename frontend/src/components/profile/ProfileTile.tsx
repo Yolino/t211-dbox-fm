@@ -131,9 +131,9 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
   return (
     <div
       onClick={() => { onPublicationClick(publication.id) }}
-      className={`p-4 bg-gray-200 rounded-lg shadow-sm group ${publication.isBanned ? "bg-red-200 hover:bg-red-300 text-red-800" : "bg-gray-100 hover:bg-gray-200 text-gray-800"}`}
+      className={`p-4 bg-gray-200 rounded-lg shadow-sm group ${publication.isBanned ? "bg-red-200 hover:bg-red-300 text-red-800" : "bg-gray-200 hover:bg-gray-300 text-gray-800"}`}
     >
-      <li key={index} className="relative flex items-center">
+      <li key={index} className="relative flex items-center justify-between"> 
         <div className="flex items-center">
           {publication.cover && (
             <img
@@ -142,18 +142,27 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
               alt={`Cover for ${publication.title}`}
             />
           )}
-          {!isModerationContext && <button
-            className={`p-3 rounded-full shadow-lg transition-colors duration-200 ${publication.isBanned ? "hover:bg-red-400" : "hover:bg-gray-300"}`}
-            onClick={() => { onPlayAudio(publication.id) }}
-          >
-            <PlayIcon />
-          </button>}
+          <h3 className="text-lg font-bold cursor-default">
+            {publication.title}
+            {isExpanded && " - Edit publication"}
+          </h3>
         </div>
-        <h3 className="ml-auto text-lg font-bold cursor-default">{publication.title}{isExpanded && " - Edit publication"}</h3>
-        {isSelf && <div className="flex gap-2 ml-4">
-          <EditIcon onClick={onEdit} styleClass={publication.isBanned && "text-red-800 hover:text-gray-800"} />
-          <DeleteIcon onClick={handleDeleteClick} styleClass={publication.isBanned && "text-red-800 hover:text-gray-800"} />
-        </div>}
+        <div className="flex items-center gap-3 ml-4">
+          {!isModerationContext && (
+            <button
+              className={`p-3 rounded-full shadow-lg transition-colors duration-200 ${publication.isBanned ? "hover:bg-red-400" : "hover:bg-gray-500"}`}
+              onClick={() => { onPlayAudio(publication.id) }}
+            >
+              <PlayIcon />
+            </button>
+          )}
+          {isSelf && (
+            <>
+              <EditIcon onClick={onEdit} styleClass={publication.isBanned && "text-red-800 hover:text-gray-800"} />
+              <DeleteIcon onClick={handleDeleteClick} styleClass={publication.isBanned && "text-red-800 hover:text-gray-800"} />
+            </>
+          )}
+        </div>
       </li>
       {isExpanded && (
         <form onSubmit={handleEditPublication} className="space-y-4 mt-4">
@@ -217,7 +226,7 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
           <input
             type="submit"
             value={loadingUpdate ? "Editing..." : "Edit"}
-            className="w-full px-6 py-2 bg-blue-500 text-gray-800 rounded-lg hover:bg-blue-600 transition-colors duration-200"
+            className="w-full px-6 py-2 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 transition-colors duration-200"
             disabled={loadingUpdate}
           />
         </form>

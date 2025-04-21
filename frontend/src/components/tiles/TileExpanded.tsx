@@ -5,14 +5,16 @@ import PUBLICATION_DETAIL_QUERY from "../../graphql/publicationDetailQuery.ts";
 import CREATE_REPORT_MUTATION from "../../graphql/createReportMutation.ts"
 import CommentMain from "./CommentMain.tsx";
 import AudioIcon from "../../svg/AudioIcon.tsx";
+import LoadingIcon from "../../svg/LoadingIcon.tsx";
 
 interface TileExpandedProps {
   tileId: number;
+  showEditButton: boolean;
   isModerationContext: boolean;
   setExpandedAuthor: (username: string) => void | null; // Used in moderation context to display the author without navigating
 }
 
-const TileExpanded = ({ tileId, isModerationContext=false, setExpandedAuthor=null }: TileExpandedProps) => {
+const TileExpanded = ({ tileId, showEditButton=true, isModerationContext=false, setExpandedAuthor=null }: TileExpandedProps) => {
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState("");
   const [reportMessage, setReportMessage] = useState("");
@@ -78,8 +80,8 @@ const TileExpanded = ({ tileId, isModerationContext=false, setExpandedAuthor=nul
     }
   };
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error</p>;
+  if (loading) return <LoadingIcon />;
+  if (error) return <p className="text-center text-red-500">{error.message}</p>;
   const date = new Date(publication.createdAt);
   const formattedDatePublication = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
 
@@ -133,11 +135,11 @@ const TileExpanded = ({ tileId, isModerationContext=false, setExpandedAuthor=nul
           <p className="text-sm mt-2 cursor-default">{publication.description || "No description available."}</p>
           <p className="text-xs mt-2 cursor-default">{publication.viewCount} {+publication.viewCount === 1 ? "view" : "views"}</p>
           <p className="text-xs mt-2 cursor-default">{publication.voteCount} {+publication.voteCount === 1 ? "vote" : "votes"}</p>
-          {publication.isOwner && !isModerationContext && <button
+          {publication.isOwner && showEditButton && <button
               onClick={() => { navigate(`/profile/${publication.author.username}`, {state: { expanded: tileId }}) }}
               className="text-sm mt-1 p-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200">
             Edit Publication
-          </button>} 
+          </button>}
         </div>
       </div>
     </div>

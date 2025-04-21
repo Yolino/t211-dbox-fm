@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useQuery } from "@apollo/client";
 import PROFILE_QUERY from "../../graphql/profileQuery.ts";
 import ProfileTile from "./ProfileTile.tsx";
+import ProfileCommentTile from "./ProfileCommentTile.tsx";
 import LoadingIcon from "../../svg/LoadingIcon.tsx";
 
 interface ProfilePublicationsProps {
@@ -13,7 +14,10 @@ interface ProfilePublicationsProps {
 }
 
 const ProfilePublications = ({ username, defaultExpandedTile, onPublicationClick, onPlayAudio, isModerationContext=false }: ProfilePublicationsProps) => {
-  const [expandedTile, setExpandedTile] = useState(defaultExpandedTile);
+  const [expandedTile, setExpandedTile] = useState({
+    tileId: defaultExpandedTile.tileId,
+    tileType: defaultExpandedTile.tileType,
+  });
   const [message, setMessage] = useState({
     tileId: NaN,
     isError: false,
@@ -22,8 +26,8 @@ const ProfilePublications = ({ username, defaultExpandedTile, onPublicationClick
   const { loading, error, data, refetch } = useQuery(PROFILE_QUERY, {
     variables: { username },
   });
-  const handleExpandTile = (i) => {
-    (i === expandedTile) ? setExpandedTile(null) : setExpandedTile(i);
+  const handleExpandTile = (i, t) => {
+    (i === expandedTile?.tileId && t === expandedTile?.tileType) ? setExpandedTile(null) : setExpandedTile({tileId: i, tileType: t});
   }
   const refetchProfile = () => {
     refetch();
@@ -46,23 +50,41 @@ const ProfilePublications = ({ username, defaultExpandedTile, onPublicationClick
         {loading && <LoadingIcon />}
         Publications
       </h2>
-      <ul className="space-y-4">
+      <ul className="space-y-4 mb-4">
         {profile?.publications.map((p, i) => (
           <ProfileTile
             key={i}
             author={profile.user.username}
             publication={p}
-            index={i} 
+            index={i}
             isSelf={profile.isSelf}
-            onEdit={() => { handleExpandTile(p.id) }}
+            onEdit={() => { handleExpandTile(p.id, "publication") }}
             onCloseTile={() => { handleExpandTile(null) }}
-            isExpanded={ p.id === expandedTile }
+            isExpanded={p.id === expandedTile?.tileId && expandedTile?.tileType === "publication"}
             message={i === message.tileId ? {isError: message.isError, text: message.text} : ""}
             onSetMessage={(m) => { setMessage(m) }}
             onProfileUpdate={refetchProfile}
             onPublicationClick={onPublicationClick}
             onPlayAudio={() => { onPlayAudio(p.id) }}
             isModerationContext={isModerationContext}
+          />
+        ))}
+      </ul>
+      <h2 className="text-2xl font-semibold text-white mb-4 cursor-default">
+        {loading && <LoadingIcon />}
+        Comments
+      </h2>
+      <ul className="space-y-4">
+        {profile?.comments.map((c, i) => (
+          <ProfileCommentTile
+            key={i}
+            comment={c}
+            index={i}
+            isSelf={profile.isSelf}
+            onEdit={() => { handleExpandTile(c.id, "comment") }}
+            onCloseTile={() => { handleExpandTile(null) }}
+            isExpanded={c.id === expandedTile?.tileId && expandedTile?.tileType === "comment" }
+            onCommentClick={onPublicationClick}
           />
         ))}
       </ul>
