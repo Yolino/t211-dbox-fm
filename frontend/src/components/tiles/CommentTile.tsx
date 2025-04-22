@@ -27,6 +27,13 @@ const CommentTile = ({ comment, level, onReply, onEnableCommentZone, enableComme
     setReplyText("");
     onEnableCommentZone(null);
   }; 
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      handleReplySubmit();
+    }
+  };
+
   const date = new Date(comment.createdAt);
   const formattedDateComment = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
 
@@ -37,34 +44,35 @@ const CommentTile = ({ comment, level, onReply, onEnableCommentZone, enableComme
         <p className="text-xs">{formattedDateComment}</p>
       </div>
       <p className="text-sm mt-1">{comment.text}</p>
-      <div className="flex">
+      <div className="flex items-center">
         {!comment.isBanned && <div>
           <button 
             onClick={() => { onEnableCommentZone(comment.id) }}
-            className="text-xs px-2 py-1 ml-5 mb-6 mt-1 rounded-md hover:text-white hover:bg-gray-800"
+            className="text-xs px-2 py-1 bg-blue-500 text-white font-bold rounded-lg shadow-md hover:bg-blue-600 transition-colors duration-200"
           >
             Reply
           </button>
           <button
             onClick={onReportComment}
-            className="text-xs px-2 py-1 ml-5 mb-6 mt-1 rounded-md hover:text-red-800 hover:bg-red-100" 
+            className="ml-2 text-xs px-2 py-1 bg-red-600 text-white text-sm font-semibold rounded-lg shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition" 
           >
             Report comment
           </button>
         </div>}
         {enableCommentZone && 
-          <div className="w-1/3">
+          <div className="flex w-1/3">
             <textarea
               className="m-2 border-b-solid border-b-black border-b-2 bg-gray-100 h-7"
-              placeholder="your reply..."
+              placeholder="Write reply"
               value={replyText}
               onChange={(e) => setReplyText(e.target.value)}
+              onKeyDown={handleKeyDown}
             />
             <button 
-              className="text-xs px-2 py-1 rounded-md text-white bg-gray-800"
+              className="px-2 bg-blue-500 text-sm text-white font-bold rounded-lg hover:bg-blue-600 transition-colors duration-200"
               onClick={handleReplySubmit}
             >
-              Reply
+              Submit
             </button>
           </div>
         }

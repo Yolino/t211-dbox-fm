@@ -132,7 +132,7 @@ const ModerationMain = () => {
       </MainBlock>
       <MainBlock styleClass="w-full lg:w-1/3 h-96 lg:h-full overflow-y-auto">
         <div className="h-full overflow-y-auto">
-          {expandedTile.tileType === "user" ? (
+          {expandedTile?.tileType === "user" ? (
             <ProfilePublications
               username={expandedTile.tileId}
               onPublicationClick={(tileId) => { setExpandedTile({tileType: "publication", tileId}) }}
