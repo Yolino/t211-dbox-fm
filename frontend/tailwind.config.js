@@ -1,10 +1,10 @@
 module.exports = {
   content: [
-    "./src/**/*.{js,jsx,ts,tsx}", // Ajoute tous les fichiers JSX/TSX dans le dossier src
-    "./public/index.html", // Ajoute le fichier HTML principal
+    "./src/**/*.{js,jsx,ts,tsx}",
+    "./public/index.html",
   ],
   theme: {
-    extend: {}, // Tu peux étendre ou personnaliser le thème ici
+    extend: {},
   },
-  plugins: [], // Tu peux ajouter des plugins Tailwind ici
+  plugins: [],
 }; 
