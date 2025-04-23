@@ -65,8 +65,9 @@ class Query(graphene.ObjectType):
     publication = graphene.Field(PublicationType, id=graphene.Int(required=True))
     publication_page = graphene.Field(PublicationPageType, start=graphene.Int(), count=graphene.Int(), order_by=graphene.String(), author=graphene.String())
     comments_by_publication = graphene.List(graphene.NonNull(CommentType), publication_id=graphene.Int(required=True))
+    publication_lookup = graphene.List(graphene.NonNull(PublicationType), title=graphene.String(required=True))
     tags = graphene.List(TagType)
-   
+
     def resolve_publication(root, info, id):
         try:
             publication = Publication.objects.get(id=id)
@@ -94,10 +95,16 @@ class Query(graphene.ObjectType):
         elif count and len(result) > count :
             result = result[start:start+count]
         return {"publications": result, "has_next_page": has_next_page}
-    
+
+    def resolve_publication_lookup(root, info, title):
+        result = Publication.objects.filter(title__icontains=title)
+        if not (info.context.user.is_authenticated and info.context.user.has_perm("moderation.view_reportpublication")):
+            result = result.filter(is_banned=False)
+        return result
+
     def resolve_tags(root, info):
         return Tag.objects.all()
-   
+
     def resolve_comments_by_publication(root, info, publication_id):
         comments = Comment.objects.filter(publication=publication_id)
         if not (info.context.user.is_authenticated and info.context.user.has_perm("moderation.view_reportcomment")):

@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useQuery } from "@apollo/client";
 import PROFILE_QUERY from "../../graphql/profileQuery.ts";
+import ProfileChanges from './ProfileChanges.tsx';
 import ProfileTile from "./ProfileTile.tsx";
 import ProfileCommentTile from "./ProfileCommentTile.tsx";
 import LoadingIcon from "../../svg/LoadingIcon.tsx";
@@ -17,6 +18,11 @@ const ProfilePublications = ({ username, defaultExpandedTile, onPublicationClick
   const [expandedTile, setExpandedTile] = useState(
     defaultExpandedTile || { tileId: null, tileType: null }
   );
+  useEffect(() => {
+    if (defaultExpandedTile) {
+      setExpandedTile(defaultExpandedTile);
+    }
+  }, [defaultExpandedTile])
   const [message, setMessage] = useState({
     tileId: NaN,
     tileType: null,
@@ -45,6 +51,7 @@ const ProfilePublications = ({ username, defaultExpandedTile, onPublicationClick
         )}
       </div>
     </div>
+    <ProfileChanges profile={profile} />
     <div className="mt-8">
       <h2 className="text-2xl font-semibold text-white mb-4 cursor-default">
         {loading && <LoadingIcon />}
@@ -60,7 +67,7 @@ const ProfilePublications = ({ username, defaultExpandedTile, onPublicationClick
             isSelf={profile.isSelf}
             onEdit={() => { handleExpandTile(p.id, "publication") }}
             onCloseTile={() => { handleExpandTile(null) }}
-            isExpanded={p.id === expandedTile?.tileId && expandedTile?.tileType === "publication"}
+            isExpanded={profile.isSelf && p.id === expandedTile?.tileId && expandedTile?.tileType === "publication"}
             message={(i === message.tileId && message.tileType === "publication") ? {isError: message.isError, text: message.text} : null}
             onSetMessage={(m) => { setMessage(m) }}
             onProfileUpdate={refetchProfile}
@@ -83,7 +90,7 @@ const ProfilePublications = ({ username, defaultExpandedTile, onPublicationClick
             isSelf={profile.isSelf}
             onEdit={() => { handleExpandTile(c.id, "comment") }}
             onCloseTile={() => { handleExpandTile(null) }}
-            isExpanded={c.id === expandedTile?.tileId && expandedTile?.tileType === "comment" }
+            isExpanded={profile.isSelf && c.id === expandedTile?.tileId && expandedTile?.tileType === "comment" }
             message={(i === message.tileId && message.tileType === "comment") ? {isError: message.isError, text: message.text} : null}
             onSetMessage={(m) => { setMessage(m) }}
             onProfileUpdate={refetchProfile}

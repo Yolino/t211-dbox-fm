@@ -1,15 +1,20 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import MainBlock from "../MainBlock.tsx";
 import ProfilePublications from "./ProfilePublications.tsx";
 import TileExpanded from "../tiles/TileExpanded.tsx";
 import AudioPlayer from "../AudioPlayer.tsx";
-import ProfileChanges from './ProfileChanges.tsx';
 
 const ProfileMain = ({ username }) => {
   const location = useLocation();
   const [shownPublication, setShownPublication] = useState(location.state?.expanded || null);
   const [currentAudio, setCurrentAudio] = useState(null);
+
+  useEffect(() => {
+    if (location.state?.expanded) {
+      setShownPublication(location.state.expanded);
+    }
+  }, [location.state?.expanded])
 
   return (
     <div className="flex flex-col md:flex-row gap-2 max-h-[calc(80vh)]">
@@ -22,8 +27,7 @@ const ProfileMain = ({ username }) => {
           }}
           onPublicationClick={setShownPublication}
           onPlayAudio={setCurrentAudio}
-        />
-		<ProfileChanges username={username} />
+        />	
       </MainBlock>
       <MainBlock styleClass="w-full md:w-auto h-1/3 md:h-[calc(80vh)] overflow-y-auto">
         <div className="h-full overflow-y-auto">

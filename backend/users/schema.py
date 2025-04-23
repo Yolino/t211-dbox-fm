@@ -32,10 +32,18 @@ class ProfileType(graphene.ObjectType):
         return root.user
 
     def resolve_publications(root, info):
-        return Publication.objects.filter(author=root.user).order_by("-id")
+        user = info.context.user
+        result = Publication.objects.filter(author=root.user)
+        if not (user.is_authenticated and user.has_perm("moderation.view_reportpublication")):
+            result = result.filter(is_banned=False)
+        return result.order_by("-id")
 
     def resolve_comments(root, info):
-        return Comment.objects.filter(author=root.user).order_by("-id")
+        user = info.context.user
+        result = Comment.objects.filter(author=root.user)
+        if not (user.is_authenticated and user.has_perm("moderation.view_reportcomment")):
+            result = result.filter(is_banned=False)
+        return result.order_by("-id")
 
     def resolve_is_self(root, info):
         return root.user == info.context.user
@@ -43,6 +51,7 @@ class ProfileType(graphene.ObjectType):
 class Query(graphene.ObjectType):
     me = graphene.Field(PrivilegesType)
     profile = graphene.Field(ProfileType, username=graphene.String())
+    user_lookup = graphene.List(graphene.NonNull(UserType), name=graphene.String(required=True))
 
     def resolve_me(root, info):
         user = info.context.user
@@ -64,6 +73,12 @@ class Query(graphene.ObjectType):
         if not user:
             raise GraphQLError("User not found")
         return ProfileType(user=user)
+
+    def resolve_user_lookup(root, info, name):
+        result = User.objects.filter(username__icontains=name)
+        if not (info.context.user.is_authenticated and info.context.user.has_perm("moderation.view_reportuser")):
+            result = result.filter(is_active=True)
+        return result
 
 class CreateUser(graphene.Mutation):
     class Arguments:
