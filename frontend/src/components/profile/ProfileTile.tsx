@@ -4,7 +4,7 @@ import TAGS_QUERY from "../../graphql/tagsQuery.ts";
 import UPDATE_PUBLICATION_MUTATION from "../../graphql/updatePublicationMutation.ts";
 import DELETE_PUBLICATION_MUTATION from "../../graphql/deletePublicationMutation.ts";
 import GET_MEDIA from "../../context/mediaUrl.ts";
-import DeletePublicationCard from "./DeletePublicationCard.tsx";
+import DeleteContentCard from "./DeleteContentCard.tsx";
 import PlayIcon from "../../svg/PlayIcon.tsx";
 import EditIcon from "../../svg/EditIcon.tsx";
 import DeleteIcon from "../../svg/DeleteIcon.tsx";
@@ -15,6 +15,7 @@ interface Publication {
   cover: string;
   viewCount: number;
   voteCount: number;
+  isBanned: boolean;
 };
 
 interface ProfileTileProps {
@@ -25,9 +26,11 @@ interface ProfileTileProps {
   isExpanded: boolean;
   onDeletePublication: () => void;
   onPlayAudio: () => void;
+  onPublicationClick: (i: number) => void;
+  isModerationContext: boolean;
 };
 
-const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, isExpanded, message, onSetMessage, onProfileUpdate, onPlayAudio }: ProfileTileProps) => {
+const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, isExpanded, message, onSetMessage, onProfileUpdate, onPlayAudio, onPublicationClick, isModerationContext=false }: ProfileTileProps) => {
   const [isDeleteCardOpen, setIsDeleteCardOpen] = useState(false);
   const handleDeleteClick = () => {
     setIsDeleteCardOpen(true);
@@ -76,36 +79,17 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
       if (data.updatePublication.success) {
         onSetMessage({
           tileId: index,
+          tileType: "publication",
           isError: false,
           text: "Publication successfully updated",
         });
         onProfileUpdate();
-        onCloseTile();
       }
     },
     onError: (err) => {
       onSetMessage({
         tileId: index,
-        isError: true,
-        text: err.message,
-      });
-    },
-  });
-  const [deletePublication] = useMutation(DELETE_PUBLICATION_MUTATION, {
-    onCompleted: (data) => {
-      if (data.deletePublication.success) {
-        onSetMessage({
-          tileId: NaN,
-          isError: false,
-          text: "",
-        });
-        setIsDeleteCardOpen(false);
-        onProfileUpdate();
-      }
-    },
-    onError: (err) => {
-      onSetMessage({
-        tileId: index,
+        tileType: "publication",
         isError: true,
         text: err.message,
       });
@@ -122,13 +106,41 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
       removeCover: editedPublication.removeCover,
     }});
   };
+
+  const [deletePublication] = useMutation(DELETE_PUBLICATION_MUTATION, {
+    onCompleted: (data) => {
+      if (data.deletePublication.success) {
+        onSetMessage({
+          tileId: NaN,
+          tileType: null,
+          isError: false,
+          text: "",
+        });
+        setIsDeleteCardOpen(false);
+        onProfileUpdate();
+        onPublicationClick(null);
+      }
+    },
+    onError: (err) => {
+      onSetMessage({
+        tileId: index,
+        tileType: "publication",
+        isError: true,
+        text: err.message,
+      });
+    },
+  });
   const handleDeletePublication = (id) => {
     deletePublication({ variables: { publicationId: +id } });
+    onCloseTile();
   };
 
   return (
-    <div className="p-4 bg-gray-200 rounded-lg shadow-sm group">
-      <li key={index} className="relative flex items-center">
+    <div
+      onClick={() => { onPublicationClick(publication.id) }}
+      className={`p-4 bg-gray-200 rounded-lg shadow-sm group ${publication.isBanned ? "bg-red-200 hover:bg-red-300 text-red-800" : "bg-gray-200 hover:bg-gray-300 text-gray-800"}`}
+    >
+      <li key={index} className="relative flex items-center justify-between"> 
         <div className="flex items-center">
           {publication.cover && (
             <img
@@ -137,29 +149,32 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
               alt={`Cover for ${publication.title}`}
             />
           )}
-          <button
-            className="p-3 bg-gray-300 rounded-full shadow-lg hover:bg-gray-400 transition-colors duration-200"
-            onClick={(e) => {
-              onPlayAudio({
-                id: publication.id,
-                title: publication.title,
-                author,
-              })
-            }}
-          >
-            <PlayIcon />
-          </button>
+          <h3 className="text-lg font-bold cursor-default">
+            {publication.title}
+            {isExpanded && " - Edit publication"}
+          </h3>
         </div>
-        <h3 className="ml-auto text-lg font-bold text-gray-800">{publication.title}{isExpanded && " - Edit publication"}</h3>
-        {isSelf && <div className="flex gap-2 ml-4">
-          <EditIcon onClick={onEdit} />
-          <DeleteIcon onClick={handleDeleteClick} />
-        </div>}
+        <div className="flex items-center gap-3 ml-4">
+          {!isModerationContext && (
+            <button
+              className={`p-3 rounded-full shadow-lg transition-colors duration-200 ${publication.isBanned ? "hover:bg-red-400" : "hover:bg-gray-500"}`}
+              onClick={() => { onPlayAudio(publication.id) }}
+            >
+              <PlayIcon />
+            </button>
+          )}
+          {isSelf && (
+            <>
+              <EditIcon onClick={onEdit} styleClass={publication.isBanned && "text-red-800 hover:text-gray-800"} />
+              <DeleteIcon onClick={handleDeleteClick} styleClass={publication.isBanned && "text-red-800 hover:text-gray-800"} />
+            </>
+          )}
+        </div>
       </li>
       {isExpanded && (
         <form onSubmit={handleEditPublication} className="space-y-4 mt-4">
           <div className="flex items-center gap-4 w-full">
-            <label className="w-1/6 font-bold text-gray-800 whitespace-nowrap">Title</label>
+            <label className="w-1/6 font-bold whitespace-nowrap">Title</label>
             <input
               type="text"
               name="title"
@@ -169,7 +184,7 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
             />
           </div>
           <div className="flex items-center gap-4 w-full">
-            <label className="w-1/6 font-bold text-gray-800 whitespace-nowrap">Tag</label>
+            <label className="w-1/6 font-bold whitespace-nowrap">Tag</label>
             <select
               name="tag"
               defaultValue={publication.tag.id}
@@ -178,7 +193,7 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
             >
               {loadingTags && <option disabled>Loading...</option>}
               {error && <option disabled>Error</option>}
-              {data.tags.map((tag) => (
+              {data?.tags.map((tag) => (
                 <option key={tag.id} value={tag.id}>
                   {tag.name}
                 </option>
@@ -186,7 +201,7 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
             </select>
           </div>
           <div className="flex items-center gap-4 w-full">
-            <label className="w-1/6 font-bold text-gray-800 whitespace-nowrap">Description</label>
+            <label className="w-1/6 font-bold whitespace-nowrap">Description</label>
             <input
               type="text"
               name="description"
@@ -196,7 +211,7 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
             />
           </div>
           <div className="flex items-center gap-4 w-full">
-            <label className="w-1/6 font-bold text-gray-800 whitespace-nowrap">Cover image</label>
+            <label className="w-1/6 font-bold whitespace-nowrap">Cover image</label>
             <input
               type="file"
               name="cover"
@@ -204,29 +219,30 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
               className="mt-0 w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          <div className="flex items-center gap-4 w-full">
-            <label className="w-1/6 font-bold text-gray-800">Remove current cover image</label>
-            <input
-              type="checkbox"
-              name="remove-cover"
-              onChange={handleCheckboxChange}
-              className="h-4 w-4 bg-gray-800 border border-gray-600 rounded-md text-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            />
-          </div>
+          {publication.cover && (
+            <div className="flex items-center gap-4 w-full">
+              <label className="w-1/6 font-bold">Remove current cover image</label>
+              <input
+                type="checkbox"
+                name="remove-cover"
+                onChange={handleCheckboxChange}
+                className="h-4 w-4 bg-gray-800 border border-gray-600 rounded-md text-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              />
+            </div>
+          )}
           <input
             type="submit"
             value={loadingUpdate ? "Editing..." : "Edit"}
-            className="w-full px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200"
+            className="w-full px-6 py-2 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 transition-colors duration-200"
             disabled={loadingUpdate}
           />
         </form>
       )}
       {message && <p className={`mb-4 mt-1 text-sm text-center ${message.isError ? "text-red-500" : "text-green-500"}`}>{message.text}</p>}
       {isDeleteCardOpen && (
-        <DeletePublicationCard
-          id={publication.id}
+        <DeleteContentCard
           title={publication.title}
-          onDeletePublication={() => { handleDeletePublication(publication.id) }}
+          onDeleteContent={() => { handleDeletePublication(publication.id) }}
           onClose={handleCloseCard}
         />
       )}

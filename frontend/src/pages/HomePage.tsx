@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Routes, Route, useNavigate, useParams, useLocation } from "react-router-dom";
 import Header from "../components/header/Header.tsx";
 import TileMain from "../components/tiles/TileMain.tsx";
@@ -6,7 +6,6 @@ import PublishMain from "../components/PublishMain.tsx";
 import ProfileMain from "../components/profile/ProfileMain.tsx";
 import FmMain from "../components/fm/FmMain.tsx";
 import ModerationMain from "../components/moderation/ModerationMain.tsx";
-import AudioPlayer from "../components/AudioPlayer.tsx";
 
 const ProfileWrapper = ({ onPlayAudio }) => {
   const { username } = useParams();
@@ -14,20 +13,7 @@ const ProfileWrapper = ({ onPlayAudio }) => {
 };
 
 const HomePage = () => {
-  const navigate = useNavigate();
-  const [currentAudio, setCurrentAudio] = useState({
-    id: null,
-    title: "",
-    author: "",
-  });
-  const [displayPlayer, setDisplayPlayer] = useState(false);
-  const handlePlayAudio = (audio) => {
-    setDisplayPlayer(true);
-    setCurrentAudio(audio);
-  };
-  const handleClosePlayer = () => {
-    setDisplayPlayer(false);
-  };
+  const navigate = useNavigate(); 
   const location = useLocation();
   const message = location.state?.message;
 
@@ -37,15 +23,14 @@ const HomePage = () => {
       <main className="p-6 mb-20">
         {message && <p className="text-green">{message}</p>}
         <Routes>
-          <Route path="/" element={<TileMain onPlayAudio={handlePlayAudio} />} />
+          <Route path="/" element={<TileMain />} />
           <Route path="/publish" element={<PublishMain />} />
-          <Route path="/profile" element={<ProfileWrapper onPlayAudio={handlePlayAudio} />} />
-          <Route path="/profile/:username" element={<ProfileWrapper onPlayAudio={handlePlayAudio} />} />
+          <Route path="/profile" element={<ProfileWrapper />} />
+          <Route path="/profile/:username" element={<ProfileWrapper />} />
           <Route path="/fm" element={<FmMain />} />
           <Route path="/moderation" element={<ModerationMain />} />
         </Routes>
       </main>
-      {displayPlayer && <AudioPlayer audio={currentAudio} onClose={handleClosePlayer} />}
     </div>
   );
 };

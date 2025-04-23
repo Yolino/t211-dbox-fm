@@ -12,7 +12,7 @@ class AudioView(APIView):
             publication = Publication.objects.get(pk=pk)
         except Publication.DoesNotExist:
             return Response({"detail": "Audio not found"}, status=status.HTTP_404_NOT_FOUND)
-        if publication.is_banned:
-            raise PermissionDenied("This Publication has been banned. You can no longer access it")
+        if publication.is_banned and not (request.user.is_authenticated and request.user.has_perm("moderation.view_reportpublication")):
+            raise PermissionDenied("You do not have permission to view banned Publications")
         return FileResponse(publication.audio, content_type="audio/mpeg")
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@apollo/client";
 import PUBLICATION_DETAIL_QUERY from "../../graphql/publicationDetailQuery.ts";
@@ -6,22 +6,32 @@ import GET_MEDIA from "../../context/mediaUrl.ts";
 import CREATE_REPORT_MUTATION from "../../graphql/createReportMutation.ts"
 import CommentMain from "./CommentMain.tsx";
 import AudioIcon from "../../svg/AudioIcon.tsx";
+import LoadingIcon from "../../svg/LoadingIcon.tsx";
 
 interface TileExpandedProps {
   tileId: number;
-  onError: () => void;
+  showEditButton: boolean;
+  isModerationContext: boolean;
+  setExpandedAuthor: (username: string) => void | null; // Used in moderation context to display the author without navigating
 }
 
-const TileExpanded = ({ tileId, onError }: TileExpandedProps) => {
+const TileExpanded = ({ tileId, showEditButton=true, isModerationContext=false, setExpandedAuthor=null }: TileExpandedProps) => {
   const navigate = useNavigate();
+  const [errorMessage, setErrorMessage] = useState("");
   const [reportMessage, setReportMessage] = useState("");
   const [createReport] = useMutation(CREATE_REPORT_MUTATION);
   const { loading, error, data } = useQuery(PUBLICATION_DETAIL_QUERY, {
     variables: { publicationId: +tileId },
   });
-
   const publication = data?.publication || {};
 
+  useEffect(() => {
+    setReportMessage("");
+  }, [tileId]);
+
+  const handleError = (err) => {
+    setErrorMessage(err.message);
+  };
   const handleReportPublication = async () => {
     try {
       const { data } = await createReport({
@@ -75,56 +85,72 @@ const TileExpanded = ({ tileId, onError }: TileExpandedProps) => {
     }
   };
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error</p>;
+  if (loading) return <LoadingIcon />;
   const date = new Date(publication.createdAt);
   const formattedDatePublication = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
 
   return (
-    <div className="w-full p-6 bg-gray-100 rounded-lg shadow-md mt-4 animate-fade-in">
-      {reportMessage && <p className="text-red-500">{reportMessage}</p>}
-      <div className="flex gap-4">
-      {(publication.cover) ? <img
-          className="w-32 h-32 object-cover rounded-lg shadow-md"
-          src={GET_MEDIA(publication.cover)}
-          alt={`Cover for ${publication.title}`}
-        /> : <div
-          className=" w-32 h-32 object-cover rounded-lg shadow-md flex items-center justify-center"
-        >
-          <AudioIcon styleClass="w-12 h-12 text-gray-800" />
-        </div>
-      }
-
-        {/* Text Content */}
-        <div className="flex flex-col flex-1">
+    <div className="flex gap-2 flex-col">
+      <div className={`w-full p-6 ${publication.isBanned ? "bg-red-200" : "bg-gray-100"} rounded-lg shadow-md mt-4 animate-fade-in`}>
+        {errorMessage && <p className="text-red-500">{errorMessage}</p>}
+        {error && <p className="text-red-500">{error.message}</p>}
+        {reportMessage && <p className="text-red-500">{reportMessage}</p>}
+        <div className="flex gap-4">
+        {(publication.cover) ? <img
+            className="w-32 h-32 object-cover rounded-lg shadow-md"
+            src={GET_MEDIA(publication.cover)}
+            alt={`Cover for ${publication.title}`}
+          /> : <div
+            className="w-32 h-32 object-cover rounded-lg shadow-md flex flex-shrink-0 items-center justify-center"
+          >
+            <AudioIcon styleClass={`p-4 w-full h-full ${publication.isBanned ? "text-red-800" : "text-gray-800"}`} />
+          </div>
+        }
+        <div className={`flex flex-col flex-1 ${publication.isBanned ? "text-red-800" : "text-gray-800"} gap-1`}>
           <div className="flex justify-between items-center">
-            <h2 className="text-xl font-bold text-black">{publication.title}</h2>
-            <button
+            <h2 className="text-2xl font-bold cursor-default break-all">{publication.title}</h2>
+            {!publication.isBanned && <button
               onClick={handleReportPublication}
-              className="px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded"
+              className="ml-1 px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded-lg shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition"
               title="Report this Publication"
             >
               Report Publication
-            </button>
+            </button>}
           </div>
           <div className="flex justify-between items-center">
-            <p className="text-gray-700 cursor-default">
-              by <span className="cursor-pointer" onClick={() => { navigate(`/profile/${publication.author.username}`) }}>{publication.author.username}</span> on {formattedDatePublication}
+            <p className="cursor-default">
+              by <span 
+                   className={`${!publication?.author?.isActive && "bg-red-200 p-1 rounded-md"} cursor-pointer`}
+                   onClick={isModerationContext ? (
+                    () => { setExpandedAuthor(publication?.author?.username) }
+                   ) : (
+                    () => { navigate(`/profile/${publication?.author?.username}`) }
+                   )}
+                  >
+                   {publication?.author?.username}
+                 </span> on {formattedDatePublication}
             </p>
-            <button
+            {publication?.author?.isActive && <button
               onClick={handleReportAuthor}
-              className="px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded"
+              className="px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded-lg shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition"
               title="Report the Author"
             >
               Report Author
-            </button>
+            </button>}
           </div>
-          <p className="text-gray-600 text-sm mt-2 cursor-default">{publication.description || "No description available."}</p>
-          <p className="text-gray-400 text-xs mt-2 cursor-default">{publication.viewCount} views</p>
-          <p className="text-gray-400 text-xs mt-2 cursor-default">{publication.voteCount} votes</p>
+          <p className="text-sm mt-2 cursor-default">{publication?.description || "No description available."}</p>
+          <p className="text-xs mt-2 cursor-default">{publication?.viewCount} {+publication.viewCount === 1 ? "view" : "views"} / {publication.voteCount} {+publication.voteCount === 1 ? "vote" : "votes"}</p>
+          {publication.isOwner && showEditButton && <button
+              onClick={() => { navigate(`/profile/${publication?.author?.username}`, {state: { expanded: tileId }}) }}
+              className="text-sm font-bold mt-1 p-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200">
+            Edit Publication
+          </button>}
         </div>
       </div>
-      <CommentMain publicationId={tileId} onError={onError} onReportComment={handleReportComment} />
+    </div>
+    <div className="w-full p-6 bg-gray-100 rounded-lg shadow-md mt-4 animate-fade-in">
+      <CommentMain publicationId={tileId} onError={handleError} onReportComment={handleReportComment} />
+    </div>
     </div>
   );
 };

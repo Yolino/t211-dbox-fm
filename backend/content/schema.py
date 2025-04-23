@@ -6,13 +6,13 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 from django.conf import settings
 from .models import Publication, View, Vote, Comment, Tag
-from moderation.models import ReportPublication
+from moderation.models import ReportPublication, ReportComment
 from .validators import validate_image, validate_audio
 
 class PublicationType(DjangoObjectType):
     class Meta:
         model = Publication
-        fields = ("id", "title", "author", "cover", "tag", "description", "view_count", "vote_count", "created_at")
+        fields = ("id", "title", "author", "cover", "tag", "description", "view_count", "vote_count", "created_at", "is_banned")
 
     cover = graphene.String()
     def resolve_cover(root, info):
@@ -30,6 +30,17 @@ class PublicationType(DjangoObjectType):
                 return None
         return None
 
+    is_owner = graphene.Boolean()
+    def resolve_is_owner(root, info):
+        user = info.context.user
+        if user.is_authenticated and user == root.author:
+            return True
+        return False
+
+class PublicationPageType(graphene.ObjectType):
+    publications = graphene.List(graphene.NonNull(PublicationType))
+    has_next_page = graphene.Boolean()
+
 class ViewType(DjangoObjectType):
     class Meta:
         model = View
@@ -43,7 +54,7 @@ class VoteType(DjangoObjectType):
 class CommentType(DjangoObjectType):
     class Meta:
         model = Comment
-        fields = ("id", "text", "author", "parent", "publication",  "created_at")
+        fields = ("id", "text", "author", "parent", "publication",  "created_at", "is_banned")
 
 class TagType(DjangoObjectType):
     class Meta:
@@ -52,10 +63,11 @@ class TagType(DjangoObjectType):
 
 class Query(graphene.ObjectType):
     publication = graphene.Field(PublicationType, id=graphene.Int(required=True))
-    publications = graphene.List(graphene.NonNull(PublicationType), count=graphene.Int(), order_by=graphene.String(), author=graphene.String())
+    publication_page = graphene.Field(PublicationPageType, start=graphene.Int(), count=graphene.Int(), order_by=graphene.String(), author=graphene.String())
     comments_by_publication = graphene.List(graphene.NonNull(CommentType), publication_id=graphene.Int(required=True))
+    publication_lookup = graphene.List(graphene.NonNull(PublicationType), title=graphene.String(required=True))
     tags = graphene.List(TagType)
-   
+
     def resolve_publication(root, info, id):
         try:
             publication = Publication.objects.get(id=id)
@@ -65,25 +77,38 @@ class Query(graphene.ObjectType):
             raise GraphQLError("You are not allowed to view this Publication")
         return publication
 
-    def resolve_publications(root, info, count=None, order_by=None, author=None):
+    def resolve_publication_page(root, info, start=0, count=None, order_by=None, author=None):
         result = Publication.objects.select_related("author")
         if not (info.context.user.is_authenticated and info.context.user.has_perm("moderation.view_reportpublication")):
             result = result.filter(is_banned=False)
+        if start < 0:
+            start = 0
+        if (count is not None and count < 0):
+            count = None
         if author:
             result = result.filter(author__username__iexact=author)
         if order_by:
             result = result.order_by(order_by)
-        if count and len(result) > count :
-            result = result[:count]
+        has_next_page = count is not None and (start + count) < result.count()
+        if count and not has_next_page:
+            result = result[result.count()-count:]
+        elif count and len(result) > count :
+            result = result[start:start+count]
+        return {"publications": result, "has_next_page": has_next_page}
+
+    def resolve_publication_lookup(root, info, title):
+        result = Publication.objects.filter(title__icontains=title)
+        if not (info.context.user.is_authenticated and info.context.user.has_perm("moderation.view_reportpublication")):
+            result = result.filter(is_banned=False)
         return result
-    
+
     def resolve_tags(root, info):
         return Tag.objects.all()
-   
+
     def resolve_comments_by_publication(root, info, publication_id):
         comments = Comment.objects.filter(publication=publication_id)
         if not (info.context.user.is_authenticated and info.context.user.has_perm("moderation.view_reportcomment")):
-            comments.filter(is_banned=False)
+            comments = comments.filter(is_banned=False)
         return comments
 
 class CreatePublication(graphene.Mutation):
@@ -294,7 +319,7 @@ class CreateComment(graphene.Mutation):
 
     comment = graphene.Field(CommentType)
 
-    def mutate(self, info, publication, text, parent=None):
+    def mutate(root, info, publication, text, parent=None):
         author = info.context.user
         if not author.is_authenticated:
             raise GraphQLError("You must be logged in to comment")
@@ -315,7 +340,57 @@ class CreateComment(graphene.Mutation):
         comment = Comment(publication = publication_instance, parent=parent_comment, text=text, author=author)
         comment.save()
         return CreateComment(comment=comment)
-    
+
+class UpdateComment(graphene.Mutation):
+    class Arguments:
+        comment_id = graphene.Int(required=True)
+        text = graphene.String(required=True)
+
+    success = graphene.Boolean()
+
+    def mutate(root, info, comment_id, text):
+        user = info.context.user
+        if not user.is_authenticated:
+            raise GraphQLError("You cannot update a Publication if you are not authenticated")
+        try:
+            comment = Comment.objects.get(id=comment_id)
+        except Comment.DoesNotExist:
+            raise GraphQLError("This Comment does not exist")
+        if not comment.author == user:
+            raise GraphQLError("You cannot upate a Comment you do not own")
+        if comment.is_banned:
+            raise GraphQLError("This Comment has been banned. You can no longer view, update or delete it")
+        if ReportComment.objects.filter(reported_comment=comment, is_reviewed=False).exists():
+            raise GraphQLError("This Comment is currently flagged. You cannot update or delete it")
+        if text == comment.text:
+            raise GraphQLError("You have to enter a different value in order to update this Comment")
+        comment.text = text
+        comment.save()
+        return UpdateComment(success=True)
+
+class DeleteComment(graphene.Mutation):
+    class Arguments:
+        comment_id = graphene.Int(required=True)
+
+    success = graphene.Boolean()
+
+    def mutate(root, info, comment_id):
+        user = info.context.user
+        if not user.is_authenticated:
+            raise GraphQLError("You cannot delete a Comment if you are not authenticated")
+        try:
+            comment = Comment.objects.get(id=comment_id)
+        except Comment.DoesNotExist:
+            raise GraphQLError("This Comment does not exist")
+        if not comment.author == user:
+            raise GraphQLError("You cannot delete a Comment you do not own")
+        if comment.is_banned:
+            raise GraphQLError("This Comment has been banned. You can no longer view, update or delete it")
+        if ReportComment.objects.filter(reported_comment=comment, is_reviewed=False).exists():
+            raise GraphQLError("This Comment is currently flagged. You cannot update or delete it")
+        comment.delete()
+        return DeleteComment(success=True)
+
 class Mutation(graphene.ObjectType):
     create_publication = CreatePublication.Field()
     update_publication = UpdatePublication.Field()
@@ -325,4 +400,7 @@ class Mutation(graphene.ObjectType):
     update_vote = UpdateVote.Field()
     delete_vote = DeleteVote.Field()
     create_comment = CreateComment.Field()
+    update_comment = UpdateComment.Field()
+    delete_comment = DeleteComment.Field()
 
+schema = graphene.Schema(query=Query, mutation=Mutation)

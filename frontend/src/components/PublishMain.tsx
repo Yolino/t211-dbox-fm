@@ -88,7 +88,7 @@ const PublishMain = ({ refetchPublications }) => {
   if (!privileges?.isLoggedIn) return <p>You cannot publish if you are not authentified</p>;
 
   return (
-    <MainBlock>
+    <MainBlock styleClass="w-2/3">
       <h2 className="text-2xl font-bold text-white mb-6">Create a new publication</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>

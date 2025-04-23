@@ -26,7 +26,7 @@ const DroppableSlot = ({ label, timeSlot, schedule, handleDrop, handleDeleteSche
               <div key={s.id} className="flex justify-center items-center gap-x-10 p-2 bg-gray-200 text-white rounded-md">
                 {s.publication.cover && <img
                   className="h-full w-16 object-cover rounded-l-md"
-                  src={GET_MEDIA(s.publication.cover)}
+                  src={`/media/${s.publication.cover}`}
                   alt={`Cover for ${s.publication.title}`}
                 />}
                 <div className="flex-1 bg-gray-200 rounded-md p-2">

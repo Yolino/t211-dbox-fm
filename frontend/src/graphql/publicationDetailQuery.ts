@@ -5,8 +5,9 @@ const PUBLICATION_DETAIL_QUERY = gql`
     publication(id: $publicationId) {
       title
       author {
-        username
         id
+        username
+        isActive
       }
       cover
       tag {
@@ -16,6 +17,8 @@ const PUBLICATION_DETAIL_QUERY = gql`
       viewCount
       voteCount
       createdAt
+      isBanned
+      isOwner
     }
   }
 `;

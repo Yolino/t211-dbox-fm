@@ -6,9 +6,11 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from datetime import timedelta, datetime
 from django.conf import settings
 import threading
+from django.contrib.auth import get_user_model
 
-def delete_user_after_timeout(user):
+def delete_user_after_timeout(id):
     try:
+        user=get_user_model().objects.get(pk=id)
         if not user.is_active:
             user.delete()
     except user.DoesNotExist:
@@ -54,5 +56,5 @@ def send_verification_email(user, request):
     except Exception as e:
         print(f'An error occured while sending an email : {e}')
  
-    timer = threading.Timer(300, delete_user_after_timeout, args=[user])
+    timer = threading.Timer(300, delete_user_after_timeout, args=[user.pk])
     timer.start()

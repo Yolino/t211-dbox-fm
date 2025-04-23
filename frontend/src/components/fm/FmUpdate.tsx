@@ -1,14 +1,14 @@
 import React from "react";
 import { useQuery } from "@apollo/client";
-import PUBLICATIONS_QUERY from "../../graphql/publicationsQuery.ts";
+import PUBLICATION_PAGE_QUERY from "../../graphql/publicationPageQuery.ts";
 import MainBlock from "../MainBlock.tsx";
 import DraggablePublication from "./DraggablePublication.tsx";
 
 const FmUpdate = () => {
-  const { loading, error, data } = useQuery(PUBLICATIONS_QUERY, {
+  const { loading, error, data } = useQuery(PUBLICATION_PAGE_QUERY, {
     variables: { orderBy: "-vote_count" },
   });
-  const publications = data?.publications || [];
+  const publications = data?.publicationPage.publications || [];
 
   return (
     <MainBlock styleClass="w-full">

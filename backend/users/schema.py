@@ -4,8 +4,8 @@ from graphql import GraphQLError
 from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model, authenticate, login, logout
 from django.contrib.auth.password_validation import validate_password
-from content.models import Publication
-from content.schema import PublicationType
+from content.models import Publication, Comment
+from content.schema import PublicationType, CommentType
 from users.utils import send_verification_email
 
 User = get_user_model()
@@ -13,7 +13,7 @@ User = get_user_model()
 class UserType(DjangoObjectType):
     class Meta:
         model = User
-        fields = ("id", "username", "email")
+        fields = ("id", "username", "email", "is_active")
 
 class PrivilegesType(graphene.ObjectType):
     is_logged_in = graphene.Boolean()
@@ -22,6 +22,7 @@ class PrivilegesType(graphene.ObjectType):
 class ProfileType(graphene.ObjectType):
     user = graphene.Field(UserType)
     publications = graphene.List(graphene.NonNull(PublicationType))
+    comments = graphene.List(graphene.NonNull(CommentType))
     is_self = graphene.Boolean()
 
     def __init__(root, user):
@@ -31,7 +32,18 @@ class ProfileType(graphene.ObjectType):
         return root.user
 
     def resolve_publications(root, info):
-        return Publication.objects.filter(author=root.user).order_by("id")
+        user = info.context.user
+        result = Publication.objects.filter(author=root.user)
+        if not (user.is_authenticated and user.has_perm("moderation.view_reportpublication")):
+            result = result.filter(is_banned=False)
+        return result.order_by("-id")
+
+    def resolve_comments(root, info):
+        user = info.context.user
+        result = Comment.objects.filter(author=root.user)
+        if not (user.is_authenticated and user.has_perm("moderation.view_reportcomment")):
+            result = result.filter(is_banned=False)
+        return result.order_by("-id")
 
     def resolve_is_self(root, info):
         return root.user == info.context.user
@@ -39,6 +51,7 @@ class ProfileType(graphene.ObjectType):
 class Query(graphene.ObjectType):
     me = graphene.Field(PrivilegesType)
     profile = graphene.Field(ProfileType, username=graphene.String())
+    user_lookup = graphene.List(graphene.NonNull(UserType), name=graphene.String(required=True))
 
     def resolve_me(root, info):
         user = info.context.user
@@ -47,7 +60,7 @@ class Query(graphene.ObjectType):
                 return PrivilegesType(is_logged_in=True, is_moderator=True)
             return PrivilegesType(is_logged_in=True, is_moderator=False)
         return PrivilegesType(is_logged_in=False, is_moderator=False)
-        
+
     def resolve_profile(root, info, username=None):
         if username:
             user = User.objects.get(username=username)
@@ -60,6 +73,12 @@ class Query(graphene.ObjectType):
         if not user:
             raise GraphQLError("User not found")
         return ProfileType(user=user)
+
+    def resolve_user_lookup(root, info, name):
+        result = User.objects.filter(username__icontains=name)
+        if not (info.context.user.is_authenticated and info.context.user.has_perm("moderation.view_reportuser")):
+            result = result.filter(is_active=True)
+        return result
 
 class CreateUser(graphene.Mutation):
     class Arguments:
@@ -119,8 +138,8 @@ class LogoutUser(graphene.Mutation):
 
 class UpdateUsername(graphene.Mutation):
     class Arguments:
-        new_username = graphene.String()
-        password = graphene.String()
+        new_username = graphene.String(required=True)
+        password = graphene.String(required=True)
 
     success = graphene.Boolean()
 
@@ -137,6 +156,27 @@ class UpdateUsername(graphene.Mutation):
         user.username = new_username
         user.save()
         return UpdateUsername(success=True)
+
+class UpdateEmail(graphene.Mutation):
+    class Arguments:
+        new_email = graphene.String(required=True)
+        password = graphene.String(required=True)
+
+    success = graphene.Boolean()
+
+    def mutate(root, info, new_email, password):
+        user = info.context.user
+        if not user.is_authenticated:
+            raise GraphQLError("You must be logged in to update your email address")
+        auth = authenticate(username=user.username, password=password)
+        if not auth:
+            raise GraphQLError("Incorrect password")
+        if User.objects.filter(email=new_email).exists():
+            raise GraphQLError("An account with this email address already exists")
+
+        user.email = new_email
+        user.save()
+        return UpdateEmail(success=True)
 
 class UpdatePassword(graphene.Mutation):
     class Arguments:
@@ -167,5 +207,6 @@ class Mutation(graphene.ObjectType):
     login_user = LoginUser.Field()
     logout_user = LogoutUser.Field()
     update_username = UpdateUsername.Field()
+    update_email = UpdateEmail.Field()
     update_password = UpdatePassword.Field()
 

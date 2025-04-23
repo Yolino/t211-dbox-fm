@@ -1,4 +1,4 @@
-const EditIcon = ({ onClick }) => (
+const EditIcon = ({ onClick, styleClass }) => (
   <svg 
     xmlns="http://www.w3.org/2000/svg" 
     width="24" 
@@ -9,7 +9,7 @@ const EditIcon = ({ onClick }) => (
     strokeWidth="2" 
     strokeLinecap="round" 
     strokeLinejoin="round"
-    className="text-gray-800 hover:text-red-600 transition-colors duration-300 cursor-pointer"
+    className={`text-gray-800 hover:text-red-600 transition-colors duration-300 cursor-pointer ${styleClass}`}
     onClick={onClick}
   >
     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>

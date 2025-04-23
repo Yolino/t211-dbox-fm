@@ -57,7 +57,6 @@ def verify_email_view(request):
         user = get_user_model().objects.get(pk=uid)
     except Exception:
         return HttpResponse('Invalid link', status=400)
-
     if token_generator.check_token(user, token):
         user.is_active = True
         user.save()

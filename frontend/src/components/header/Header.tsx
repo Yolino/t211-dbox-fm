@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { usePrivileges } from "../../context/PrivilegesContext.tsx";
+import SearchBar from "./SearchBar.tsx";
 import RedirectButton from "./RedirectButton.tsx";
 import HeaderAccount from "./HeaderAccount.tsx";
 import HeaderProfile from "./HeaderProfile.tsx";
@@ -18,9 +19,7 @@ const Header = ({ onSwitchPage }) => {
     };
     handleResize();
     window.addEventListener("resize", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
+    return () => { window.removeEventListener("resize", handleResize) };
   }, []);
 
   return (
@@ -39,6 +38,7 @@ const Header = ({ onSwitchPage }) => {
           {privileges?.isLoggedIn && <HeaderProfile onSwitchPage={onSwitchPage} />}
         </div>
       </div>
+      <SearchBar />
       <div className={`${extended ? "flex flex-col w-full" : "hidden"} sm:flex flex-col sm:flex-row sm:items-center gap-2 mt-2 sm:mt-0`}>
         <div className="w-full sm:w-auto">
           <RedirectButton onSwitchPage={onSwitchPage} page="/fm" text="DBox FM" />

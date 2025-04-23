@@ -37,6 +37,7 @@ const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote, onErro
   const [createVote] = useMutation(CREATE_VOTE_MUTATION);
   const [updateVote] = useMutation(UPDATE_VOTE_MUTATION);
   const [deleteVote] = useMutation(DELETE_VOTE_MUTATION);
+  
   const handleCreateVote = (type, e) => {
     onError("");
     createVote({
@@ -52,6 +53,7 @@ const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote, onErro
       },
     });
   };
+  
   const handleUpdateVote = (type, e) => {
     onError("");
     updateVote({
@@ -67,6 +69,7 @@ const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote, onErro
       },
     });
   }
+  
   const handleDeleteVote = (e) => {
     onError("");
     deleteVote({
@@ -81,6 +84,7 @@ const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote, onErro
       },
     });
   }
+  
   const handleUpvote = (e) => {
     e.stopPropagation();
     if (publication.visitorVote > 0) {
@@ -91,6 +95,7 @@ const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote, onErro
       handleCreateVote(1, e);
     }
   };
+  
   const handleDownvote = (e) => {
     e.stopPropagation();
     if (publication.visitorVote > 0) {
@@ -104,53 +109,53 @@ const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote, onErro
 
   return (
     <div
-      className="group flex-shrink-0 w-48 p-4 bg-gray-100 rounded-lg shadow-md hover:bg-gray-200 hover:scale-105 hover:shadow-lg transition-all duration-300 relative"
-      onClick={() => onTileClick(publication.id, group)}
+      className={`${publication.isBanned ? "bg-red-200 hover:bg-red-300" : "bg-gray-100 hover:bg-gray-200"} group flex-grow m-1 md:m-2 w-32 sm:w-40 md:w-44 lg:w-48 p-2 sm:p-3 md:p-4 rounded-lg shadow-md hover:scale-105 hover:shadow-lg transition-all duration-300 relative`}
+      onClick={() => onTileClick(publication.id)}
     >
       {/* Image de couverture */}
       {(publication.cover) ? <img
-          className="w-full h-32 object-cover rounded mb-2"
+          className="w-full h-24 lg:h-32 object-cover rounded mb-1 sm:mb-2"
           src={GET_MEDIA(publication.cover)}
           alt={`Cover for ${publication.title}`}
-        /> : <div
-          className="w-full h-32 flex items-center justify-center rounded mb-2 bg-gray-100"
+        /> : 
+        <div
+          className="w-full h-24 lg:h-32 flex items-center justify-center rounded mb-1 sm:mb-2 bg-gray-100"
         >
-          <AudioIcon styleClass="w-12 h-12 text-gray-800" />
+          <AudioIcon styleClass={`${publication.isBanned ? "text-red-800" : "text-gray-800"} w-8 sm:w-10 md:w-12 h-10 md:h-12`} />
         </div>
       }
-      {/* Bouton Play au survol */}
+      
+      {/* Play button on hover */}
       <div className="absolute inset-x-0 top-1/4 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
         <button
-          className="p-3 bg-white rounded-full shadow-lg hover:bg-gray-400 transition-colors duration-200"
-          onClick={(e) => {
-            e.stopPropagation();
-            onPlayAudio({
-              id: publication.id,
-              title: publication.title,
-              author: publication.author.username,
-            });
-          }}
+          className="p-2 sm:p-3 bg-white rounded-full shadow-lg hover:bg-gray-400 transition-colors duration-200"
+          onClick={(e) => { onPlayAudio(publication.id) }}
           aria-label="Play audio"
         >
           <PlayIcon />
         </button>
       </div>
 
-      {/* Contenu de la tuile */}
-      <div className="p-4">
-        <p className="text-black font-bold text-lg truncate cursor-default">{publication.title}</p>
-        <p
-          className="text-gray-600 text-sm truncate cursor-pointer hover:underline"
-          onClick={() => { navigate(`/profile/${publication.author.username}`) }}
-        >
-          {publication.author.username}
+      {/* Tile content */}
+      <div className={`${publication.isBanned ? "text-red-800" :  "text-gray-800"} p-2 sm:p-3 md:p-4`}>
+        <p className="font-bold text-sm sm:text-base md:text-lg truncate cursor-default">{publication.title}</p>
+        <p>
+          <span
+            className={`text-xs sm:text-sm ${!publication.author.isActive && "bg-red-200 p-1 rounded-md"} truncate cursor-pointer hover:underline`}
+            onClick={(e) => { 
+              e.stopPropagation();
+              navigate(`/profile/${publication.author.username}`);
+            }}
+          >
+            {publication.author.username}
+          </span>
         </p>
-        <div className="flex items-center justify-between mt-2">
-          <p className="text-gray-400 text-xs cursor-default">{publication.voteCount} votes</p>
+        <div className="flex items-center justify-between mt-1 sm:mt-2">
+          <p className="text-xs cursor-default">{publication.voteCount} {+publication.voteCount === 1 ? "vote" : "votes"}</p>
 
           <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <button
-              className={`p-1 ${publication.visitorVote > 0 ? "bg-green-300" : "bg-gray-200"} rounded-full hover:bg-gray-300 transition-colors duration-200`}
+              className={`p-1 ${publication.visitorVote > 0 && "bg-green-500"} rounded-full hover:bg-gray-300 transition-colors duration-200`}
               onClick={(e) => handleUpvote(e)}
               aria-label="Upvote"
             >
@@ -158,7 +163,7 @@ const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote, onErro
             </button> 
 
             <button
-              className={`p-1 ${publication.visitorVote < 0 ? "bg-red-300" : "bg-gray-200"} rounded-full hover:bg-gray-300 transition-colors duration-200`}
+              className={`p-1 ${publication.visitorVote < 0 && "bg-red-500"} rounded-full hover:bg-gray-300 transition-colors duration-200`}
               onClick={(e) => handleDownvote(e)}
               aria-label="Downvote"
             >

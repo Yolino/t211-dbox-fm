@@ -5,9 +5,16 @@ const COMMENT_QUERY = gql`
     commentsByPublication(publicationId: $publicationId) {
         id
         text
-        author {username}
-        parent {id}
+        author {
+          username
+          isActive
+        }
+        parent {
+          id
+          isBanned
+        }
         createdAt
+        isBanned
     }
   }
 `;

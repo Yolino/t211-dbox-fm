@@ -4,16 +4,9 @@ import LoadingIcon from "../svg/LoadingIcon.tsx";
 import PlayIcon from "../svg/PlayIcon.tsx";
 import PauseIcon from "../svg/PauseIcon.tsx";
 import AudioIcon from "../svg/AudioIcon.tsx";
-import CloseIcon from "../svg/CloseIcon.tsx";
-
-interface Audio {
-  id: number | null;
-  title: string;
-  author: string;
-}
 
 interface AudioPlayerProps {
-  audio: Audio;
+  audio: number;
   onClose: () => void;
 }
 
@@ -24,6 +17,7 @@ const AudioPlayer = ({ audio, onClose }: AudioPlayerProps) => {
   const [audioBlob, setAudioBlob] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [autoplay, setAutoplay] = useState(true);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
@@ -33,7 +27,9 @@ const AudioPlayer = ({ audio, onClose }: AudioPlayerProps) => {
     setErrorMessage("");
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/audio/${id}/`);
+      const response = await fetch(`/api/audio/${id}/`, {
+        credentials: "include",
+      });
       if (!response.ok) {
         const audioError = await response.text();
         throw new Error(audioError || "Something went wrong")
@@ -47,10 +43,10 @@ const AudioPlayer = ({ audio, onClose }: AudioPlayerProps) => {
   };
 
   useEffect(() => {
-    if (audio.id) {
-      fetchAudio(audio.id);
+    if (audio) {
+      fetchAudio(audio);
     }
-  }, [audio.id]);
+  }, [audio]);
 
   useEffect(() => {
     if (audioBlob && audioRef.current) {
@@ -62,11 +58,12 @@ const AudioPlayer = ({ audio, onClose }: AudioPlayerProps) => {
       // Set the URL as the source for the audio
       audioRef.current.src = audioUrl;
       audioRef.current.load();
-      audioRef.current.play().then(() => {
+      if (autoplay) audioRef.current.play().then(() => {
         setIsPlaying(true);
       }).catch((error) => {
         setErrorMessage(`Playback error : ${error}`);
       });
+      handleTimeUpdate();
       return () => {
         controller.abort();
       };
@@ -79,6 +76,7 @@ const AudioPlayer = ({ audio, onClose }: AudioPlayerProps) => {
     } else {
       audioRef.current.play();
     }
+    setAutoplay(!autoplay);
     setIsPlaying(!isPlaying);
     setIsLoading(false);
   };
@@ -112,65 +110,66 @@ const AudioPlayer = ({ audio, onClose }: AudioPlayerProps) => {
   };
 
   return (
-    <div className="BottomBar fixed bottom-0 w-full bg-gray-900 p-4 shadow-lg">
-      {errorMessage ? <p className="text-center text-red-500">{errorMessage}</p> : (
+    <div className="BottomBar mt-2 p-2 w-full bg-gray-100 shadow-lg rounded-md">
+      {errorMessage ? (
+        <p className="text-center text-red-500">{errorMessage}</p>
+      ) : (
         <>
           <audio
-          ref={audioRef}
-          id="music"
-          onTimeUpdate={handleTimeUpdate}
-          onLoadedMetadata={() => setDuration(audioRef.current.duration)}
-        >
-          Your browser does not support the audio element.
-        </audio>
-
-        <div className="flex items-center justify-between max-w-4xl mx-auto">
-          <div className="m-2 text-sm text-white">
-            <p className="cursor-default">{audio.title}</p>
-            <p onClick={() => { navigate(`/profile/${audio.author}`) }} className="cursor-pointer hover:underline">{audio.author}</p>
-          </div>
-          {/* Play/Pause Button */}
-          <button
-            onClick={togglePlayPause}
-            className="p-3 bg-gray-700 rounded-full hover:bg-gray-600 transition-colors duration-200 text-white"
-            disabled={isLoading}
+            ref={audioRef}
+            id="music"
+            onTimeUpdate={handleTimeUpdate}
+            onLoadedMetadata={() => setDuration(audioRef.current.duration)}
           >
-            {isLoading ? (<LoadingIcon />) : isPlaying ? (<PauseIcon />) : (<PlayIcon />)}
-          </button>
-          {/* Progress Bar */}
-          <div className="flex items-center space-x-4 flex-1 mx-4">
-            <span className="text-sm text-gray-400">{formatTime(currentTime)}</span>
-            <input
-              type="range"
-              min="0"
-              max={duration}
-              value={currentTime}
-              onChange={handleSeek}
-              className="w-full h-2 bg-gray-700 rounded-full appearance-none cursor-pointer"
-            />
-            <span className="text-sm text-gray-400">{formatTime(duration)}</span>
+            Your browser does not support the audio element.
+          </audio>
+          <div className="flex items-center justify-between gap-2 max-w-6xl mx-auto">
+            {/* Play/Pause Button */}
+            <button
+              onClick={togglePlayPause}
+              className="p-1 bg-gray-700 rounded-full hover:bg-gray-600 transition-colors duration-200 text-white flex-shrink-0"
+              disabled={isLoading}
+            >
+              {isLoading ? <LoadingIcon /> : isPlaying ? <PauseIcon /> : <PlayIcon />}
+            </button>
+            {/* Progress Bar Container */}
+            <div className="w-3/5 flex items-center flex-grow space-x-2 mx-1">
+              <span className="text-xs sm:text-sm text-gray-600">
+                {formatTime(currentTime)}
+              </span>
+              <input
+                type="range"
+                min="0"
+                max={duration}
+                value={currentTime}
+                onChange={handleSeek}
+                className="w-full h-2 bg-gray-300 rounded-full appearance-none cursor-pointer mx-1"
+                style={{
+                  background: `linear-gradient(to right, #4B5563 ${(currentTime / duration) * 100}%, #E5E7EB ${(currentTime / duration) * 100}%)`
+                }}
+              />
+              <span className="text-xs sm:text-sm text-gray-600 flex-shrink-0">
+                {formatTime(duration)}
+              </span>
+            </div>
+            {/* Volume Control */}
+            <div className="w-1/5 flex items-center space-x-1 ml-auto">
+              <AudioIcon className="w-4 h-4 text-gray-600 flex-shrink-0" />
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={volume}
+                onChange={handleVolumeChange}
+                className="w-full h-2 bg-gray-300 rounded-full appearance-none cursor-pointer"
+                style={{
+                  background: `linear-gradient(to right, #4B5563 ${volume * 100}%, #E5E7EB ${volume * 100}%)`
+                }}
+              />
+            </div>
           </div>
-          {/* Volume Control */}
-          <div className="flex items-center space-x-2">
-            <AudioIcon />
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.01"
-              value={volume}
-              onChange={handleVolumeChange}
-              className="w-24 h-2 bg-gray-700 rounded-full appearance-none cursor-pointer"
-            />
-          </div>
-          <button
-            className="p-1 m-5 bg-gray-700 rounded-full hover:bg-gray-600 transition-colors duration-200 text-white"
-            onClick={handleClosePlayer}
-          >
-            <CloseIcon />
-          </button>
-        </div>
-      </>
+        </>
       )}
     </div>
   );
