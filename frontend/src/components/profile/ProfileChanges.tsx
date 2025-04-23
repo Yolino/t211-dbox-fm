@@ -119,7 +119,7 @@ const ProfileChanges = ({ username }: ProfileChangesProps) => {
 			}
 			<form onSubmit={handleSubmitEmail} className='text-black flex'>
 				<input className='rounded-lg mr-2 min-w-[200px] pl-1'
-				type='text' 
+				type='email' 
 				placeholder='Your new Email' 
 				name='new_email' 
 				value={newEmail} 
