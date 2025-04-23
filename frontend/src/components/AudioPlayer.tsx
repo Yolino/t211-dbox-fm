@@ -6,7 +6,7 @@ import PauseIcon from "../svg/PauseIcon.tsx";
 import AudioIcon from "../svg/AudioIcon.tsx";
 
 interface AudioPlayerProps {
-  audio: number;
+  audio: number | null;
   onClose: () => void;
 }
 
@@ -128,9 +128,9 @@ const AudioPlayer = ({ audio, onClose }: AudioPlayerProps) => {
             <button
               onClick={togglePlayPause}
               className="p-1 bg-gray-700 rounded-full hover:bg-gray-600 transition-colors duration-200 text-white flex-shrink-0"
-              disabled={isLoading}
+              disabled={isLoading || !audio}
             >
-              {isLoading ? <LoadingIcon /> : isPlaying ? <PauseIcon /> : <PlayIcon />}
+              {isLoading ? (<LoadingIcon />) : isPlaying ? (<PauseIcon />) : (<PlayIcon />)}
             </button>
             {/* Progress Bar Container */}
             <div className="w-3/5 flex items-center flex-grow space-x-2 mx-1">
