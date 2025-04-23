@@ -4,6 +4,7 @@ import MainBlock from "../MainBlock.tsx";
 import ProfilePublications from "./ProfilePublications.tsx";
 import TileExpanded from "../tiles/TileExpanded.tsx";
 import AudioPlayer from "../AudioPlayer.tsx";
+import ProfileChanges from './ProfileChanges.tsx';
 
 const ProfileMain = ({ username }) => {
   const location = useLocation();
@@ -22,6 +23,7 @@ const ProfileMain = ({ username }) => {
           onPublicationClick={setShownPublication}
           onPlayAudio={setCurrentAudio}
         />
+		<ProfileChanges username={username} />
       </MainBlock>
       <MainBlock styleClass="w-full md:w-auto h-1/3 md:h-[calc(80vh)] overflow-y-auto">
         <div className="h-full overflow-y-auto">
