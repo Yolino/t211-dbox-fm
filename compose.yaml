@@ -75,7 +75,8 @@ volumes:
 
 networks:
   prod_api:
-  prod_orm: 
+  prod_orm:
+    internal: true
   prod_mail:
     external: true
     name: dbox_prod_mail
