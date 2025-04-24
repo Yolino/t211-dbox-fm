@@ -26,7 +26,6 @@ const ProfileChanges = ({ profile }: ProfileChangesProps) => {
 			newUsername: newUsername, 
 			password: passwordUsername}
 		}).then(() => {
-		  setCurrentUsername(newUsername);
       setEditField("");
       setPasswordUsername("");
       navigate(`/profile/${newUsername}`);
