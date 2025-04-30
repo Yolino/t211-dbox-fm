@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLazyQuery } from "@apollo/client";
 import LOOKUP_QUERY from "../../graphql/lookupQuery.ts";
@@ -7,10 +7,22 @@ const SearchBar = () => {
   const navigate = useNavigate();
   const [isFocused, setIsFocused] = useState(false);
   const [searchValue, setSearchValue] = useState("");
+  const [debounceTimeout, setDebounceTimeout] = useState<NodeJS.Timeout | null>(null);
+
+  const [fetchLookup, { data }] = useLazyQuery(LOOKUP_QUERY);
+
   const handleChangeSearchValue = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchValue(event.target.value);
+    if (debounceTimeout) {
+      clearTimeout(debounceTimeout);
+    }
+    const timeoutId = setTimeout(() => {
+      fetchLookup({
+        variables: { text: event.target.value },
+      });
+    }, 2000);
+    setDebounceTimeout(timeoutId);
   };
-  const [fetchLookup, { data }] = useLazyQuery(LOOKUP_QUERY);
 
   const submitLookup = (event: React.FormEvent) => {
     event.preventDefault();
@@ -18,7 +30,8 @@ const SearchBar = () => {
       variables: { text: searchValue },
     });
   };
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
       event.preventDefault();
       fetchLookup({
@@ -29,7 +42,7 @@ const SearchBar = () => {
 
   return (
     <div
-      onFocus={() => { setIsFocused(true) }}
+      onFocus={() => setIsFocused(true)}
       onBlur={() => setTimeout(() => setIsFocused(false), 150)}
       className="relative w-1/2 rounded-lg bg-white text-gray-800"
     >
@@ -38,12 +51,13 @@ const SearchBar = () => {
           type="text"
           placeholder="Search"
           onChange={handleChangeSearchValue}
+          onKeyDown={handleKeyDown}
           className="p-3 w-full rounded-lg"
+          value={searchValue}
         />
         <input
           type="submit"
           value="Submit"
-          onKeyDown={handleKeyDown}
           className="m-2 p-1 rounded-lg bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </form>
@@ -52,7 +66,7 @@ const SearchBar = () => {
           {data?.publicationLookup.map((p, i) => (
             <div
               key={i}
-              onClick={() => { navigate(`/profile/${p.author.username}`, {state: { expanded: p.id }}) }}
+              onClick={() => { navigate(`/profile/${p.author.username}`, { state: { expanded: p.id } }) }}
               className="flex justify-between py-2 px-4 hover:bg-gray-200"
             >
               <span>{p.author.username} - {p.title}</span>
@@ -76,3 +90,4 @@ const SearchBar = () => {
 };
 
 export default SearchBar;
+

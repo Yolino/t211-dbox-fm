@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useQuery } from "@apollo/client";
 import { usePrivileges } from "../../context/PrivilegesContext.tsx";
 import REPORTED_CONTENT_QUERY from "../../graphql/reportedContentQuery.ts";
@@ -11,6 +12,7 @@ import AudioPlayer from "../AudioPlayer.tsx";
 import LoadingIcon from "../../svg/LoadingIcon.tsx";
 
 const ModerationMain = () => {
+  const navigate = useNavigate();
   const { privileges } = usePrivileges();
   const [expandedTile, setExpandedTile] = useState({
     tileType: null,
@@ -29,7 +31,13 @@ const ModerationMain = () => {
     bannedRefetch();
   };
 
-  if (notAllowed) return <p className="text-xl text-center text-red-600 font-bold">You cannot access the moderation panel</p>;
+  useEffect(() => {
+    if (notAllowed) {
+      navigate("/", {state: { message: "This page does not exist" }});
+    }
+  }, [notAllowed, navigate])
+  if (notAllowed) return null;
+
   return (
     <div className="flex flex-col lg:flex-row gap-10 h-[calc(80vh)] min-h-96">
       <MainBlock styleClass="w-full lg:w-2/3 h-96 lg:h-full overflow-y-auto">

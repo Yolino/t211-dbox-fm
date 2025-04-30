@@ -3,6 +3,7 @@ import { useMutation } from "@apollo/client";
 import UPDATE_COMMENT_MUTATION from "../../graphql/updateCommentMutation.ts";
 import DELETE_COMMENT_MUTATION from "../../graphql/deleteCommentMutation.ts";
 import DeleteContentCard from "./DeleteContentCard.tsx";
+import PlayIcon from "../../svg/PlayIcon.tsx";
 import EditIcon from "../../svg/EditIcon.tsx";
 import DeleteIcon from "../../svg/DeleteIcon.tsx";
 
@@ -136,6 +137,11 @@ const ProfileCommentTile = ({ comment, index, isSelf, onEdit, onCloseTile, isExp
         )}
         {isSelf && (
             <div className="flex items-center gap-3 ml-4">
+              <button
+                className={`p-3 rounded-full shadow-lg transition-colors duration-200 ${comment.isBanned ? "hover:bg-red-400" : "hover:bg-gray-500"}`}
+              >
+                <PlayIcon />
+              </button> 
               <EditIcon onClick={onEdit} styleClass={comment.isBanned && "text-red-800 hover:text-gray-800"} />
               <DeleteIcon onClick={handleDeleteClick} styleClass={comment.isBanned && "text-red-800 hover:text-gray-800"} />
             </div>

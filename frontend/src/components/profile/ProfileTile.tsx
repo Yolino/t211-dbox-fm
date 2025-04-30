@@ -29,7 +29,7 @@ interface ProfileTileProps {
   isModerationContext: boolean;
 };
 
-const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, isExpanded, message, onSetMessage, onProfileUpdate, onPlayAudio, onPublicationClick, isModerationContext=false }: ProfileTileProps) => {
+const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, isExpanded, onSetMessage, onProfileUpdate, onPlayAudio, onPublicationClick, isModerationContext=false }: ProfileTileProps) => {
   const [isDeleteCardOpen, setIsDeleteCardOpen] = useState(false);
   const handleDeleteClick = () => {
     setIsDeleteCardOpen(true);
@@ -136,7 +136,7 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
 
   return (
     <div
-      onClick={() => { onPublicationClick(publication.id) }}
+      onClick={() => { onPublicationClick(publication.id); onPlayAudio(publication.id); }}
       className={`p-4 bg-gray-200 rounded-lg shadow-sm group ${publication.isBanned ? "bg-red-200 hover:bg-red-300 text-red-800" : "bg-gray-200 hover:bg-gray-300 text-gray-800"}`}
     >
       <li key={index} className="relative flex items-center justify-between"> 
@@ -157,7 +157,6 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
           {!isModerationContext && (
             <button
               className={`p-3 rounded-full shadow-lg transition-colors duration-200 ${publication.isBanned ? "hover:bg-red-400" : "hover:bg-gray-500"}`}
-              onClick={() => { onPlayAudio(publication.id) }}
             >
               <PlayIcon />
             </button>
@@ -237,7 +236,6 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
           />
         </form>
       )}
-      {message && <p className={`mb-4 mt-1 text-sm text-center ${message.isError ? "text-red-500" : "text-green-500"}`}>{message.text}</p>}
       {isDeleteCardOpen && (
         <DeleteContentCard
           title={publication.title}

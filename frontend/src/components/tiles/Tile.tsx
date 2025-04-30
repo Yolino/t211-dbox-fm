@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "@apollo/client";
+import { usePrivileges } from "../../context/PrivilegesContext.tsx";
 import CREATE_VOTE_MUTATION from "../../graphql/createVoteMutation.ts";
 import UPDATE_VOTE_MUTATION from "../../graphql/updateVoteMutation.ts";
 import DELETE_VOTE_MUTATION from "../../graphql/deleteVoteMutation.ts";
@@ -33,10 +34,11 @@ interface TileProps {
 
 const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote, onError }: TileProps) => {
   const navigate = useNavigate();
+  const { privileges } = usePrivileges();
   const [createVote] = useMutation(CREATE_VOTE_MUTATION);
   const [updateVote] = useMutation(UPDATE_VOTE_MUTATION);
   const [deleteVote] = useMutation(DELETE_VOTE_MUTATION);
-  
+
   const handleCreateVote = (type, e) => {
     onError("");
     createVote({
@@ -86,6 +88,10 @@ const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote, onErro
   
   const handleUpvote = (e) => {
     e.stopPropagation();
+    if (!privileges?.isLoggedIn) {
+      onError("You must be logged in to submit votes");
+      return;
+    }
     if (publication.visitorVote > 0) {
       handleDeleteVote(e);
     } else if (publication.visitorVote < 0) {
@@ -97,6 +103,10 @@ const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote, onErro
   
   const handleDownvote = (e) => {
     e.stopPropagation();
+    if (!privileges?.isLoggedIn) {
+      onError("You must be logged in to submit votes");
+      return;
+    }
     if (publication.visitorVote > 0) {
       handleUpdateVote(-1, e);
     } else if (publication.visitorVote < 0) {

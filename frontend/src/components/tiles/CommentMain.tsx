@@ -1,16 +1,19 @@
 import React, { useState } from "react";
 import { useQuery, useMutation } from "@apollo/client";
+import { usePrivileges } from "../../context/PrivilegesContext.tsx";
 import COMMENT_QUERY from "../../graphql/commentQuery.ts";
 import CREATE_COMMENT_MUTATION from "../../graphql/createCommentMutation.ts";
 import CommentTile from "./CommentTile.tsx";
 
 interface CommentMainProps {
   publicationId: number;
-  onError: () => void;
+  onSubmit: (message: string) => void;
+  onError: (message: string) => void;
   onReportComment: () => void;
 }
 
-const CommentMain = ({ publicationId, onError, onReportComment }: CommentMainProps) => {
+const CommentMain = ({ publicationId, onSubmit, onError, onReportComment }: CommentMainProps) => {
+  const { privileges } = usePrivileges();
   const [enabledCommentZone, setEnabledCommentZone] = useState(null);
   const [commentText, setCommentText] = useState("");
   const { loading, error, data } = useQuery(COMMENT_QUERY, {
@@ -19,9 +22,6 @@ const CommentMain = ({ publicationId, onError, onReportComment }: CommentMainPro
 
   const [createComment] = useMutation(CREATE_COMMENT_MUTATION, {
     refetchQueries: [{ query: COMMENT_QUERY, variables: { publicationId: +publicationId } }],
-    onError: (err) => {
-      onError(err.message);
-    },
   });
 
   const comments = data?.commentsByPublication || [];
@@ -67,34 +67,54 @@ const CommentMain = ({ publicationId, onError, onReportComment }: CommentMainPro
   };
 
   const commentSubmit = async () => {
-    if (!commentText.trim()) return;
-
-    try {
-      await createComment({
-        variables: {
-          publication: +publicationId,
-          text: commentText,
-        },
-      });
-      setCommentText("");
-    } catch (err) {
-      onError(err.message);
+    if (!privileges?.isLoggedIn) {
+      onError("You must be logged in to submit comments");
+      return;
     }
+    if (!commentText.trim()) {
+      onError("You cannot submit empty comments");
+      return;
+    }
+    await createComment({
+      variables: {
+        publication: +publicationId,
+        text: commentText,
+      },
+      onCompleted: (data) => {
+        if (data.createComment.success) {
+          onSubmit("Comment submitted successfully");
+          setCommentText("");
+        }
+      },
+      onError: (err) => {
+        onError(err.message);
+      },
+    });
   };
 
   const handleReply = async (parentId, replyText) => {
-    if (!replyText.trim()) return; 
-    try {
-      await createComment({
-        variables: {
-          publication: +publicationId,
-          text: replyText,
-          parent: +parentId,
-        },
-      });
-    } catch (err) {
-      onError(err.message);
+    if (!privileges?.isLoggedIn) {
+      onError("You must be logged in to submit comments");
+      return;
     }
+
+    if (!replyText.trim()) {
+      onError("You cannot submit empty comments");
+      return;
+    }
+    await createComment({
+      variables: {
+        publication: +publicationId,
+        text: replyText,
+        parent: +parentId,
+      },
+      onCompleted: (data) => {
+        onSubmit("Comment submitted successfully");
+      },
+      onError: (err) => {
+        onError(err.message);
+      },
+    });
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {

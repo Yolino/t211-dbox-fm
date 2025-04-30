@@ -317,7 +317,7 @@ class CreateComment(graphene.Mutation):
         parent = graphene.Int()
         text = graphene.String(required=True)
 
-    comment = graphene.Field(CommentType)
+    success = graphene.Boolean()
 
     def mutate(root, info, publication, text, parent=None):
         author = info.context.user
@@ -339,7 +339,7 @@ class CreateComment(graphene.Mutation):
                 raise GraphQLError("The parent comment's publication does not match this commment's")
         comment = Comment(publication = publication_instance, parent=parent_comment, text=text, author=author)
         comment.save()
-        return CreateComment(comment=comment)
+        return CreateComment(success=True)
 
 class UpdateComment(graphene.Mutation):
     class Arguments:

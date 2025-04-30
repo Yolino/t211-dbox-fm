@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@apollo/client";
+import { usePrivileges } from "../../context/PrivilegesContext.tsx";
 import PUBLICATION_DETAIL_QUERY from "../../graphql/publicationDetailQuery.ts";
 import CREATE_REPORT_MUTATION from "../../graphql/createReportMutation.ts"
 import CommentMain from "./CommentMain.tsx";
+import Alert from "../Alert.tsx";
 import AudioIcon from "../../svg/AudioIcon.tsx";
 import LoadingIcon from "../../svg/LoadingIcon.tsx";
 
@@ -16,22 +18,23 @@ interface TileExpandedProps {
 
 const TileExpanded = ({ tileId, showEditButton=true, isModerationContext=false, setExpandedAuthor=null }: TileExpandedProps) => {
   const navigate = useNavigate();
+  const { privileges } = usePrivileges();
   const [errorMessage, setErrorMessage] = useState("");
-  const [reportMessage, setReportMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [createReport] = useMutation(CREATE_REPORT_MUTATION);
   const { loading, error, data } = useQuery(PUBLICATION_DETAIL_QUERY, {
     variables: { publicationId: +tileId },
   });
   const publication = data?.publication || {};
 
-  useEffect(() => {
-    setReportMessage("");
-  }, [tileId]);
-
-  const handleError = (err) => {
-    setErrorMessage(err.message);
+  const handleError = (message) => {
+    setErrorMessage(message);
   };
   const handleReportPublication = async () => {
+    if (!privileges?.isLoggedIn) {
+      setErrorMessage("You must be logged in to submit reports");
+      return;
+    }
     try {
       const { data } = await createReport({
         variables: {
@@ -41,15 +44,19 @@ const TileExpanded = ({ tileId, showEditButton=true, isModerationContext=false, 
       });
 
       if (data?.createReport?.success) {
-        setReportMessage("Publication successfully reported");
+        setSuccessMessage("Publication successfully reported");
       } else {
-        setReportMessage("You have already reported this publication");
+        setErrorMessage("You have already reported this publication");
       }
     } catch (err) {
-      setReportMessage(`Error raised while submitting report : ${err.message}`);
+      setErrorMessage(`Error raised while submitting report : ${err.message}`);
     }
   };
   const handleReportAuthor = async () => {
+    if (!privileges?.isLoggedIn) {
+      setErrorMessage("You must be logged in to submit reports");
+      return;
+    }
     try {
       const { data } = await createReport({
         variables: {
@@ -58,15 +65,19 @@ const TileExpanded = ({ tileId, showEditButton=true, isModerationContext=false, 
         }
       });
       if (data?.createReport?.success) {
-        setReportMessage("User successfully reported");
+        setSuccessMessage("User successfully reported");
       } else {
-        setReportMessage("You have already reported this user");
+        setErrorMessage("You have already reported this user");
       }
     } catch (err) {
-      setReportMessage(`Error raised while submitting report : ${err.message}`);
+      setErrorMessage(`Error raised while submitting report : ${err.message}`);
     }
   };
   const handleReportComment = async (i) => {
+    if (!privileges?.isLoggedIn) {
+      setErrorMessage("You must be logged in to submit reports");
+      return;
+    }
     try {
       const { data } = await createReport({
         variables: {
@@ -75,12 +86,12 @@ const TileExpanded = ({ tileId, showEditButton=true, isModerationContext=false, 
         }
       });
       if (data?.createReport?.success) {
-        setReportMessage("Comment successfully reported");
+        setSuccessMessage("Comment successfully reported");
       } else {
-        setReportMessage("You have already reported this comment");
+        setErrorMessage("You have already reported this comment");
       }
     } catch (err) {
-      setReportMessage(`Error raised while submitting report : ${err.message}`);
+      setErrorMessage(`Error raised while submitting report : ${err.message}`);
     }
   };
 
@@ -91,9 +102,9 @@ const TileExpanded = ({ tileId, showEditButton=true, isModerationContext=false, 
   return (
     <div className="flex gap-2 flex-col">
       <div className={`w-full p-6 ${publication.isBanned ? "bg-red-200" : "bg-gray-100"} rounded-lg shadow-md mt-4 animate-fade-in`}>
-        {errorMessage && <p className="text-red-500">{errorMessage}</p>}
-        {error && <p className="text-red-500">{error.message}</p>}
-        {reportMessage && <p className="text-red-500">{reportMessage}</p>}
+        {errorMessage && <Alert type="error" text={errorMessage} onClose={() => { setErrorMessage("") }} />}
+        {error && <Alert type="error" text={error.message} />}
+        {successMessage && <Alert type="success" text={successMessage} onClose={() => { setSuccessMessage("") }} />}
         <div className="flex gap-4">
         {(publication.cover) ? <img
             className="w-32 h-32 object-cover rounded-lg shadow-md"
@@ -148,7 +159,7 @@ const TileExpanded = ({ tileId, showEditButton=true, isModerationContext=false, 
       </div>
     </div>
     <div className="w-full p-6 bg-gray-100 rounded-lg shadow-md mt-4 animate-fade-in">
-      <CommentMain publicationId={tileId} onError={handleError} onReportComment={handleReportComment} />
+      <CommentMain publicationId={tileId} onSubmit={(message) => { setSuccessMessage(message); }} onError={handleError} onReportComment={handleReportComment} />
     </div>
     </div>
   );

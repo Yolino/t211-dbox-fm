@@ -1,14 +1,16 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { usePrivileges } from "../context/PrivilegesContext.tsx";
 import { useMutation, useQuery } from "@apollo/client";
 import CREATE_PUBLICATION_MUTATION from "../graphql/createPublicationMutation.ts";
 import TAGS_QUERY from "../graphql/tagsQuery.ts";
 import MainBlock from "./MainBlock.tsx";
+import Alert from "./Alert.tsx";
 
-const PublishMain = ({ refetchPublications }) => {
+const PublishMain = () => {
   const navigate = useNavigate();
   const { privileges } = usePrivileges();
+  const notAllowed = !privileges?.isLoggedIn;
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [missingFields, setMissingFields] = useState({
@@ -78,17 +80,26 @@ const PublishMain = ({ refetchPublications }) => {
       },
     }).then((response) => {
       setSuccessMessage(`You successfully published "${response?.data.createPublication.publication.title}. You will be redirected shortly"`);
-      setTimeout(() => { window.location.href = window.location.href; }, 3000);
-      navigate("/");
+      setTimeout(() => {
+          navigate("/");
+          window.location.href = window.location.href;
+      }, 3000);
     }).catch((err) => {
       setErrorMessage(err.message);
     });
   };
 
-  if (!privileges?.isLoggedIn) return <p>You cannot publish if you are not authentified</p>;
+  useEffect(() => {
+    if (notAllowed) {
+      navigate("/", {state: { message: "You cannot publish if you are not authenticated" }});
+    }
+  }, [notAllowed, navigate]);
+  if (notAllowed) return null;
 
   return (
     <MainBlock styleClass="w-2/3">
+      {errorMessage && <Alert type="error" text={errorMessage} onClose={() => { setErrorMessage(""); }} />}
+      {successMessage && <Alert type="success" text={successMessage} onClose={() => { setSuccessMessage(""); }} />}
       <h2 className="text-2xl font-bold text-white mb-6">Create a new publication</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -147,8 +158,6 @@ const PublishMain = ({ refetchPublications }) => {
             className="mt-1 block w-full text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-500 file:text-white hover:file:bg-blue-600"
           />
         </div>
-        {errorMessage && <p className="mb-4 text-sm text-red-600 text-center">{errorMessage}</p>}
-        {successMessage && <p className="mb-4 text-sm text-green-600 text-center">{successMessage}</p>}
         <div>
           <button
             type="submit"
