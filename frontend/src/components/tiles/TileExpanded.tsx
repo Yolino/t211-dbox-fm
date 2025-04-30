@@ -23,6 +23,7 @@ const TileExpanded = ({ tileId, showEditButton=true, isModerationContext=false, 
   const [successMessage, setSuccessMessage] = useState("");
   const [createReport] = useMutation(CREATE_REPORT_MUTATION);
   const { loading, error, data } = useQuery(PUBLICATION_DETAIL_QUERY, {
+    skip: !tileId,
     variables: { publicationId: +tileId },
   });
   const publication = data?.publication || {};
@@ -99,6 +100,7 @@ const TileExpanded = ({ tileId, showEditButton=true, isModerationContext=false, 
   const date = new Date(publication.createdAt);
   const formattedDatePublication = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
 
+  if (!tileId) return null;
   return (
     <div className="flex gap-2 flex-col">
       <div className={`w-full p-6 ${publication.isBanned ? "bg-red-200" : "bg-gray-100"} rounded-lg shadow-md mt-4 animate-fade-in`}>
