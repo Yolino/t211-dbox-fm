@@ -7,7 +7,7 @@ import TileExpanded from "./TileExpanded.tsx";
 import AudioPlayer from "../AudioPlayer.tsx";
 import Alert from "../Alert.tsx";
 
-const TileMain = () => {
+const TileMain = ({ onRefreshBadge }) => {
   const SORT_TYPES = ["-created_at", "-vote_count"];
   const [expandedTile, setExpandedTile] = useState(null);
   const [error, setError] = useState("");
@@ -50,7 +50,7 @@ const TileMain = () => {
       </MainBlock>
       <MainBlock styleClass="w-full lg:w-1/3 h-96 lg:h-full overflow-y-auto">
         <div className="h-full overflow-y-auto">
-          {expandedTile && <TileExpanded tileId={expandedTile} />}
+          {expandedTile && <TileExpanded tileId={expandedTile} onRefreshBadge={onRefreshBadge} />}
         </div>
         <AudioPlayer audio={expandedTile} />
       </MainBlock>

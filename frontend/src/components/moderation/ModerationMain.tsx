@@ -12,7 +12,11 @@ import AudioPlayer from "../AudioPlayer.tsx";
 import Alert from "../Alert.tsx";
 import LoadingIcon from "../../svg/LoadingIcon.tsx";
 
-const ModerationMain = () => {
+interface ModerationMainProps {
+  onRefreshBadge: () => void;
+}
+
+const ModerationMain = ({ onRefreshBadge }: ModerationMainProps) => {
   const navigate = useNavigate();
   const { privileges } = usePrivileges();
   const [expandedTile, setExpandedTile] = useState({
@@ -32,6 +36,7 @@ const ModerationMain = () => {
   const onDecision = () => {
     reportedRefetch();
     bannedRefetch();
+    onRefreshBadge();
   };
 
   useEffect(() => {

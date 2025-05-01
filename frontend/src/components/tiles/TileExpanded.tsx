@@ -14,9 +14,10 @@ interface TileExpandedProps {
   showEditButton: boolean;
   isModerationContext: boolean;
   setExpandedAuthor: (username: string) => void | null; // Used in moderation context to display the author without navigating
+  onRefreshBadge: () => void;
 }
 
-const TileExpanded = ({ tileId, showEditButton=true, isModerationContext=false, setExpandedAuthor=null }: TileExpandedProps) => {
+const TileExpanded = ({ tileId, showEditButton=true, isModerationContext=false, setExpandedAuthor=null, onRefreshBadge }: TileExpandedProps) => {
   const navigate = useNavigate();
   const { privileges } = usePrivileges();
   const [errorMessage, setErrorMessage] = useState("");
@@ -46,6 +47,7 @@ const TileExpanded = ({ tileId, showEditButton=true, isModerationContext=false, 
 
       if (data?.createReport?.success) {
         setSuccessMessage("Publication successfully reported");
+        onRefreshBadge();
       } else {
         setErrorMessage("You have already reported this publication");
       }
@@ -67,6 +69,7 @@ const TileExpanded = ({ tileId, showEditButton=true, isModerationContext=false, 
       });
       if (data?.createReport?.success) {
         setSuccessMessage("User successfully reported");
+        onRefreshBadge();
       } else {
         setErrorMessage("You have already reported this user");
       }
@@ -88,6 +91,7 @@ const TileExpanded = ({ tileId, showEditButton=true, isModerationContext=false, 
       });
       if (data?.createReport?.success) {
         setSuccessMessage("Comment successfully reported");
+        onRefreshBadge();
       } else {
         setErrorMessage("You have already reported this comment");
       }
@@ -121,13 +125,17 @@ const TileExpanded = ({ tileId, showEditButton=true, isModerationContext=false, 
         <div className={`flex flex-col flex-1 ${publication.isBanned ? "text-red-800" : "text-gray-800"} gap-1`}>
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-bold cursor-default break-all">{publication.title}</h2>
-            {!publication.isBanned && <button
-              onClick={handleReportPublication}
-              className="ml-1 px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded-lg shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition"
-              title="Report this Publication"
-            >
-              Report Publication
-            </button>}
+            {publication.isBanned ? (
+              <span className="ml-1 px-2 py-1 bg-red-300 text-red-800 text-xs font-medium rounded">Publication banned</span>
+            ) : (
+              <button
+                onClick={handleReportPublication}
+                className="ml-1 px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded-lg shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition"
+                title="Report this Publication"
+              >
+                Report Publication
+              </button>
+            )}
           </div>
           <div className="flex justify-between items-center">
             <p className="cursor-default">
@@ -142,13 +150,17 @@ const TileExpanded = ({ tileId, showEditButton=true, isModerationContext=false, 
                    {publication?.author?.username}
                  </span> on {formattedDatePublication}
             </p>
-            {publication?.author?.isActive && <button
-              onClick={handleReportAuthor}
-              className="px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded-lg shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition"
-              title="Report the Author"
-            >
-              Report Author
-            </button>}
+            {publication?.author?.isActive ? (
+              <button
+                onClick={handleReportAuthor}
+                className="px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded-lg shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition"
+                title="Report the Author"
+              >
+                Report Author
+              </button>
+            ) : (
+              <span className="ml-1 px-2 py-1 bg-red-300 text-red-800 text-xs font-medium rounded">Author banned</span>
+            )}
           </div>
           <p className="text-sm mt-2 cursor-default">{publication?.description || "No description available."}</p>
           <p className="text-xs mt-2 cursor-default">{publication?.viewCount} {+publication.viewCount === 1 ? "view" : "views"} / {publication.voteCount} {+publication.voteCount === 1 ? "vote" : "votes"}</p>

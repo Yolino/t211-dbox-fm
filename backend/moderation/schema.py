@@ -56,6 +56,7 @@ class ReportedContentType(graphene.ObjectType):
     users = graphene.List(ReportedUserType)
     publications = graphene.List(ReportedPublicationType)
     comments = graphene.List(ReportedCommentType)
+    total_count = graphene.Int()
 
 class Query(graphene.ObjectType):
     reporters = graphene.List(ReportUnion, reported_id=graphene.Int(required=True), content_type=graphene.String(required=True))
@@ -82,6 +83,7 @@ class Query(graphene.ObjectType):
         result["users"] = User.objects.filter(reports_received__is_reviewed=False).annotate(report_count=models.Count("reports_received", filter=models.Q(reports_received__is_reviewed=False))).distinct()
         result["publications"] = Publication.objects.filter(reportpublication__is_reviewed=False).annotate(report_count=models.Count("reportpublication", filter=models.Q(reportpublication__is_reviewed=False))).distinct()
         result["comments"] = Comment.objects.filter(reportcomment__is_reviewed=False).annotate(report_count=models.Count("reportcomment", filter=models.Q(reportcomment__is_reviewed=False))).distinct()
+        result["total_count"] = len(result["users"]) + len(result["publications"]) + len(result["comments"])
         return result
 
     def resolve_banned_content(root, info):

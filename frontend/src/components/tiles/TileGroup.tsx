@@ -11,7 +11,7 @@ interface TileGroupProps {
   orderBy: string;
   onPlayAudio: () => void;
   onTileClick: () => void;
-  onError: () => void;
+  onError: () => void; 
 }
 
 const TileGroup = ({ groupTitle="Default", orderBy="-created_at", onPlayAudio, onTileClick, onError }: TileGroupProps) => {
@@ -94,7 +94,7 @@ const TileGroup = ({ groupTitle="Default", orderBy="-created_at", onPlayAudio, o
                   onTileClick={onTileClick}
                   onTileVote={onTileVote}
                   onError={onError}
-              />
+                />
               ))}
             </div>
             <div className="flex items-center justify-center">

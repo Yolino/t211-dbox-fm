@@ -54,6 +54,12 @@ const ProfileChanges = ({ profile }: ProfileChangesProps) => {
 	return (
     <div className='text-white'>
 		  <p className='mt-5 mb-3 text-2xl font-bold'>User information</p>
+      <div className={`mb-5 bg-gray-200 text-gray-800 p-3 rounded-md ${profile?.user?.isActive ? "" : "bg-red-200 text-red-800"}`}>
+        <div className="flex gap-5">
+          <p>Status :</p>
+          <p className="font-bold">{profile?.user?.isActive ? "Active" : "Banned"}</p>
+        </div>
+      </div>
 		  <div className='mb-5 bg-gray-200 text-gray-800 p-3 rounded-md'>
         {editField === "username" ? (
           <form onSubmit={handleSubmitUsername} className='flex justify-between gap-5'>
