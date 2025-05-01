@@ -96,7 +96,7 @@ const ModerationTile = ({ reportedId, reportType, title, reportCount, banned=fal
               className={`px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-md transition-colors flex items-center gap-1 ${reviewLoading ? "opacity-50" : ""}`}
             >
               {reviewLoading ? (
-                "Approving..."
+                "Processing..."
               ) : (
                 <>
                   <ApproveIcon />
@@ -110,7 +110,7 @@ const ModerationTile = ({ reportedId, reportType, title, reportCount, banned=fal
               className={`px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white rounded-md transition-colors flex items-center gap-1 ${reviewLoading ? "opacity-50" : ""}`}
             >
               {reviewLoading ? (
-                "Banning..."
+                "Processing..."
               ) : (
                 <>
                   <CloseIcon />

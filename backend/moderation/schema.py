@@ -5,6 +5,7 @@ from django.db import models
 from .models import ReportUser, ReportPublication, ReportComment
 from django.contrib.auth.models import User
 from content.models import Publication, Comment
+from .utils import send_user_ban_mail, send_content_ban_mail
 
 class ReportUserType(DjangoObjectType):
     class Meta:
@@ -170,6 +171,7 @@ class ReviewReport(graphene.Mutation):
             if not is_safe:
                 reported_user.is_active = False
                 reported_user.save()
+                send_user_ban_mail(reported_user)
             for report in ReportUser.objects.filter(reported_user_id=reported_id, is_reviewed=False):
                 report.is_reviewed = True
                 report.save()
@@ -183,6 +185,7 @@ class ReviewReport(graphene.Mutation):
             if not is_safe:
                 reported_publication.is_banned = True
                 reported_publication.save()
+                send_content_ban_mail(reported_publication.author, "publication", reported_publication.title, reported_publication.id)
             for report in ReportPublication.objects.filter(reported_publication_id=reported_id, is_reviewed=False):
                 report.is_reviewed = True
                 report.save()
@@ -196,6 +199,7 @@ class ReviewReport(graphene.Mutation):
             if not is_safe:
                 reported_comment.is_banned = True
                 reported_comment.save()
+                send_content_ban_mail(reported_comment.author, "comment", reported_comment.text, reported_comment.id)
             for report in ReportComment.objects.filter(reported_comment_id=reported_id, is_reviewed=False):
                 report.is_reviewed = True
                 report.save()
