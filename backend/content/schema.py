@@ -91,7 +91,8 @@ class Query(graphene.ObjectType):
             result = result.order_by(order_by)
         has_next_page = count is not None and (start + count) < result.count()
         if count and not has_next_page:
-            result = result[result.count()-count:]
+            start_index = max(0, result.count() - count)
+            result = result[start_index:]
         elif count and len(result) > count :
             result = result[start:start+count]
         return {"publications": result, "has_next_page": has_next_page}
