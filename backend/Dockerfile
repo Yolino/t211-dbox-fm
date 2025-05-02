@@ -1,4 +1,4 @@
-FROM slyven/dbox:backend-0.5.1
+FROM slyven/dbox:backend-0.5.2
 
 COPY settings.py /app/backend/settings.py
 COPY entrypoint.sh /docker-entrypoint.d/entrypoint.sh
