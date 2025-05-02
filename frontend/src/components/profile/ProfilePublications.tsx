@@ -22,13 +22,11 @@ const ProfilePublications = ({ username, defaultExpandedTile, onPublicationClick
     defaultExpandedTile || { tileId: null, tileType: null }
   );
   useEffect(() => {
-    if (defaultExpandedTile) {
+    if (defaultExpandedTile?.tileId && (expandedTile?.tileId !== defaultExpandedTile.tileId || expandedTile?.tileType !== defaultExpandedTile.tileType)) {
       setExpandedTile(defaultExpandedTile);
     }
-  }, [defaultExpandedTile])
+  }, [defaultExpandedTile]);
   const [message, setMessage] = useState({
-    tileId: NaN,
-    tileType: null,
     isError: false,
     text: "",
   });
@@ -52,7 +50,7 @@ const ProfilePublications = ({ username, defaultExpandedTile, onPublicationClick
 
   return (
     <div>
-    {message.text && <Alert type={message.isError ? "error" : "success"} text={message.text} onClose={() => { setMessage({tileId: NaN, tileType: null, isError: false, text: ""}) }} />}
+    {message.text && <Alert type={message.isError ? "error" : "success"} text={message.text} onClose={() => { setMessage({isError: false, text: ""}) }} />}
     <div className="text-center">
       <div className="flex justify-center items-center text-white space-x-4">
         <h1 className="text-3xl font-bold text-white cursor-default">User Profile {profile?.user?.username ? ` - ${profile.user.username}` : username ? ` - ${username}` : ""}</h1>
@@ -76,7 +74,7 @@ const ProfilePublications = ({ username, defaultExpandedTile, onPublicationClick
             publication={p}
             index={i}
             isSelf={profile.isSelf}
-            onEdit={() => { handleExpandTile(p.id, "publication") }}
+            onEdit={() => { handleExpandTile(p.id, "publication"); }}
             onCloseTile={() => { handleExpandTile(null) }}
             isExpanded={profile.isSelf && p.id === expandedTile?.tileId && expandedTile?.tileType === "publication"}
             message={(i === message.tileId && message.tileType === "publication") ? {isError: message.isError, text: message.text} : null}

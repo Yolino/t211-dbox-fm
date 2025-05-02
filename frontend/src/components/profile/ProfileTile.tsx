@@ -21,7 +21,7 @@ interface ProfileTileProps {
   publication: Publication;
   index: number;
   isSelf: boolean;
-  onEdit: () => void;
+  onEdit: (event) => void;
   isExpanded: boolean;
   onDeletePublication: () => void;
   onPlayAudio: () => void;
@@ -77,8 +77,6 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
     onCompleted: (data) => {
       if (data.updatePublication.success) {
         onSetMessage({
-          tileId: index,
-          tileType: "publication",
           isError: false,
           text: "Publication successfully updated",
         });
@@ -87,8 +85,6 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
     },
     onError: (err) => {
       onSetMessage({
-        tileId: index,
-        tileType: "publication",
         isError: true,
         text: err.message,
       });
@@ -110,8 +106,6 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
     onCompleted: (data) => {
       if (data.deletePublication.success) {
         onSetMessage({
-          tileId: NaN,
-          tileType: null,
           isError: false,
           text: "",
         });
@@ -122,8 +116,6 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
     },
     onError: (err) => {
       onSetMessage({
-        tileId: index,
-        tileType: "publication",
         isError: true,
         text: err.message,
       });

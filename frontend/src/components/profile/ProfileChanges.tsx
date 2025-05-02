@@ -62,33 +62,36 @@ const ProfileChanges = ({ profile }: ProfileChangesProps) => {
       </div>
 		  <div className='mb-5 bg-gray-200 text-gray-800 p-3 rounded-md'>
         {editField === "username" ? (
-          <form onSubmit={handleSubmitUsername} className='flex justify-between gap-5'>
-            <div className="flex flex-col w-full lg:flex-row justify-between gap-2">
-              <input className='mt-0 w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500'
-				        type='text' 
-				        defaultValue={profile?.user?.username}
-				        name='new_username'
-				        onChange={(event) => setNewUsername(event.target.value)}
-				        required
-              />
-				      <input className='mt-0 w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500'
-				        type='password' 
-				        placeholder='Enter password' 
-			    	    name='password' 
-				        value={passwordUsername} 
-				        onChange={(event) => setPasswordUsername(event.target.value)} 
-				        required
-              />
-              {!usernameLoading ?
-				        <button type='submit' className='w-1/5 px-6 py-2 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 transition-colors duration-200'>Submit</button>
-              : (
-				        <div className='text-white'>
-				          <LoadingIcon />
-				        </div>
-              )}
-            </div>
-            {profile?.isSelf && <EditIcon onClick={() => { editField === "username" ? setEditField("") : setEditField("username") }} />}
-          </form>
+          <div>
+            <h2 className="mb-2 text-gray-800 text-xl font-bold">Change your username</h2>
+            <form onSubmit={handleSubmitUsername} className='flex justify-between gap-5'>
+              <div className="flex flex-col w-full lg:flex-row justify-between gap-2">
+                <input className='mt-0 w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500'
+                  type='text' 
+                  defaultValue={profile?.user?.username}
+                  name='new_username'
+                  onChange={(event) => setNewUsername(event.target.value)}
+                  required
+                />
+                <input className='mt-0 w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500'
+                  type='password' 
+                  placeholder='Enter password' 
+                  name='password' 
+                  value={passwordUsername} 
+                  onChange={(event) => setPasswordUsername(event.target.value)} 
+                  required
+                />
+                {!usernameLoading ?
+                  <button type='submit' className='w-1/5 px-6 py-2 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 transition-colors duration-200'>Submit</button>
+                : (
+                  <div className='text-white'>
+                    <LoadingIcon />
+                  </div>
+                )}
+              </div>
+              {profile?.isSelf && <EditIcon onClick={() => { editField === "username" ? setEditField("") : setEditField("username") }} />}
+            </form>
+          </div>
         ) : (
           <div className="flex justify-between">
             <div className="flex gap-5">
@@ -111,42 +114,45 @@ const ProfileChanges = ({ profile }: ProfileChangesProps) => {
       {profile?.isSelf && (
         <div className="mb-5 bg-gray-200 text-gray-800 p-3 rounded-md">
           {editField === "password" ? (
-            <form onSubmit={handleSubmitPassword} className='flex justify-between gap-5'>
-				      <input className='mt-0 w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500'
-				        type='password'
-				        placeholder="New password"
-				        name='new_password'
-                value={newPassword}
-				        onChange={(event) => setNewPassword(event.target.value)}
-				        required
-              />
-              <input className='mt-0 w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500'
-				        type='password' 
-				        placeholder="Confirm new password"
-				        name='password'
-				        value={passwordVerification} 
-				        onChange={(event) => setPasswordVerification(event.target.value)}
-				        required
-              />
-				      <input className='mt-0 w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500' 
-				        type='password' 
-				        placeholder='Current password' 
-				        name='password' 
-				        value={passwordPassword} 
-				        onChange={(event) => setPasswordPassword(event.target.value)}
-				        required
-              />
-				      <div>
-					      {!passwordLoading ?
-					        <button type='submit' className='px-6 py-2 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 transition-colors duration-200'>Submit</button>
-                : (
-					        <div className='text-white'>
-					          <LoadingIcon />
-					        </div>
-					      )}
-				      </div>
-              {profile?.isSelf && <EditIcon onClick={() => { editField === "password" ? setEditField("") : setEditField("password") }} styleClass="w-1/5" />}
-			      </form>
+            <div>
+              <h2 className="mb-2 text-gray-800 text-xl font-bold">Change your password</h2>
+              <form onSubmit={handleSubmitPassword} className='flex justify-between gap-5'>
+                <input className='mt-0 w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500' 
+                  type='password' 
+                  placeholder='Current password' 
+                  name='password' 
+                  value={passwordPassword} 
+                  onChange={(event) => setPasswordPassword(event.target.value)}
+                  required
+                />
+                <input className='mt-0 w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500'
+                  type='password'
+                  placeholder="New password"
+                  name='new_password'
+                  value={newPassword}
+                  onChange={(event) => setNewPassword(event.target.value)}
+                  required
+                />
+                <input className='mt-0 w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500'
+                  type='password' 
+                  placeholder="Confirm new password"
+                  name='password'
+                  value={passwordVerification} 
+                  onChange={(event) => setPasswordVerification(event.target.value)}
+                  required
+                />
+                <div>
+                  {!passwordLoading ?
+                    <button type='submit' className='px-6 py-2 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 transition-colors duration-200'>Submit</button>
+                  : (
+                    <div className='text-white'>
+                      <LoadingIcon />
+                    </div>
+                  )}
+                </div>
+                {profile?.isSelf && <EditIcon onClick={() => { editField === "password" ? setEditField("") : setEditField("password") }} styleClass="w-1/5" />}
+              </form>
+            </div>
           ) : (
             <div className="flex justify-between">
               <p>Password</p>

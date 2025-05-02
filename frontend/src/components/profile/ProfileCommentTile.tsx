@@ -53,8 +53,6 @@ const ProfileCommentTile = ({ comment, index, isSelf, onEdit, onCloseTile, isExp
     onCompleted: (data) => {
       if (data.updateComment.success) {
         onSetMessage({
-          tileId: index,
-          tileType: "comment",
           isError: false,
           text: "Comment successfully updated",
         });
@@ -64,8 +62,6 @@ const ProfileCommentTile = ({ comment, index, isSelf, onEdit, onCloseTile, isExp
     },
     onError: (err) => {
       onSetMessage({
-        tileId: index,
-        tileType: "comment",
         isError: true,
         text: err.message,
       });
@@ -73,6 +69,13 @@ const ProfileCommentTile = ({ comment, index, isSelf, onEdit, onCloseTile, isExp
   });
   const handleEditComment = (event: React.FormEvent) => {
     event.preventDefault();
+    if (!commentText) {
+      onSetMessage({
+        isError: true,
+        text: "Comment cannot be empty",
+      });
+      return;
+    }
     updateComment({
       variables: {
         commentId: +comment.id,
