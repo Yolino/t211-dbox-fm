@@ -9,6 +9,7 @@ import DELETE_SCHEDULING_MUTATION from "../../graphql/deleteSchedulingMutation.t
 import FmSchedule from "./FmSchedule.tsx";
 import FmUpdate from "./FmUpdate.tsx";
 import FmTimeForm from "./FmTimeForm.tsx";
+import Alert from "../Alert.tsx";
 
 const FmMain = () => {
   const { privileges } = usePrivileges();
@@ -60,7 +61,7 @@ const FmMain = () => {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      {errorMessage && <div className="mb-4 text-center text-sm text-red-600">{errorMessage}</div>}
+      {errorMessage && <Alert type="error" text={errorMessage} onClose={() => { setErrorMessage(""); }} />}
       <div className="flex justify-center items-center gap-2">
         <FmSchedule date={date} loading={loading} error={error} schedule={schedule} setDate={setDate} incrementDate={incrementDate} handleDrop={handleDrop} handleDeleteScheduling={privileges?.isModerator ? handleDeleteScheduling : null} />
         {displayTimeForm && <FmTimeForm time={displayTimeForm} handleFormSubmit={handleFormSubmit} handleFormClose={() => { setDisplayTimeForm(null) }} />}

@@ -6,6 +6,7 @@ const PROFILE_QUERY = gql`
       user {
         username
         email
+        isActive
       }
       publications {
         id

@@ -11,14 +11,13 @@ interface TileGroupProps {
   orderBy: string;
   onPlayAudio: () => void;
   onTileClick: () => void;
-  onError: () => void;
+  onError: () => void; 
 }
 
 const TileGroup = ({ groupTitle="Default", orderBy="-created_at", onPlayAudio, onTileClick, onError }: TileGroupProps) => {
   const [start, setStart] = useState(0);
   const [fetchCount, setFetchCount] = useState(3);
   const [displayCount, setDisplayCount] = useState(3);
-  
   const updatePublications = (next: boolean) => {
     (next) ? setStart(start + displayCount) : setStart(Math.max(0, start - displayCount));
   };
@@ -53,10 +52,10 @@ const TileGroup = ({ groupTitle="Default", orderBy="-created_at", onPlayAudio, o
       refetch({ orderBy, start, count: fetchCount });
     }
   }, [fetchCount, pubs.length, loading, orderBy, start, refetch, hasNextPage]);
-  
+
   const onTileVote = () => {
     refetch();
-  }; 
+  };
 
   return (
     <div id={orderBy} className="my-4">
@@ -95,7 +94,7 @@ const TileGroup = ({ groupTitle="Default", orderBy="-created_at", onPlayAudio, o
                   onTileClick={onTileClick}
                   onTileVote={onTileVote}
                   onError={onError}
-              />
+                />
               ))}
             </div>
             <div className="flex items-center justify-center">

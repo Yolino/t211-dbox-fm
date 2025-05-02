@@ -5,6 +5,7 @@ from django.db import models
 from .models import ReportUser, ReportPublication, ReportComment
 from django.contrib.auth.models import User
 from content.models import Publication, Comment
+from .utils import send_user_ban_mail, send_content_ban_mail
 
 class ReportUserType(DjangoObjectType):
     class Meta:
@@ -56,6 +57,7 @@ class ReportedContentType(graphene.ObjectType):
     users = graphene.List(ReportedUserType)
     publications = graphene.List(ReportedPublicationType)
     comments = graphene.List(ReportedCommentType)
+    total_count = graphene.Int()
 
 class Query(graphene.ObjectType):
     reporters = graphene.List(ReportUnion, reported_id=graphene.Int(required=True), content_type=graphene.String(required=True))
@@ -82,6 +84,7 @@ class Query(graphene.ObjectType):
         result["users"] = User.objects.filter(reports_received__is_reviewed=False).annotate(report_count=models.Count("reports_received", filter=models.Q(reports_received__is_reviewed=False))).distinct()
         result["publications"] = Publication.objects.filter(reportpublication__is_reviewed=False).annotate(report_count=models.Count("reportpublication", filter=models.Q(reportpublication__is_reviewed=False))).distinct()
         result["comments"] = Comment.objects.filter(reportcomment__is_reviewed=False).annotate(report_count=models.Count("reportcomment", filter=models.Q(reportcomment__is_reviewed=False))).distinct()
+        result["total_count"] = len(result["users"]) + len(result["publications"]) + len(result["comments"])
         return result
 
     def resolve_banned_content(root, info):
@@ -168,6 +171,7 @@ class ReviewReport(graphene.Mutation):
             if not is_safe:
                 reported_user.is_active = False
                 reported_user.save()
+                send_user_ban_mail(reported_user)
             for report in ReportUser.objects.filter(reported_user_id=reported_id, is_reviewed=False):
                 report.is_reviewed = True
                 report.save()
@@ -181,6 +185,7 @@ class ReviewReport(graphene.Mutation):
             if not is_safe:
                 reported_publication.is_banned = True
                 reported_publication.save()
+                send_content_ban_mail(reported_publication.author, "publication", reported_publication.title, reported_publication.id)
             for report in ReportPublication.objects.filter(reported_publication_id=reported_id, is_reviewed=False):
                 report.is_reviewed = True
                 report.save()
@@ -194,6 +199,7 @@ class ReviewReport(graphene.Mutation):
             if not is_safe:
                 reported_comment.is_banned = True
                 reported_comment.save()
+                send_content_ban_mail(reported_comment.author, "comment", reported_comment.text, reported_comment.id)
             for report in ReportComment.objects.filter(reported_comment_id=reported_id, is_reviewed=False):
                 report.is_reviewed = True
                 report.save()

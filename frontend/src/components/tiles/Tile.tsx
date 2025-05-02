@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "@apollo/client";
+import { usePrivileges } from "../../context/PrivilegesContext.tsx";
 import CREATE_VOTE_MUTATION from "../../graphql/createVoteMutation.ts";
 import GET_MEDIA from "../../context/mediaUrl.ts";
 import UPDATE_VOTE_MUTATION from "../../graphql/updateVoteMutation.ts";
@@ -34,10 +35,11 @@ interface TileProps {
 
 const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote, onError }: TileProps) => {
   const navigate = useNavigate();
+  const { privileges } = usePrivileges();
   const [createVote] = useMutation(CREATE_VOTE_MUTATION);
   const [updateVote] = useMutation(UPDATE_VOTE_MUTATION);
   const [deleteVote] = useMutation(DELETE_VOTE_MUTATION);
-  
+
   const handleCreateVote = (type, e) => {
     onError("");
     createVote({
@@ -87,6 +89,10 @@ const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote, onErro
   
   const handleUpvote = (e) => {
     e.stopPropagation();
+    if (!privileges?.isLoggedIn) {
+      onError("You must be logged in to submit votes");
+      return;
+    }
     if (publication.visitorVote > 0) {
       handleDeleteVote(e);
     } else if (publication.visitorVote < 0) {
@@ -98,6 +104,10 @@ const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote, onErro
   
   const handleDownvote = (e) => {
     e.stopPropagation();
+    if (!privileges?.isLoggedIn) {
+      onError("You must be logged in to submit votes");
+      return;
+    }
     if (publication.visitorVote > 0) {
       handleUpdateVote(-1, e);
     } else if (publication.visitorVote < 0) {
@@ -138,18 +148,24 @@ const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote, onErro
 
       {/* Tile content */}
       <div className={`${publication.isBanned ? "text-red-800" :  "text-gray-800"} p-2 sm:p-3 md:p-4`}>
-        <p className="font-bold text-sm sm:text-base md:text-lg truncate cursor-default">{publication.title}</p>
-        <p>
-          <span
-            className={`text-xs sm:text-sm ${!publication.author.isActive && "bg-red-200 p-1 rounded-md"} truncate cursor-pointer hover:underline`}
-            onClick={(e) => { 
-              e.stopPropagation();
-              navigate(`/profile/${publication.author.username}`);
-            }}
-          >
-            {publication.author.username}
-          </span>
-        </p>
+        <div className="flex justify-between">
+          <p className="font-bold text-sm sm:text-base md:text-lg truncate cursor-default">{publication.title}</p>
+          {publication.isBanned && <span className="ml-1 px-2 py-1 bg-red-300 text-red-800 text-xs font-medium rounded">Banned</span>}
+        </div>
+        <div className="flex justify-between">
+          <p>
+            <span
+              className={`text-xs sm:text-sm ${!publication.author.isActive && "bg-red-200 p-1 rounded-md"} truncate cursor-pointer hover:underline`}
+              onClick={(e) => { 
+                e.stopPropagation();
+                navigate(`/profile/${publication.author.username}`);
+              }}
+            >
+              {publication.author.username}
+            </span>
+          </p>
+          {!publication.author.isActive && <span className="ml-1 px-2 py-1 bg-red-300 text-red-800 text-xs font-medium rounded">Banned</span>}
+        </div>
         <div className="flex items-center justify-between mt-1 sm:mt-2">
           <p className="text-xs cursor-default">{publication.voteCount} {+publication.voteCount === 1 ? "vote" : "votes"}</p>
 

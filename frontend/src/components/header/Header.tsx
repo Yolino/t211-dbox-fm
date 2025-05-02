@@ -4,10 +4,16 @@ import SearchBar from "./SearchBar.tsx";
 import RedirectButton from "./RedirectButton.tsx";
 import HeaderAccount from "./HeaderAccount.tsx";
 import HeaderProfile from "./HeaderProfile.tsx";
+import Badge from "../Badge.tsx";
 import Dbox from "../../svg/dbox-logo-white.svg"
 import ShowMoreIcon from "../../svg/ShowMoreIcon.tsx";
 
-const Header = ({ onSwitchPage }) => {
+interface HeaderProps {
+  onSwitchPage: (page: string) => void;
+  moderationCount: number;
+}
+
+const Header = ({ onSwitchPage, moderationCount }: HeaderProps) => {
   const { privileges } = usePrivileges();
   const [extended, setExtended] = useState(false);
 
@@ -48,10 +54,15 @@ const Header = ({ onSwitchPage }) => {
             <RedirectButton onSwitchPage={onSwitchPage} page="/publish" text="Publish" />
           </div>
         )}
-        
         {privileges?.isModerator && (
           <div className="w-full sm:w-auto">
-            <RedirectButton onSwitchPage={onSwitchPage} page="/moderation" text="Moderation" />
+            {+moderationCount ? (
+              <Badge count={moderationCount}>
+                <RedirectButton onSwitchPage={onSwitchPage} page="/moderation" text="Moderation" />
+              </Badge>
+            ) : (
+              <RedirectButton onSwitchPage={onSwitchPage} page="/moderation" text="Moderation" />
+            )}
           </div>
         )}
         <HeaderAccount onSwitchPage={onSwitchPage} />

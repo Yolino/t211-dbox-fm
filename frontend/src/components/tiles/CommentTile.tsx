@@ -40,7 +40,7 @@ const CommentTile = ({ comment, level, onReply, onEnableCommentZone, enableComme
   return (
     <div key={comment.id} style={{ marginLeft: `${(level * 20) + 22}px` }} className={`${comment.isBanned ? "bg-red-200 text-red-800" : "text-gray-800"} rounded-md p-1 m-1`}>
       <div className="flex items-center justify-between">
-        <p className="font-medium">{comment.author.username}</p>
+        <p className="font-medium"><span className="cursor-pointer" onClick={() => { navigate(`/profile/${comment.author.username}`); }}>{comment.author.username}</span></p>
         <p className="text-xs">{formattedDateComment}</p>
       </div>
       <p className="text-sm mt-1">{comment.text}</p>

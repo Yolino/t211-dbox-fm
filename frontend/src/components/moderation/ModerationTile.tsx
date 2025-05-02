@@ -13,14 +13,15 @@ interface ModerationTileProps {
   banned: boolean;
   onExpandTile: () => void;
   onDecision: () => void;
+  onSuccess: (message: string) => void;
+  onError: (message: string) => void;
   onTileClick: () => void;
 }
 
-const ModerationTile = ({ reportedId, reportType, title, reportCount, banned=false, onDecision, onTileClick }: ModerationTileProps) => {
-  const [errorMessage, setErrorMessage] = useState("");
+const ModerationTile = ({ reportedId, reportType, title, reportCount, banned=false, onDecision, onSuccess, onError, onTileClick }: ModerationTileProps) => {
   const [reviewReport, { loading: reviewLoading }] = useMutation(REVIEW_REPORT_MUTATION);
   const handleReview = (isSafe: boolean) => {
-    setErrorMessage("");
+    onError("");
     reviewReport({
       variables: {
         reportedId: +reportedId,
@@ -28,26 +29,32 @@ const ModerationTile = ({ reportedId, reportType, title, reportCount, banned=fal
         isSafe
       },
       onCompleted: (data) => {
-        if (data.reviewReport.success) onDecision();
+        if (data.reviewReport.success) {
+          onDecision();
+          onSuccess(`You have successfully ${isSafe ? "reviewed" : "banned"} this ${reportType}`);
+        }
       },
       onError: (err) => {
-        setErrorMessage(err.message);
+        onError(err.message);
       },
     });
   };
   const [unbanContent, { loading: unbanLoading }] = useMutation(UNBAN_CONTENT_MUTATION);
   const handleUnban = () => {
-    setErrorMessage("");
+    onError("");
     unbanContent({
       variables: {
         bannedId: +reportedId,
         contentType: reportType,
       },
       onCompleted: (data) => {
-        if (data.unbanContent.success) onDecision();
+        if (data.unbanContent.success) {
+          onDecision();
+          onSuccess(`You have successfully unbanned this ${reportType}`)
+        }
       },
       onError: (err) => {
-        setErrorMessage(err.message);
+        onError(err.message);
       },
     });
   };
@@ -89,7 +96,7 @@ const ModerationTile = ({ reportedId, reportType, title, reportCount, banned=fal
               className={`px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-md transition-colors flex items-center gap-1 ${reviewLoading ? "opacity-50" : ""}`}
             >
               {reviewLoading ? (
-                "Approving..."
+                "Processing..."
               ) : (
                 <>
                   <ApproveIcon />
@@ -103,7 +110,7 @@ const ModerationTile = ({ reportedId, reportType, title, reportCount, banned=fal
               className={`px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white rounded-md transition-colors flex items-center gap-1 ${reviewLoading ? "opacity-50" : ""}`}
             >
               {reviewLoading ? (
-                "Banning..."
+                "Processing..."
               ) : (
                 <>
                   <CloseIcon />
@@ -114,7 +121,6 @@ const ModerationTile = ({ reportedId, reportType, title, reportCount, banned=fal
           </div>
         )}
       </div>
-      {errorMessage && <p className="text-red-600 text-center">{errorMessage}</p>}
     </div>
   );
 };

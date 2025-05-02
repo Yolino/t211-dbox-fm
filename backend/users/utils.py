@@ -47,7 +47,7 @@ def send_verification_email(user, request):
     )
     try:
         send_mail(
-            subject="Verification to your email address",
+            subject="[DBOX] Verification to your email address",
             message=f"Your verification link: {verify_url}\nYou have 5 minutes to use it",
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[user.email],

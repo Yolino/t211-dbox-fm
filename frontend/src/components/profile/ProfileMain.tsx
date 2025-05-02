@@ -5,7 +5,12 @@ import ProfilePublications from "./ProfilePublications.tsx";
 import TileExpanded from "../tiles/TileExpanded.tsx";
 import AudioPlayer from "../AudioPlayer.tsx";
 
-const ProfileMain = ({ username }) => {
+interface ProfileMainProps {
+  username: string;
+  onRefreshBadge: () => void;
+}
+
+const ProfileMain = ({ username, onRefreshBadge }: ProfileMainProps) => {
   const location = useLocation();
   const [shownPublication, setShownPublication] = useState(location.state?.expanded || null);
   const [currentAudio, setCurrentAudio] = useState(null);
@@ -34,6 +39,7 @@ const ProfileMain = ({ username }) => {
           {shownPublication && <TileExpanded
             tileId={shownPublication}
             showEditButton={false}
+            onRefreshBadge={onRefreshBadge}
           />}
         </div>
         <AudioPlayer audio={currentAudio} />
