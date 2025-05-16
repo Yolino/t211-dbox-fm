@@ -76,13 +76,6 @@ class Vote(models.Model):
     def __str__(self):
         return f"{self.publication} : {self.type} - {self.user}"
 
-class Follower(models.Model):
-    follower = models.ForeignKey(User, related_name="follower", on_delete=models.CASCADE)
-    following = models.ForeignKey(User, related_name="following", on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f"{self.following} followed by {self.follower}"
-
 class Comment(models.Model):
     publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
     author = models.ForeignKey(User, on_delete=models.PROTECT)
