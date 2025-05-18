@@ -11,7 +11,6 @@ import TileExpanded from "../tiles/TileExpanded.tsx";
 import ProfilePublications from "../profile/ProfilePublications.tsx";
 import AudioPlayer from "../AudioPlayer.tsx";
 import Alert from "../Alert.tsx";
-import LoadingIcon from "../../svg/LoadingIcon.tsx";
 
 interface ModerationMainProps {
   onRefreshBadge: () => void;
@@ -28,10 +27,10 @@ const ModerationMain = ({ onRefreshBadge }: ModerationMainProps) => {
   const [successMessage, setSuccessMessage] = useState("");
   const [panelSwitch, setPanelSwitch] = useState(false);
   const notAllowed = !privileges?.isModerator;
-  const { data: reportedData, error: reportedError, refetch: reportedRefetch } = useQuery(REPORTED_CONTENT_QUERY, {
+  const { data: reportedData, refetch: reportedRefetch } = useQuery(REPORTED_CONTENT_QUERY, {
     skip: notAllowed,
   });
-  const { data: bannedData, error: bannedError, refetch: bannedRefetch } = useQuery(BANNED_CONTENT_QUERY, {
+  const { data: bannedData, refetch: bannedRefetch } = useQuery(BANNED_CONTENT_QUERY, {
     skip: notAllowed,
   });
   const onDecision = () => {

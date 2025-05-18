@@ -32,7 +32,7 @@ const PopupWrapper = ({ children, onClose=null, force=false, styleClass }: Popup
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isDisabled]);
+  }, [isDisabled, force, onClose]);
 
   return (
     <div className={`${!force && isDisabled ? "" : "fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"} ${styleClass}`}>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useMutation } from "@apollo/client";
 import REVIEW_REPORT_MUTATION from "../../graphql/reviewReportMutation.ts";
 import UNBAN_CONTENT_MUTATION from "../../graphql/unbanContentMutation.ts";
