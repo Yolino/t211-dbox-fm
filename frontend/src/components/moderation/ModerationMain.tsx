@@ -4,6 +4,7 @@ import { useQuery } from "@apollo/client";
 import { usePrivileges } from "../../context/PrivilegesContext.tsx";
 import REPORTED_CONTENT_QUERY from "../../graphql/reportedContentQuery.ts";
 import BANNED_CONTENT_QUERY from "../../graphql/bannedContentQuery.ts";
+import PopupWrapper from "../PopupWrapper.tsx";
 import MainBlock from "../MainBlock.tsx";
 import ModerationTile from "./ModerationTile.tsx";
 import TileExpanded from "../tiles/TileExpanded.tsx";
@@ -47,10 +48,10 @@ const ModerationMain = ({ onRefreshBadge }: ModerationMainProps) => {
   if (notAllowed) return null;
 
   return (
-    <div className="flex flex-col lg:flex-row gap-10 h-[calc(80vh)] min-h-96">
+    <div className="flex flex-col lg:flex-row gap-10 h-[calc(80vh)]">
       {successMessage && <Alert type="success" text={successMessage} onClose={() => { setSuccessMessage(""); }} />}
       {errorMessage && <Alert type="error" text={errorMessage} onClose={() => { setErrorMessage(""); }} />}
-      <MainBlock styleClass="w-full lg:w-2/3 h-96 lg:h-full overflow-y-auto">
+      <MainBlock styleClass="w-full h-full overflow-y-auto">
         <div className="mb-6 flex gap-5">
           <h2 className="text-2xl font-bold text-white mb-4">Select View</h2>
           <div className="inline-flex rounded-md shadow-sm">
@@ -167,27 +168,42 @@ const ModerationMain = ({ onRefreshBadge }: ModerationMainProps) => {
           )}
         </div>
       </MainBlock>
-      <MainBlock styleClass="w-full lg:w-1/3 h-96 lg:h-full overflow-y-auto">
-        <div className="h-full overflow-y-auto">
-          {expandedTile?.tileType === "user" ? (
-            <ProfilePublications
-              username={expandedTile.tileId}
-              onPublicationClick={(tileId) => { setExpandedTile({tileType: "publication", tileId}) }}
-              isModerationContext={true}
-            />
-          ) : (
-            <div>
-              <TileExpanded
-                tileId={expandedTile.tileId}
-                showEditButton={false}
+      {expandedTile?.tileType === "user" && (
+        <PopupWrapper
+          onClose={() => { setExpandedTile({tileType: null, tileId: null}); }}
+          styleClass="lg:max-h-[calc(80vh)]"
+        >
+          <MainBlock styleClass="w-full h-full max-h-[calc(80vh)]">
+            <div className="h-full overflow-y-auto">
+              <ProfilePublications
+                username={expandedTile.tileId}
+                onPublicationClick={(tileId) => { setExpandedTile({tileType: "publication", tileId}) }}
                 isModerationContext={true}
-                setExpandedAuthor={(username) => { setExpandedTile({tileType: "user", tileId: username}) }}
               />
-              <AudioPlayer audio={expandedTile.tileId} />
             </div>
-          )}
-        </div>
-      </MainBlock>
+          </MainBlock>
+        </PopupWrapper>
+      )}
+      {expandedTile?.tileType === "publication" && (
+        <PopupWrapper
+          onClose={() => { setExpandedTile({tileType: null, tileId: null}); }}
+          styleClass="lg:max-h-[calc(80vh)]"
+        >
+          <MainBlock styleClass="w-full h-full max-h-[calc(80vh)] overflow-y-auto">
+            <div className="h-full">
+              <div>
+                <TileExpanded
+                  tileId={expandedTile.tileId}
+                  showEditButton={false}
+                  isModerationContext={true}
+                  setExpandedAuthor={(username) => { setExpandedTile({tileType: "user", tileId: username}) }}
+                />
+                <AudioPlayer audio={expandedTile.tileId} />
+              </div>
+            </div>
+          </MainBlock>
+        </PopupWrapper>
+      )}
     </div>
   );
 };

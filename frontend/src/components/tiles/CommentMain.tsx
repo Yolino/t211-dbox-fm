@@ -125,7 +125,7 @@ const CommentMain = ({ publicationId, onSubmit, onError, onReportComment }: Comm
   };
 
   return (
-    <div>
+    <>
       <h3 className="text-lg font-semibold text-black mb-4">Comments</h3>
       <div className="flex gap-1 mb-2">
         <textarea
@@ -142,11 +142,13 @@ const CommentMain = ({ publicationId, onSubmit, onError, onReportComment }: Comm
           Comment
         </button>
       </div>
-      {commentTree.length > 0 ? (
-        renderComments(commentTree)) : (
-        <p className="text-gray-600 text-sm">No comments yet.</p>
-      )}
-    </div>
+      <div className="max-h-[calc(15vh)] lg:max-h-[calc(25vh)] overflow-y-auto">
+        {commentTree.length > 0 ? (
+          renderComments(commentTree)) : (
+          <p className="text-gray-600 text-sm">No comments yet.</p>
+        )}
+      </div>
+    </>
   );
 };
 

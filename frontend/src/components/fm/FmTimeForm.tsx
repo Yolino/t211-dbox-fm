@@ -1,4 +1,5 @@
 import React from "react";
+import PopupWrapper from "../PopupWrapper.tsx";
 import CloseIcon from "../../svg/CloseIcon.tsx";
 
 const FmTimeForm = ({ time, handleFormSubmit, handleFormClose }) => {
@@ -12,7 +13,7 @@ const FmTimeForm = ({ time, handleFormSubmit, handleFormClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <PopupWrapper onClose={handleFormClose}>
       <form onSubmit={onSubmit} className="bg-white p-8 rounded-xl shadow-2xl w-96 relative items-center">
         <button onClick={handleFormClose} className="absolute top-4 right-4">
           <CloseIcon />
@@ -24,7 +25,7 @@ const FmTimeForm = ({ time, handleFormSubmit, handleFormClose }) => {
         </div>
         <button type="submit" className="w-full mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200">Submit</button>
       </form>
-    </div>
+    </PopupWrapper>
   );
 }
 

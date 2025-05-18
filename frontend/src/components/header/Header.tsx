@@ -29,14 +29,17 @@ const Header = ({ onSwitchPage, moderationCount }: HeaderProps) => {
   }, []);
 
   return (
-    <header className="sm:flex justify-between items-center p-4 bg-gray-800 text-white hover:cursor-pointer">
-      <div className="flex justify-between items-center">
+    <header className="sm:flex justify-between items-center p-1 md:p-2 lg:p-4 bg-gray-800 text-white hover:cursor-pointer">
+      <div className="flex justify-between items-center w-full m-1 lg:m-2">
         <div id="logoDbox" onClick={() => { onSwitchPage("/"); }}>
           <img className="h-20" src={Dbox} alt="Dbox logo" />
         </div>
+        <div className="flex-grow mx-1 lg:mx-2 w-full">
+          <SearchBar />
+        </div>
         <div className="flex gap-4 sm:hidden">
           <button
-            className={`${extended ? "-rotate-90" : "rotate-90"} bg-gray-100 p-2 text-gray-800 rounded-md`}
+            className={`${extended ? "-rotate-90" : "rotate-90"} bg-gray-100 m-2 p-2 text-gray-800 rounded-md`}
             onClick={() => { setExtended(!extended) }}
           >
             <ShowMoreIcon />
@@ -44,7 +47,6 @@ const Header = ({ onSwitchPage, moderationCount }: HeaderProps) => {
           {privileges?.isLoggedIn && <HeaderProfile onSwitchPage={onSwitchPage} />}
         </div>
       </div>
-      <SearchBar />
       <div className={`${extended ? "flex flex-col w-full" : "hidden"} sm:flex flex-col sm:flex-row sm:items-center gap-2 mt-2 sm:mt-0`}>
         <div className="w-full sm:w-auto">
           <RedirectButton onSwitchPage={onSwitchPage} page="/fm" text="DBox FM" />

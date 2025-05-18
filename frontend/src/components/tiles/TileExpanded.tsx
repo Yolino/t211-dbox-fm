@@ -8,6 +8,8 @@ import CommentMain from "./CommentMain.tsx";
 import Alert from "../Alert.tsx";
 import AudioIcon from "../../svg/AudioIcon.tsx";
 import LoadingIcon from "../../svg/LoadingIcon.tsx";
+import CloseIcon from "../../svg/CloseIcon.tsx";
+import ReportIcon from "../../svg/ReportIcon.tsx";
 
 interface TileExpandedProps {
   tileId: number;
@@ -15,9 +17,10 @@ interface TileExpandedProps {
   isModerationContext: boolean;
   setExpandedAuthor: (username: string) => void | null; // Used in moderation context to display the author without navigating
   onRefreshBadge: () => void;
+  onClose: () => void;
 }
 
-const TileExpanded = ({ tileId, showEditButton=true, isModerationContext=false, setExpandedAuthor=null, onRefreshBadge }: TileExpandedProps) => {
+const TileExpanded = ({ tileId, showEditButton=true, isModerationContext=false, setExpandedAuthor=null, onRefreshBadge, onClose }: TileExpandedProps) => {
   const navigate = useNavigate();
   const { privileges } = usePrivileges();
   const [errorMessage, setErrorMessage] = useState("");
@@ -111,13 +114,18 @@ const TileExpanded = ({ tileId, showEditButton=true, isModerationContext=false, 
         {errorMessage && <Alert type="error" text={errorMessage} onClose={() => { setErrorMessage("") }} />}
         {error && <Alert type="error" text={error.message} />}
         {successMessage && <Alert type="success" text={successMessage} onClose={() => { setSuccessMessage("") }} />}
+        <div className="flex justify-end mb-2">
+          <button onClick={onClose}>
+            <CloseIcon />
+          </button>
+        </div>
         <div className="flex gap-4">
         {(publication.cover) ? <img
-            className="w-32 h-32 object-cover rounded-lg shadow-md"
+            className="w-16 h-16 md:w-32 md:h-32 object-cover rounded-lg shadow-md"
             src={`http://localhost:8000${publication.cover}`}
             alt={`Cover for ${publication.title}`}
           /> : <div
-            className="w-32 h-32 object-cover rounded-lg shadow-md flex flex-shrink-0 items-center justify-center"
+            className="w-16 md:w-32 h-16 md:h-32 object-cover rounded-lg shadow-md flex flex-shrink-0 items-center justify-center"
           >
             <AudioIcon styleClass={`p-4 w-full h-full ${publication.isBanned ? "text-red-800" : "text-gray-800"}`} />
           </div>
@@ -130,10 +138,10 @@ const TileExpanded = ({ tileId, showEditButton=true, isModerationContext=false, 
             ) : (
               <button
                 onClick={handleReportPublication}
-                className="ml-1 px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded-lg shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition"
+                className="ml-1 p-1 sm:px-4 sm:py-2 bg-red-600 text-white text-sm font-semibold rounded-lg shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition"
                 title="Report this Publication"
               >
-                Report Publication
+                <ReportIcon />
               </button>
             )}
           </div>
@@ -153,17 +161,17 @@ const TileExpanded = ({ tileId, showEditButton=true, isModerationContext=false, 
             {publication?.author?.isActive ? (
               <button
                 onClick={handleReportAuthor}
-                className="px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded-lg shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition"
+                  className="p-1 sm:px-4 sm:py-2 bg-red-600 text-white text-sm font-semibold rounded-lg shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition"
                 title="Report the Author"
               >
-                Report Author
+                <ReportIcon />
               </button>
             ) : (
               <span className="ml-1 px-2 py-1 bg-red-300 text-red-800 text-xs font-medium rounded">Author banned</span>
             )}
           </div>
           <p className="text-sm mt-2 cursor-default">{publication?.description || "No description available."}</p>
-          <p className="text-xs mt-2 cursor-default">{publication?.viewCount} {+publication.viewCount === 1 ? "view" : "views"} / {publication.voteCount} {+publication.voteCount === 1 ? "vote" : "votes"}</p>
+          <p className="text-xs mt-2 cursor-default">{publication?.viewCount} {Math.abs(+publication.viewCount) === 1 ? "view" : "views"} / {publication.voteCount} {Math.abs(+publication.voteCount) === 1 ? "vote" : "votes"}</p>
           {publication.isOwner && showEditButton && <button
               onClick={() => { navigate(`/profile/${publication?.author?.username}`, {state: { expanded: tileId }}) }}
               className="text-sm font-bold mt-1 p-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200">

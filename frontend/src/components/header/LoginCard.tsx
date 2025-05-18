@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useMutation } from "@apollo/client";
 import LOGIN_MUTATION from "../../graphql/loginMutation.ts";
+import PopupWrapper from "../PopupWrapper.tsx";
 import CloseIcon from "../../svg/CloseIcon.tsx";
 import ProfileIcon from "../../svg/ProfileIcon.tsx";
 import PasswordIcon from "../../svg/PasswordIcon.tsx";
@@ -36,7 +37,7 @@ const LoginCard = ({ onClose, onLoginSuccess }: LoginCardProps) => {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <PopupWrapper onClose={onClose} force={true}>
       <div className="bg-white p-8 rounded-xl shadow-2xl w-96 relative">
         {/* Close button */}
         <button
@@ -123,7 +124,7 @@ const LoginCard = ({ onClose, onLoginSuccess }: LoginCardProps) => {
           </div>
         </form>
       </div>
-    </div>
+    </PopupWrapper>
   );
 };
 

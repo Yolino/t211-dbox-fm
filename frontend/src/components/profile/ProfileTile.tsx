@@ -31,7 +31,8 @@ interface ProfileTileProps {
 
 const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, isExpanded, onSetMessage, onProfileUpdate, onPlayAudio, onPublicationClick, isModerationContext=false }: ProfileTileProps) => {
   const [isDeleteCardOpen, setIsDeleteCardOpen] = useState(false);
-  const handleDeleteClick = () => {
+  const handleDeleteClick = (e) => {
+    e.stopPropagation();
     setIsDeleteCardOpen(true);
   };
   const handleCloseCard = () => {
@@ -128,14 +129,14 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
 
   return (
     <div
-      onClick={() => { onPublicationClick(publication.id); onPlayAudio(publication.id); }}
-      className={`p-4 bg-gray-200 rounded-lg shadow-sm group ${publication.isBanned ? "bg-red-200 hover:bg-red-300 text-red-800" : "bg-gray-200 hover:bg-gray-300 text-gray-800"}`}
+      onClick={() => { onCloseTile(); onPublicationClick(publication.id); onPlayAudio(publication.id); }}
+      className={`p-1 sm:p-4 bg-gray-200 rounded-lg shadow-sm group ${publication.isBanned ? "bg-red-200 hover:bg-red-300 text-red-800" : "bg-gray-200 hover:bg-gray-300 text-gray-800"}`}
     >
       <li key={index} className="relative flex items-center justify-between"> 
         <div className="flex items-center">
           {publication.cover && (
             <img
-              className="h-16 object-cover rounded mr-2"
+              className="h-12 sm:h-16 object-cover rounded mr-2"
               src={`http://localhost:8000${publication.cover}`}
               alt={`Cover for ${publication.title}`}
             />
@@ -145,7 +146,7 @@ const ProfileTile = ({ author, publication, index, isSelf, onEdit, onCloseTile, 
             {isExpanded && " - Edit publication"}
           </h3>
         </div>
-        <div className="flex items-center gap-3 ml-4">
+        <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-3 ml-4">
           {!isModerationContext && (
             <button
               className={`p-3 rounded-full shadow-lg transition-colors duration-200 ${publication.isBanned ? "hover:bg-red-400" : "hover:bg-gray-500"}`}

@@ -1,14 +1,14 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "@apollo/client";
 import LOGOUT_MUTATION from "../../graphql/logoutMutation.ts";
 
 const HeaderProfile = ({ onSwitchPage }) => {
   const navigate = useNavigate();
+  const menuRef = useRef(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [logoutUser] = useMutation(LOGOUT_MUTATION, {
     onCompleted: () => {
-      console.log("Déconnexion réussie !");
       window.location.reload(); // Recharger la page pour refléter la déconnexion
     },
     onError: (error) => {
@@ -19,9 +19,24 @@ const HeaderProfile = ({ onSwitchPage }) => {
     logoutUser();
     navigate("/");
   };
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsMenuOpen(false);
+      }
+    };
+    if (isMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isMenuOpen]);
 
   return (
-    <div className="relative">
+    <div className="relative" ref={menuRef}>
       {/* Bouton de profil */}
       <button
         onClick={() => setIsMenuOpen(!isMenuOpen)}

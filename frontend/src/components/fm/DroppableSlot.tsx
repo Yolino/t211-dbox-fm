@@ -17,7 +17,7 @@ const DroppableSlot = ({ label, timeSlot, schedule, handleDrop, handleDeleteSche
   
   return (
     <div className="p-2 border-t-2">
-      <div ref={drop} className={`flex items-start space-x-4 p-4 -mb-4 border-gray-200 ${isOver ? "bg-blue-300" : "bg-gray-800"} rounded-lg`}>
+      <div ref={drop} className={`flex items-start space-x-4 p-1 lg:p-4 -mb-4 border-gray-200 ${isOver ? "bg-blue-300" : "bg-gray-800"} rounded-lg`}>
         <div className="w-1/6 text-gray-200 font-semibold">{label}</div>
         <div className="flex-1 flex flex-col space-y-2">
           {schedule.length > 0 && (
@@ -28,7 +28,7 @@ const DroppableSlot = ({ label, timeSlot, schedule, handleDrop, handleDeleteSche
                   src={`http://localhost:8000/media/${s.publication.cover}`}
                   alt={`Cover for ${s.publication.title}`}
                 />}
-                <div className="flex-1 bg-gray-200 rounded-md p-2">
+                <div className="flex-1 bg-gray-200 rounded-md p-1 lg:p-2">
                   <p className="text-gray-800 cursor-default">{s.time.split("T")[1].split("+")[0]}</p>
                   <p onClick={() => { navigate(`/profile/${s.publication.author.username}`) }} className="text-gray-800 cursor-pointer hover:underline">{s.publication.author.username}</p>
                   <h4 className="text-gray-800 font-bold cursor-default">{s.publication.title}</h4>

@@ -52,7 +52,7 @@ const ProfilePublications = ({ username, defaultExpandedTile, onPublicationClick
     <div>
     {message.text && <Alert type={message.isError ? "error" : "success"} text={message.text} onClose={() => { setMessage({isError: false, text: ""}) }} />}
     <div className="text-center">
-      <div className="flex justify-center items-center text-white space-x-4">
+      <div className="flex flex-col sm:flex-row justify-center items-center text-white space-x-4">
         <h1 className="text-3xl font-bold text-white cursor-default">User Profile {profile?.user?.username ? ` - ${profile.user.username}` : username ? ` - ${username}` : ""}</h1>
         {error && <p className="text-center text-red-500 cursor-default">{error.message}</p>}
         {profile?.isSelf && (
@@ -74,7 +74,7 @@ const ProfilePublications = ({ username, defaultExpandedTile, onPublicationClick
             publication={p}
             index={i}
             isSelf={profile.isSelf}
-            onEdit={() => { handleExpandTile(p.id, "publication"); }}
+            onEdit={(e) => { e.stopPropagation(); handleExpandTile(p.id, "publication"); }}
             onCloseTile={() => { handleExpandTile(null) }}
             isExpanded={profile.isSelf && p.id === expandedTile?.tileId && expandedTile?.tileType === "publication"}
             message={(i === message.tileId && message.tileType === "publication") ? {isError: message.isError, text: message.text} : null}
