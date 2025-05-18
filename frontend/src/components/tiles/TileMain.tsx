@@ -25,7 +25,7 @@ const TileMain = ({ onRefreshBadge }) => {
 
   return (
     <div className="flex flex-col md:flex-row md:gap-2 max-h-[calc(80vh)]">
-      <MainBlock styleClass="overflow-y-hidden">
+      <MainBlock styleClass="overflow-y-auto">
         <div className="h-full flex sm:flex-col items-center justify-center m-1 sm:m-2 md:m-3 lg:m-4">
           {error && <Alert type="error" text={error} onClose={() => { setError("") }} />}
           {SORT_TYPES.map((orderBy) => {
