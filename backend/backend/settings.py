@@ -13,9 +13,6 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import os
 from .secrets import get_secret
-import logging
-import json
-from logging.handlers import SocketHandler
 
 WEBSITE_URL = "http://localhost:3000"
 
