@@ -139,10 +139,10 @@ class LogoutUser(graphene.Mutation):
     def mutate(root, info):
         if not info.context.user.is_authenticated:
             raise GraphQLError("You cannot log out if you are not authenticated")
-        user_data = info.context.user
-        logger.info(f"{user} (id {user.id}) just disconnected")
+        user = info.context.user
+        logger.info(f"{user} (id {user.id}) just disconnected from {get_client_ip(info.context)}")
         logout(info.context)
-        return LogoutUser(user=user_data)
+        return LogoutUser(user=user)
 
 class UpdateUsername(graphene.Mutation):
     class Arguments:
