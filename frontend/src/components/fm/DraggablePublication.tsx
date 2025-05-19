@@ -9,14 +9,14 @@ const DraggablePublication = ({ publication }) => {
       isDragging: monitor.isDragging(),
     }),
   });
-  
+
   return (
     <div
       ref={drag}
       className={`flex justify-center items-center gap-x-10 p-1 lg:p-2 mb-2 lg:mb-4 ${publication.isBanned ? "bg-red-200 hover:bg-red-300" : "bg-gray-100 hover:bg-gray-200"} text-white rounded-md cursor-pointer ${isDragging ? "opacity-50" : "opacity-100"}`}
     >
       {publication.cover && <img
-        className="h-full w-16 object-cover rounded-l-md"
+        className="h-12 w-12 sm:h-16 sm:w-16 object-cover rounded-md"
         src={`http://localhost:8000${publication.cover}`}
         alt={`Cover for ${publication.title}`}
       />}
