@@ -1,4 +1,5 @@
 import graphene
+import logging
 from graphene_django import DjangoObjectType
 from graphql import GraphQLError
 from django.db import models
@@ -6,6 +7,8 @@ from .models import ReportUser, ReportPublication, ReportComment
 from django.contrib.auth.models import User
 from content.models import Publication, Comment
 from .utils import send_user_ban_mail, send_content_ban_mail
+
+logger = logging.getLogger('django.moderation')
 
 class ReportUserType(DjangoObjectType):
     class Meta:
@@ -119,6 +122,7 @@ class CreateReport(graphene.Mutation):
             if ReportUser.objects.filter(reporter=reporter, reported_user=reported_user).exists():
                 return CreateReport(success=False)
             report_user = ReportUser(reporter=reporter, reported_user=reported_user)
+            logger.info(f"{reporter.username} has reported user : {reported_user}")
             report_user.save()
             return CreateReport(success=True)
 
@@ -132,6 +136,7 @@ class CreateReport(graphene.Mutation):
             if ReportPublication.objects.filter(reporter=reporter, reported_publication=reported_publication):
                 return CreateReport(success=False)
             report_publication = ReportPublication(reporter=reporter, reported_publication=reported_publication)
+            logger.info(f"{reporter.username} has reported publication : {reported_publication}")
             report_publication.save()
             return CreateReport(success=True)
 
@@ -145,6 +150,7 @@ class CreateReport(graphene.Mutation):
             if ReportComment.objects.filter(reporter=reporter, reported_comment=reported_comment).exists():
                 return CreateReport(success=False)
             report_comment = ReportComment(reporter=reporter, reported_comment=reported_comment)
+            logger.info(f"{reporter.username} has reported comment : {reported_user}")
             report_comment.save()
             return CreateReport(success=True)
 
@@ -171,9 +177,11 @@ class ReviewReport(graphene.Mutation):
             if not is_safe:
                 reported_user.is_active = False
                 reported_user.save()
+                logger.info(f"{reported_user} has been banned by {user.username}")
                 send_user_ban_mail(reported_user)
             for report in ReportUser.objects.filter(reported_user_id=reported_id, is_reviewed=False):
                 report.is_reviewed = True
+                logger.info(f"{reported_user} has been approved by {user.username}")
                 report.save()
             return ReviewReport(success=True)
 
@@ -184,10 +192,12 @@ class ReviewReport(graphene.Mutation):
                 raise GraphQLError("This Publication does not exist")
             if not is_safe:
                 reported_publication.is_banned = True
+                logger.info(f"{reported_publication} has been banned by {user.username}")
                 reported_publication.save()
                 send_content_ban_mail(reported_publication.author, "publication", reported_publication.title, reported_publication.id)
             for report in ReportPublication.objects.filter(reported_publication_id=reported_id, is_reviewed=False):
                 report.is_reviewed = True
+                logger.info(f"{reported_publication} has been approved by {user.username}")
                 report.save()
             return ReviewReport(success=True)
 
@@ -198,10 +208,12 @@ class ReviewReport(graphene.Mutation):
                 raise GraphQLError("This Comment does not exist")
             if not is_safe:
                 reported_comment.is_banned = True
+                logger.info(f"{reported_comment} has been banned by {user.username}")
                 reported_comment.save()
                 send_content_ban_mail(reported_comment.author, "comment", reported_comment.text, reported_comment.id)
             for report in ReportComment.objects.filter(reported_comment_id=reported_id, is_reviewed=False):
                 report.is_reviewed = True
+                logger.info(f"{reported_comment} has been approved by {user.username}")
                 report.save()
             return ReviewReport(success=True)
 
@@ -225,6 +237,7 @@ class UnbanContent(graphene.Mutation):
             except User.DoesNotExist:
                 raise GraphQLError("This User either does not exist or is not banned")
             banned_user.is_active = True
+            logger.info(f"{banned_user} has been unbanned by {user.username}")
             banned_user.save()
             return UnbanContent(success=True)
 
@@ -234,6 +247,7 @@ class UnbanContent(graphene.Mutation):
             except Publication.DoesNotExist:
                 raise GraphQLError("This Publication either does not exist or is not banned")
             banned_publication.is_banned = False
+            logger.info(f"{banned_publication} has been unbanned by {user.username}")
             banned_publication.save()
             return UnbanContent(success=True)
 
@@ -243,6 +257,7 @@ class UnbanContent(graphene.Mutation):
             except Comment.DoesNotExist:
                 raise GraphQLError("This Comment either does not exist or is not banned")
             banned_comment.is_banned = False
+            logger.info(f"{banned_comment} has been unbanned by {user.username}")
             banned_comment.save()
             return UnbanContent(success=True)
 

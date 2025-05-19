@@ -6,3 +6,4 @@ django-cors-headers
 djangorestframework
 Pillow
 python-magic
+python-logstash

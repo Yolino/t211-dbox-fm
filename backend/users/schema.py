@@ -1,4 +1,5 @@
 import graphene
+import logging
 from graphene_django import DjangoObjectType
 from graphql import GraphQLError
 from django.core.exceptions import ValidationError
@@ -7,6 +8,8 @@ from django.contrib.auth.password_validation import validate_password
 from content.models import Publication, Comment
 from content.schema import PublicationType, CommentType
 from users.utils import send_verification_email
+
+logger = logging.getLogger('django.user')
 
 User = get_user_model()
 
@@ -122,6 +125,7 @@ class LoginUser(graphene.Mutation):
         user = authenticate(username=username, password=password)
         if user:
             login(info.context, user)
+            logger.info(f"{user.username} just connected")
             return LoginUser(success=True, user=user)
         else:
             raise GraphQLError("Invalid credentials")
@@ -133,6 +137,7 @@ class LogoutUser(graphene.Mutation):
         if not info.context.user.is_authenticated:
             raise GraphQLError("You cannot log out if you are not authenticated")
         user_data = info.context.user
+        logger.info(f"{info.context.user.username} just disconnected")
         logout(info.context)
         return LogoutUser(user=user_data)
 
