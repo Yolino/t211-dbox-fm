@@ -7,6 +7,7 @@ from .models import ReportUser, ReportPublication, ReportComment
 from django.contrib.auth.models import User
 from content.models import Publication, Comment
 from .utils import send_user_ban_mail, send_content_ban_mail
+from users.utils import get_client_ip
 
 logger = logging.getLogger('django.moderation')
 
@@ -70,6 +71,7 @@ class Query(graphene.ObjectType):
     def resolve_reporters(root, info, reported_id, content_type):
         user = info.context.user
         if not (user.is_authenticated and user.has_perm("moderation.view_reportuser") and user.has_perm("moderation.view_reportpublication") and user.has_perm("moderation.view_reportcomment")):
+            logger.warning(f"Unauthorized Reporters view attempt from {user if user.is_authenticated else "visitor"}@{get_client_ip(info.context)}")
             raise GraphQLError("You do not have permssion to view reports")
         if content_type == "user":
             return ReportUser.objects.filter(reported_user_id=reported_id, is_reviewed=False)
@@ -82,22 +84,26 @@ class Query(graphene.ObjectType):
     def resolve_reported_content(root, info):
         user = info.context.user
         if not (user.is_authenticated and user.has_perm("moderation.view_reportuser") and user.has_perm("moderation.view_reportpublication") and user.has_perm("moderation.view_reportcomment")):
+            logger.warning(f"Unauthorized ReportedContent view attempt from {user if user.is_authenticated else "visitor"}@{get_client_ip(info.context)}")
             raise GraphQLError("You do not have permission to view reports")
         result = {}
         result["users"] = User.objects.filter(reports_received__is_reviewed=False).annotate(report_count=models.Count("reports_received", filter=models.Q(reports_received__is_reviewed=False))).distinct()
         result["publications"] = Publication.objects.filter(reportpublication__is_reviewed=False).annotate(report_count=models.Count("reportpublication", filter=models.Q(reportpublication__is_reviewed=False))).distinct()
         result["comments"] = Comment.objects.filter(reportcomment__is_reviewed=False).annotate(report_count=models.Count("reportcomment", filter=models.Q(reportcomment__is_reviewed=False))).distinct()
         result["total_count"] = len(result["users"]) + len(result["publications"]) + len(result["comments"])
+        logger.info(f"Reported content has been queried by {user}")
         return result
 
     def resolve_banned_content(root, info):
         user = info.context.user
         if not (user.is_authenticated and user.has_perm("moderation.view_reportuser") and user.has_perm("moderation.view_reportpublication") and user.has_perm("moderation.view_reportcomment")):
+            logger.warning(f"Unauthorized BannedContent view attempt from {user if user.is_authenticated else "visitor"}@{get_client_ip(info.context)}")
             raise GraphQLError("You do not have permission to view reports")
         result = {}
         result["users"] = User.objects.filter(is_active=False)
         result["publications"] = Publication.objects.filter(is_banned=True)
         result["comments"] = Comment.objects.filter(is_banned=True)
+        logger.info(f"Banned content has been queried by {user}")
         return result
 
 class CreateReport(graphene.Mutation):
@@ -110,6 +116,7 @@ class CreateReport(graphene.Mutation):
     def mutate(root, info, reported_id, content_type):
         reporter = info.context.user
         if not reporter.is_authenticated:
+            logger.warning(f"Unauthorized Report creation attempt from {user if user.is_authenticated else "visitor"}@{get_client_ip(info.context)}")
             raise GraphQLError("You must be logged in to submit reports")
 
         if content_type == "user":
@@ -167,6 +174,7 @@ class ReviewReport(graphene.Mutation):
     def mutate(root, info, reported_id, report_type, is_safe):
         user = info.context.user
         if not (user.is_authenticated and user.has_perm("moderation.change_reportuser") and user.has_perm("moderation.change_reportpublication") and user.has_perm("moderation.change_reportcomment")):
+            logger.warning(f"Unauthorized report reviewing (tried to mark as {"safe" if is_safe else "unsafe"}) attempt from {user if user.is_authenticated else "visitor"}@{get_client_ip(info.context)}")
             raise GraphQLError("You do not have permission to review Reports")
 
         if report_type == "user":
@@ -229,6 +237,7 @@ class UnbanContent(graphene.Mutation):
     def mutate(root, info, banned_id, content_type):
         user = info.context.user
         if not (user.is_authenticated and user.has_perm("moderation.change_reportuser") and user.has_perm("moderation.change_reportpublication") and user.has_perm("moderation.change_reportcomment")):
+            logger.warning(f"Unauthorized unbanning attempt from {user if user.is_authenticated else "visitor"}@{get_client_ip(info.context)}")
             raise GraphQLError("You do not have permission to unban content")
 
         if content_type == "user":

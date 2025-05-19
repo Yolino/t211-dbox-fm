@@ -32,7 +32,7 @@ class View(models.Model):
         constraints = [
             models.UniqueConstraint(fields=["publication", "user"], name="unique_view"),
         ]
-   
+
     def save(self, *args, **kwargs):
         with transaction.atomic():
             super().save(*args, **kwargs)
