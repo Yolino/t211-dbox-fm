@@ -6,7 +6,7 @@ interface BadgeProps {
 
 const Badge = ({ count, children }: BadgeProps) => {
   return (
-    <div className="relative inline-block">
+    <div className="relative w-full sm:w-auto">
       {children}
       {count !== null && (
         <span

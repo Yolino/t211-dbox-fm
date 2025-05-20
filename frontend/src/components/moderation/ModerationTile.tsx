@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useMutation } from "@apollo/client";
 import REVIEW_REPORT_MUTATION from "../../graphql/reviewReportMutation.ts";
 import UNBAN_CONTENT_MUTATION from "../../graphql/unbanContentMutation.ts";
@@ -70,7 +70,7 @@ const ModerationTile = ({ reportedId, reportType, title, reportCount, banned=fal
             {reportCount && <span className="px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded cursor-default">
               {reportCount} report{reportCount > 1 ? "s" : ""}
             </span>}
-            <h3 className="text-lg font-semibold cursor-default">{title}</h3>
+            <h3 className="text-lg font-semibold cursor-default break-all">{title}</h3>
           </div>
         </div>
         {banned ? (
@@ -84,7 +84,7 @@ const ModerationTile = ({ reportedId, reportType, title, reportCount, banned=fal
             ) : (
               <>
                 <ApproveIcon />
-                Unban
+                <span className="hidden md:inline">Unban</span>
               </>
             )}
           </button>
@@ -100,7 +100,7 @@ const ModerationTile = ({ reportedId, reportType, title, reportCount, banned=fal
               ) : (
                 <>
                   <ApproveIcon />
-                  Approve
+                  <span className="hidden md:inline">Approve</span>
                 </>
               )}
             </button>
@@ -114,7 +114,7 @@ const ModerationTile = ({ reportedId, reportType, title, reportCount, banned=fal
               ) : (
                 <>
                   <CloseIcon />
-                  Ban
+                  <span className="hidden md:inline">Ban</span>
                 </>
               )}
             </button>

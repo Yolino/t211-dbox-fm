@@ -119,7 +119,7 @@ const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote, onErro
 
   return (
     <div
-      className={`${publication.isBanned ? "bg-red-200 hover:bg-red-300" : "bg-gray-100 hover:bg-gray-200"} group flex-grow m-1 md:m-2 w-32 sm:w-40 md:w-44 lg:w-48 p-2 sm:p-3 md:p-4 rounded-lg shadow-md hover:scale-105 hover:shadow-lg transition-all duration-300 relative`}
+      className={`${publication.isBanned ? "bg-red-200 hover:bg-red-300" : "bg-gray-100 hover:bg-gray-200"} group flex-grow m-1 md:m-2 w-32 lg:w-40 p-2 sm:p-3 md:p-4 rounded-lg shadow-md hover:scale-105 hover:shadow-lg transition-all duration-300 relative`}
       onClick={() => onTileClick(publication.id)}
     >
       {/* Image de couverture */}
@@ -147,7 +147,7 @@ const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote, onErro
       </div>
 
       {/* Tile content */}
-      <div className={`${publication.isBanned ? "text-red-800" :  "text-gray-800"} p-2 sm:p-3 md:p-4`}>
+      <div className={`${publication.isBanned ? "text-red-800" :  "text-gray-800"} p-1 sm:p-2 md:p-3`}>
         <div className="flex justify-between">
           <p className="font-bold text-sm sm:text-base md:text-lg truncate cursor-default">{publication.title}</p>
           {publication.isBanned && <span className="ml-1 px-2 py-1 bg-red-300 text-red-800 text-xs font-medium rounded">Banned</span>}
@@ -167,13 +167,12 @@ const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote, onErro
           {!publication.author.isActive && <span className="ml-1 px-2 py-1 bg-red-300 text-red-800 text-xs font-medium rounded">Banned</span>}
         </div>
         <div className="flex items-center justify-between mt-1 sm:mt-2">
-          <p className="text-xs cursor-default">{publication.voteCount} {+publication.voteCount === 1 ? "vote" : "votes"}</p>
+          <p className="text-xs cursor-default">{publication.voteCount} {Math.abs(+publication.voteCount) === 1 ? "vote" : "votes"}</p>
 
           <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <button
               className={`p-1 ${publication.visitorVote > 0 && "bg-green-500"} rounded-full hover:bg-gray-300 transition-colors duration-200`}
               onClick={(e) => handleUpvote(e)}
-              aria-label="Upvote"
             >
               <UpvoteIcon />
             </button> 
@@ -181,7 +180,6 @@ const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote, onErro
             <button
               className={`p-1 ${publication.visitorVote < 0 && "bg-red-500"} rounded-full hover:bg-gray-300 transition-colors duration-200`}
               onClick={(e) => handleDownvote(e)}
-              aria-label="Downvote"
             >
               <DownvoteIcon />
             </button>

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useMutation } from "@apollo/client";
 import CREATE_VIEW_MUTATION from "../../graphql/createViewMutation.ts";
+import PopupWrapper from "../PopupWrapper.tsx";
 import MainBlock from "../MainBlock.tsx";
 import TileGroup from "./TileGroup.tsx";
 import TileExpanded from "./TileExpanded.tsx";
@@ -23,16 +24,16 @@ const TileMain = ({ onRefreshBadge }) => {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-10 h-[calc(80vh)] min-h-96">
-      <MainBlock styleClass="w-full lg:w-2/3 h-96 lg:h-full overflow-y-auto">
-        <div className="h-full overflow-y-auto">
+    <div className="flex flex-col md:flex-row md:gap-2 max-h-[calc(80vh)]">
+      <MainBlock styleClass="overflow-y-auto">
+        <div className="h-full flex sm:flex-col items-center justify-center m-1 sm:m-2 md:m-3 lg:m-4">
           {error && <Alert type="error" text={error} onClose={() => { setError("") }} />}
           {SORT_TYPES.map((orderBy) => {
             let groupTitle="Unexpected"
             if(orderBy==="-created_at") {
-              groupTitle="Recent"
+              groupTitle="Recent music"
             } else if (orderBy==="-vote_count") {
-              groupTitle="Most voted"
+              groupTitle="Popular music"
             }
             return (
               <React.Fragment key={orderBy}>
@@ -48,12 +49,23 @@ const TileMain = ({ onRefreshBadge }) => {
           })}
         </div>
       </MainBlock>
-      <MainBlock styleClass="w-full lg:w-1/3 h-96 lg:h-full overflow-y-auto">
-        <div className="h-full overflow-y-auto">
-          {expandedTile && <TileExpanded tileId={expandedTile} onRefreshBadge={onRefreshBadge} />}
-        </div>
-        <AudioPlayer audio={expandedTile} />
-      </MainBlock>
+      {expandedTile && (
+        <PopupWrapper
+          onClose={() => { setExpandedTile(null); }}
+          styleClass="lg:max-h-[calc(80vh)]"
+        >
+          <MainBlock styleClass="w-full h-full max-h-[calc(80vh)]">
+            <div className="h-full">
+              <TileExpanded
+                tileId={expandedTile}
+                onRefreshBadge={onRefreshBadge}
+                onClose={() => { setExpandedTile(null); }}
+              />
+            </div>
+            <AudioPlayer audio={expandedTile} />
+          </MainBlock>
+        </PopupWrapper>
+      )}
     </div>
   );
 };

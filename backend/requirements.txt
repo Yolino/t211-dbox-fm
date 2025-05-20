@@ -7,3 +7,4 @@ djangorestframework
 Pillow
 python-magic
 gunicorn
+python-logstash

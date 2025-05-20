@@ -1,4 +1,5 @@
 import graphene
+import logging
 from graphene_django import DjangoObjectType
 from graphql import GraphQLError
 from django.core.exceptions import ValidationError
@@ -6,7 +7,9 @@ from django.contrib.auth import get_user_model, authenticate, login, logout
 from django.contrib.auth.password_validation import validate_password
 from content.models import Publication, Comment
 from content.schema import PublicationType, CommentType
-from users.utils import send_verification_email
+from .utils import send_verification_email, get_client_ip
+
+logger = logging.getLogger('django.user')
 
 User = get_user_model()
 
@@ -98,8 +101,10 @@ class CreateUser(graphene.Mutation):
         try:
             validate_password(password)
         except ValidationError as e:
+            logger.warning(f"Invalid password entered while trying to create user {username} from {get_client_ip(info.context)}")
             raise GraphQLError(f"Invalid password: {', '.join(e.messages)}")
 
+        logger.info(f"User {username} with email {email} was successfully created and disabled until confirmed by email")
         user = User(username=username, email=email, is_active=False)
         user.set_password(password)
         user.save()
@@ -122,8 +127,10 @@ class LoginUser(graphene.Mutation):
         user = authenticate(username=username, password=password)
         if user:
             login(info.context, user)
+            logger.info(f"{user} (id {user.id}) just connected from {get_client_ip(info.context)}")
             return LoginUser(success=True, user=user)
         else:
+            logger.warning(f"Failed authentication with username {username} from {get_client_ip(info.context)}")
             raise GraphQLError("Invalid credentials")
 
 class LogoutUser(graphene.Mutation):
@@ -132,9 +139,10 @@ class LogoutUser(graphene.Mutation):
     def mutate(root, info):
         if not info.context.user.is_authenticated:
             raise GraphQLError("You cannot log out if you are not authenticated")
-        user_data = info.context.user
+        user = info.context.user
+        logger.info(f"{user} (id {user.id}) just disconnected from {get_client_ip(info.context)}")
         logout(info.context)
-        return LogoutUser(user=user_data)
+        return LogoutUser(user=user)
 
 class UpdateUsername(graphene.Mutation):
     class Arguments:
@@ -146,37 +154,19 @@ class UpdateUsername(graphene.Mutation):
     def mutate(root, info, new_username, password):
         user = info.context.user
         if not user.is_authenticated:
+            logger.warning(f"Unauthenticated username updating attempt from visitor@{get_client_ip(info.context)}")
             raise GraphQLError("You must be logged in to update your username")
         auth = authenticate(username=user.username, password=password)
         if not auth:
+            logger.warning(f"Incorrect username-updating validation password from {user}@{get_client_ip(info.context)}")
             raise GraphQLError("Incorrect password")
         if User.objects.filter(username=new_username).exists():
             raise GraphQLError("This username is already taken")
 
+        logger.info(f"User {username} (id {user.id}) successfully changed their username to {new_username}")
         user.username = new_username
         user.save()
         return UpdateUsername(success=True)
-
-class UpdateEmail(graphene.Mutation):
-    class Arguments:
-        new_email = graphene.String(required=True)
-        password = graphene.String(required=True)
-
-    success = graphene.Boolean()
-
-    def mutate(root, info, new_email, password):
-        user = info.context.user
-        if not user.is_authenticated:
-            raise GraphQLError("You must be logged in to update your email address")
-        auth = authenticate(username=user.username, password=password)
-        if not auth:
-            raise GraphQLError("Incorrect password")
-        if User.objects.filter(email=new_email).exists():
-            raise GraphQLError("An account with this email address already exists")
-
-        user.email = new_email
-        user.save()
-        return UpdateEmail(success=True)
 
 class UpdatePassword(graphene.Mutation):
     class Arguments:
@@ -188,16 +178,20 @@ class UpdatePassword(graphene.Mutation):
     def mutate(root, info, current_password, new_password):
         user = info.context.user
         if not user.is_authenticated:
+            logger.warning(f"Unauthenticated password updating attempt from visitor@{get_client_ip(info.context)}")
             raise GraphQLError("You must be logged in to update your password")
         auth = authenticate(username=user.username, password=current_password)
         if not auth:
+            logger.warning(f"Incorrect password-updating validation password from {user}@{get_client_ip(info.context)}")
             raise GraphQLError("Incorrect password")
         if current_password == new_password:
             raise GraphQLError("Passwords must be different")
         try:
             validate_password(new_password)
         except ValidationError as e:
+            logger.warning(f"Invalid new password entered by {user}")
             raise GraphQLError(f"Invalid new password: {', '.join(e.messages)}")
+        logger.info(f"User {username} (id {user.id}) successfully changed their password")
         user.set_password(new_password)
         user.save()
         return UpdatePassword(success=True)
@@ -207,6 +201,5 @@ class Mutation(graphene.ObjectType):
     login_user = LoginUser.Field()
     logout_user = LogoutUser.Field()
     update_username = UpdateUsername.Field()
-    update_email = UpdateEmail.Field()
     update_password = UpdatePassword.Field()
 

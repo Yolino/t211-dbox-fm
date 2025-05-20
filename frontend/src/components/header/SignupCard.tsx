@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useMutation } from "@apollo/client";
 import CREATE_USER_MUTATION from "../../graphql/createUserMutation.ts";
+import PopupWrapper from "../PopupWrapper.tsx";
 import CloseIcon from "../../svg/CloseIcon.tsx";
 import ProfileIcon from "../../svg/ProfileIcon.tsx";
 import EmailIcon from "../../svg/EmailIcon.tsx";
@@ -39,7 +40,7 @@ const SignupCard = ({ onClose, onSignupSuccess }: SignupCardProps) => {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <PopupWrapper onClose={onClose} force={true}>
       <div className="bg-white p-8 rounded-xl shadow-2xl w-96 relative">
         {/* Close button */}
         <button
@@ -158,7 +159,7 @@ const SignupCard = ({ onClose, onSignupSuccess }: SignupCardProps) => {
           </div>
         </form>
       </div>
-    </div>
+    </PopupWrapper>
   );
 };
 

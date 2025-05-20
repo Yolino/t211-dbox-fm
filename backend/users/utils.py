@@ -1,3 +1,4 @@
+import logging
 from django.core.mail import send_mail
 from django.utils.http import urlsafe_base64_encode, base36_to_int
 from django.utils.encoding import force_bytes
@@ -8,13 +9,16 @@ from django.conf import settings
 import threading
 from django.contrib.auth import get_user_model
 
+logger = logging.getLogger('django.user')
+
 def delete_user_after_timeout(id):
     try:
         user=get_user_model().objects.get(pk=id)
         if not user.is_active:
+            logger.info(f"User {user} with email {user.email} and id {user.id} has been permanently deleted due to missed confirmation email")
             user.delete()
     except user.DoesNotExist:
-        print(f"Error while trying to delete user {user} : this User does not exist")
+        logger.error(f"Error while trying to delete user {user} with {user.email} and id {user.id} : this User does not exist")
 
 class TimedTokenGenerator(PasswordResetTokenGenerator):
     def __init__(self, timeout_minutes=10):
@@ -54,7 +58,13 @@ def send_verification_email(user, request):
             fail_silently=False,
         )
     except Exception as e:
-        print(f'An error occured while sending an email : {e}')
+        logger.error(f"An error occured while sending an email to {user.email} : {e}")
  
     timer = threading.Timer(300, delete_user_after_timeout, args=[user.pk])
     timer.start()
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        return x_forwarded_for.split(',')[0]
+    return request.META.get('REMOTE_ADDR')

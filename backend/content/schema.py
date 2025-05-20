@@ -1,4 +1,5 @@
 import graphene
+import logging
 from graphene_django import DjangoObjectType
 from graphene_file_upload.scalars import Upload
 from graphql import GraphQLError
@@ -8,6 +9,9 @@ from django.conf import settings
 from .models import Publication, View, Vote, Comment, Tag
 from moderation.models import ReportPublication, ReportComment
 from .validators import validate_image, validate_audio
+from users.utils import get_client_ip
+
+logger = logging.getLogger('django.content')
 
 class PublicationType(DjangoObjectType):
     class Meta:
@@ -124,6 +128,7 @@ class CreatePublication(graphene.Mutation):
 
     def mutate(root, info, title, cover, tag, description, audio):
         if not info.context.user.is_authenticated:
+            logger.warning(f"Unauthenticated publication creation attempt from visitor@{get_client_ip(info.context)}")
             raise GraphQLError("You must be logged in to publish")
         try:
             tag = Tag.objects.get(id=tag)
@@ -135,13 +140,16 @@ class CreatePublication(graphene.Mutation):
             try:
                 validate_image(cover)
             except ValidationError as e:
+                logger.warning(f"Publication creation attempt with corrupted cover from {author}@{get_client_ip(info.context)} : {str(e)}")
                 raise GraphQLError(str(e))
         try:
             validate_audio(audio)
         except ValidationError as e:
+            logger.warning(f"Publication creation attempt with corrupted audio from {author}@{get_client_ip(info.context)} : {str(e)}")
             raise GraphQLError(str(e))
 
         publication = Publication(title=title, cover=cover, tag=tag,description=description, audio=audio,author=author)
+        logger.info(f"Publication '{title}' successfully created by {author}") # Retrieving the id is trouble for not much result
         publication.save()
         return CreatePublication(publication=publication)
 
@@ -159,12 +167,14 @@ class UpdatePublication(graphene.Mutation):
     def mutate(root, info, publication_id, title, cover, remove_cover, tag, description):
         user = info.context.user
         if not user.is_authenticated:
+            logger.warning(f"Unauthenticated publication ({publication_id}) updating attempt from visitor@{get_client_ip(info.context)}")
             raise GraphQLError("You cannot update a Publication if you are not authenticated")
         try:
             publication = Publication.objects.get(id=publication_id)
         except Publication.DoesNotExist:
             raise GraphQLError("This Publication does not exist")
         if not publication.author == user:
+            logger.warning(f"Unauthorized publication ({publication}) updating attempt from {user}@{get_client_ip(info.context)}")
             raise GraphQLError("You cannot update a Publication you do not own")
         if publication.is_banned:
             raise GraphQLError("This Publication has been banned. You can no longer view, update or delete it")
@@ -182,6 +192,7 @@ class UpdatePublication(graphene.Mutation):
             try:
                 validate_image(cover)
             except ValidationError as e:
+                logger.warning(f"Publication ({publication.title}) updating attempt with corrupted cover from {user}@{get_client_ip(info.context)} : {str(e)}")
                 raise GraphQLError(str(e))
             publication.cover = cover
         if tag:
@@ -192,6 +203,7 @@ class UpdatePublication(graphene.Mutation):
             publication.tag = tag
         if description:
             publication.description = description
+        logger.info(f"Publication '{publication.title}' (id {publication.id}) successfully updated by {user}")
         publication.save()
         return UpdatePublication(success=True)
 
@@ -204,18 +216,21 @@ class DeletePublication(graphene.Mutation):
     def mutate(root, info, publication_id):
         user = info.context.user
         if not user.is_authenticated:
+            logger.warning(f"Unauthenticated publication ({publication_id}) deletion attempt from visitor@{get_client_ip(info.context)}")
             raise GraphQLError("You cannot delete a Publication if you are not authenticated")
         try:
             publication = Publication.objects.get(id=publication_id)
         except Publication.DoesNotExist:
             raise GraphQLError("This Publication does not exist")
         if not publication.author == user:
+            logger.warning(f"Unauthorized publication ({publication}) deleting attempt from {user}@{get_client_ip(info.context)}")
             raise GraphQLError("You cannot delete a Publication you do not own")
         if publication.is_banned:
             raise GraphQLError("This Publication has been banned. You can no longer view, update or delete it")
         if ReportPublication.objects.filter(reported_publication=publication, is_reviewed=False).exists():
             raise GraphQLError("This Publication is currently flagged. You cannot update or delete it")
-        publication.delete()
+        logger.info(f"Publication '{publication.title}' (id {publication.id})")
+        publication.delete(f"Publication '{publication.title}' (id {publication.id}) successfully deleted by {user}")
         return DeletePublication(success=True)
 
 class CreateView(graphene.Mutation):
@@ -252,6 +267,7 @@ class CreateVote(graphene.Mutation):
         if not user.is_authenticated:
             return CreateVote(vote_count=None)
         if (abs(type) > 1 and not user.is_staff) or not type:
+            logger.warning(f"Unauthorized vote creation value ({type}) attempt on publication {publication_id} from {user}@{get_client_ip(info.context)}")
             raise GraphQLError("You are not allowed to have such a weight for your vote")
         if Vote.objects.filter(publication_id=publication_id, user=user).exists():
             return CreateVote(vote_count=None)
@@ -261,6 +277,7 @@ class CreateVote(graphene.Mutation):
             raise GraphQLError("This Publication does not exist")
         if publication.is_banned:
             raise GraphQLError("This Publication has been banned. You can no longer access it")
+        logger.info(f"Vote (type {type}) registered on {publication} by {user}")
         Vote.objects.create(publication=publication, user=user, type=type)
         publication.refresh_from_db()
         return CreateVote(vote_count=publication.vote_count)
@@ -277,6 +294,7 @@ class UpdateVote(graphene.Mutation):
         if not user.is_authenticated:
             return UpdateVote(vote_count=None)
         if (abs(type) > 1 and not user.is_staff) or not type:
+            logger.warning(f"Unauthorized vote updating value ({type}) attempt on publication {publication_id} from {user}@{get_client_ip(info.context)}")
             raise GraphQLError("You are not allowed to have such a weight for your vote")
         try:
             vote = Vote.objects.get(publication_id=publication_id, user=user)
@@ -287,6 +305,7 @@ class UpdateVote(graphene.Mutation):
             raise GraphQLError("This Publication has been banned. You can no longer access it")
         if vote.type == type:
             return UpdateVote(vote_count=None)
+        logger.info(f"Vote (previous type {vote.type} / new type {type}) updated on {publication} by {user}")
         vote.type = type
         vote.save()
         publication.refresh_from_db()
@@ -309,12 +328,13 @@ class DeleteVote(graphene.Mutation):
         publication = Publication.objects.get(id=publication_id)
         if publication.is_banned:
             raise GraphQLError("This Publication has been banned. You can no longer access it")
+        logger.info(f"Vote (type {vote.type}) successfully deleted on {publication} by {user}")
         vote.delete()
         return DeleteVote(vote_count=publication.vote_count)
 
 class CreateComment(graphene.Mutation):
     class Arguments:
-        publication = graphene.Int(required=True)  
+        publication = graphene.Int(required=True)
         parent = graphene.Int()
         text = graphene.String(required=True)
 
@@ -323,6 +343,7 @@ class CreateComment(graphene.Mutation):
     def mutate(root, info, publication, text, parent=None):
         author = info.context.user
         if not author.is_authenticated:
+            logger.warning(f"Unauthenticated comment creation attempt on publication {publication} from visitor@{get_client_ip(info.context)}")
             raise GraphQLError("You must be logged in to comment")
         try:
             publication_instance = Publication.objects.get(id=publication)
@@ -339,6 +360,7 @@ class CreateComment(graphene.Mutation):
             if not parent_comment.publication == publication_instance:
                 raise GraphQLError("The parent comment's publication does not match this commment's")
         comment = Comment(publication = publication_instance, parent=parent_comment, text=text, author=author)
+        logger.info(f"Comment '{text}' submitted on {publication_instance} by {author}")
         comment.save()
         return CreateComment(success=True)
 
@@ -352,12 +374,14 @@ class UpdateComment(graphene.Mutation):
     def mutate(root, info, comment_id, text):
         user = info.context.user
         if not user.is_authenticated:
+            logger.warning(f"Unauthenticated comment (id {comment_id}) updating attempt from visitor@{get_client_ip(info.context)}")
             raise GraphQLError("You cannot update a Publication if you are not authenticated")
         try:
             comment = Comment.objects.get(id=comment_id)
         except Comment.DoesNotExist:
             raise GraphQLError("This Comment does not exist")
         if not comment.author == user:
+            logger.warning(f"Unauthorized comment ({comment}) updating attempt from {user}@{get_client_ip(info.context)}")
             raise GraphQLError("You cannot upate a Comment you do not own")
         if comment.is_banned:
             raise GraphQLError("This Comment has been banned. You can no longer view, update or delete it")
@@ -366,6 +390,7 @@ class UpdateComment(graphene.Mutation):
         if text == comment.text:
             raise GraphQLError("You have to enter a different value in order to update this Comment")
         comment.text = text
+        logger.info(f"Comment '{comment.text}' (id {comment.id}) successfully updated by {user}")
         comment.save()
         return UpdateComment(success=True)
 
@@ -378,17 +403,20 @@ class DeleteComment(graphene.Mutation):
     def mutate(root, info, comment_id):
         user = info.context.user
         if not user.is_authenticated:
+            logger.warning(f"Unauthenticated comment (id {comment_id}) deletion attempt from visitor@{get_client_ip(info.context)}")
             raise GraphQLError("You cannot delete a Comment if you are not authenticated")
         try:
             comment = Comment.objects.get(id=comment_id)
         except Comment.DoesNotExist:
             raise GraphQLError("This Comment does not exist")
         if not comment.author == user:
+            logger.warning(f"Unauthorized comment ({comment}) updating attempt from {user}@{get_client_ip(info.context)}")
             raise GraphQLError("You cannot delete a Comment you do not own")
         if comment.is_banned:
             raise GraphQLError("This Comment has been banned. You can no longer view, update or delete it")
         if ReportComment.objects.filter(reported_comment=comment, is_reviewed=False).exists():
             raise GraphQLError("This Comment is currently flagged. You cannot update or delete it")
+        logger.info(f"Comment '{comment.text}' (id {comment.id}) successfully deleted by {user}")
         comment.delete()
         return DeleteComment(success=True)
 

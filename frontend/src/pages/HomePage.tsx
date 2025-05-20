@@ -35,19 +35,21 @@ const HomePage = () => {
   const count = (data && !loading && !error) ? data.reportedContent?.totalCount : 0;
 
   return (
-    <div className="App">
+    <div className="App min-h-screen flex flex-col bg-gradient-to-br from-sky-100 to-slate-100">
       <Header onSwitchPage={(page) => navigate(page)} moderationCount={count} />
-      <main className="p-6 mb-20">
-        {message && <Alert type="error" text={message} onClose={() => { setMessage(""); }} />}
-        <Routes>
-          <Route path="/" element={<TileMain onRefreshBadge={refetch} />} />
-          <Route path="/publish" element={<PublishMain />} />
-          <Route path="/profile" element={<ProfileWrapper onRefreshBadge={refetch} />} />
-          <Route path="/profile/:username" element={<ProfileWrapper onRefreshBadge={refetch} />} />
-          <Route path="/fm" element={<FmMain />} />
-          <Route path="/moderation" element={<ModerationMain onRefreshBadge={refetch} />} />
-          <Route path="*" element={<Navigate to="/" state={{ message: "This page does not exist" }} />} />
-        </Routes>
+      <main className="p-2 sm:p-4 md:p-6 flex-grow flex items-center justify-center">
+        <div className="h-full w-full">
+          {message && <Alert type="error" text={message} onClose={() => { setMessage(""); }} />}
+          <Routes>
+            <Route path="/" element={<TileMain onRefreshBadge={refetch} />} />
+            <Route path="/publish" element={<PublishMain />} />
+            <Route path="/profile" element={<ProfileWrapper onRefreshBadge={refetch} />} />
+            <Route path="/profile/:username" element={<ProfileWrapper onRefreshBadge={refetch} />} />
+            <Route path="/fm" element={<FmMain />} />
+            <Route path="/moderation" element={<ModerationMain onRefreshBadge={refetch} />} />
+            <Route path="*" element={<Navigate to="/" state={{ message: "This page does not exist" }} />} />
+          </Routes>
+        </div>
       </main>
     </div>
   );

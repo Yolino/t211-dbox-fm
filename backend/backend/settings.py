@@ -193,3 +193,52 @@ EMAIL_USE_SSL = False
 EMAIL_HOST = "dbox-fm.be"
 EMAIL_HOST_USER = "noreply@dbox-fm.be"
 # ACCOUNT_EMAIL_VERIFICATION = 'none'
+
+LOGGING = {
+    'version': 1,
+    'handlers': {
+        'logstash': {
+            'class': 'logstash.TCPLogstashHandler',
+            'host': 'logstash',
+            'port': 5000,
+            'version': 1,
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['logstash'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'django.user': {
+            'handlers': ['logstash'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'django.moderation': {
+            'handlers': ['logstash'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'django.live': {
+            'handlers': ['logstash'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'django.server': {
+        'handlers': ['logstash'],
+        'level': 'WARNING',  # Ignore INFO-level requests like 200 OK
+        'propagate': False,
+        },
+        'django.request': {
+        'handlers': ['logstash'],
+        'level': 'ERROR',  # Only log failed requests
+        'propagate': False,
+        },
+        'django.db.backends': {
+            'level': 'WARNING',  # Avoid SQL logging unless needed
+            'handlers': ['logstash'],
+            'propagate': False,
+        },
+    }
+}

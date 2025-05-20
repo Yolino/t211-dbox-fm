@@ -18,7 +18,7 @@ const FmSchedule = ({ date, loading, error, schedule, setDate, incrementDate, ha
       <div className="flex justify-center items-center space-x-2">
         <button
           onClick={() => { incrementDate(-1) }}
-          className="rotate-180 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="rotate-180 bg-blue-500 text-white p-1 lg:py-2 lg:px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <ShowMoreIcon />
         </button>
@@ -26,11 +26,11 @@ const FmSchedule = ({ date, loading, error, schedule, setDate, incrementDate, ha
           type="date"
           value={date}
           onChange={(e) => { setDate(e.target.value) }}
-          className="px-4 py-2 border border-gray-300 rounded-md text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="p-1 lgd:px-4 lg:py-2 border border-gray-300 rounded-md text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <button
           onClick={() => { incrementDate(1) }}
-          className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="bg-blue-500 text-white p-1 lg:py-2 lg:px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <ShowMoreIcon />
         </button>
@@ -38,9 +38,9 @@ const FmSchedule = ({ date, loading, error, schedule, setDate, incrementDate, ha
       {error && <p className="text-center text-red-500">{error}</p>}
       <div className="flex justify-center items-center text-white space-x-4">
         {loading && <LoadingIcon />}
-        <h2 className="text-2xl font-bold mt-6 mb-6">Schedule for {date}</h2>
+        <h2 className="text-md lg:text-2xl font-bold mt-6 mb-6">Schedule for {date}</h2>
       </div>
-      <div className="flex-1 overflow-y-auto space-y-4 px-2 max-h-[700px]">
+      <div className="flex-1 overflow-y-auto space-y-1 lg:space-y-4 px-2 max-h-[calc(20vh)] lg:max-h-[calc(70vh)]">
         {timeSlots.map(({ label, start, end }, index) => {
           const slotSchedule = schedule.filter((s) => {
             const eventHour = new Date(s.time).getUTCHours();

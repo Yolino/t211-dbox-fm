@@ -44,7 +44,7 @@ const SearchBar = () => {
     <div
       onFocus={() => setIsFocused(true)}
       onBlur={() => setTimeout(() => setIsFocused(false), 150)}
-      className="relative w-1/2 rounded-lg bg-white text-gray-800"
+      className="relative w-full m-2 rounded-lg bg-white text-gray-800"
     >
       <form onSubmit={submitLookup} className="flex">
         <input
