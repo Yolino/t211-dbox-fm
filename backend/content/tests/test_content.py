@@ -5,7 +5,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db.utils import IntegrityError
 from unittest.mock import patch, MagicMock
 
-from ..models import Tag, Publication, View, Vote, Follower, Comment
+from ..models import Tag, Publication, View, Vote, Comment
 
 
 # TEST model.py
@@ -189,22 +189,6 @@ class VoteModelTest(TestCase):
         # Tenter de créer un deuxième vote avec les mêmes valeurs
         with self.assertRaises(IntegrityError):
             Vote.objects.create(publication=self.publication, user=self.user, type=-1)
-
-class FollowerModelTest(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        # Créer deux utilisateurs de test
-        cls.user1 = User.objects.create_user(username='user1', password='password')
-        cls.user2 = User.objects.create_user(username='user2', password='password')
-    
-    def test_follower_creation(self):
-        # Test de création d'une relation de suivi
-        follower = Follower.objects.create(follower=self.user1, following=self.user2)
-        
-        # Vérifier que la relation a été créée correctement
-        self.assertEqual(follower.follower, self.user1)
-        self.assertEqual(follower.following, self.user2)
-        self.assertEqual(str(follower), f"{self.user2} followed by {self.user1}")
 
 class CommentModelTest(TestCase):
     @classmethod
