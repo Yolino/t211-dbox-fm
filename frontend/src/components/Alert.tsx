@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import CloseIcon from "../svg/CloseIcon.tsx";
 
 interface AlertProps {
