@@ -34,6 +34,8 @@ services:
       - prod_orm
       - prod_api
       - prod_mail
+    depends_on:
+      - db
 
   frontend:
     build:
@@ -44,12 +46,15 @@ services:
       - prod_media_files:/usr/share/nginx/html/media
       - prod_static_files:/usr/share/nginx/html/static/django
       - ./certbot/www:/var/www/certbot:ro
-      - ./certbot/conf:/etc/nginx/ssl:ro
+      - ./certbot/conf:/etc/nginx/ssl/server:ro
+      - ./client_ca:/etc/nginx/ssl/client:ro
     networks:
       - prod_api
     ports:
       - "80:80"
       - "443:443"
+    depends_on:
+      - backend
 
 secrets:
   db_name:
