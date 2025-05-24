@@ -15,6 +15,12 @@ services:
       - prod_db_data:/var/lib/postgresql/data
     networks:
       - prod_orm
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U django -d dbox-fm -h localhost || exit 1"]
+      interval: 300s
+      timeout: 10s
+      retries: 3
 
   backend:
     build:
@@ -34,8 +40,15 @@ services:
       - prod_orm
       - prod_api
       - prod_mail
+      - prod_log
     depends_on:
       - db
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s -X POST http://localhost:8000/graphql/ -H 'Content-Type: application/json' -d '{\"query\":\"{ __typename }\"}' | grep -q '__typename'"]
+      interval: 300s
+      timeout: 10s
+      retries: 3
 
   frontend:
     build:
@@ -50,11 +63,37 @@ services:
       - ./client_ca:/etc/nginx/ssl/client:ro
     networks:
       - prod_api
+      - prod_log
     ports:
       - "80:80"
       - "443:443"
     depends_on:
       - backend
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost || exit 1"]
+      interval: 300s
+      timeout: 10s
+      retries: 3
+
+  alloy:
+    build:
+      context: ./alloy
+      dockerfile: Dockerfile
+    container_name: dbox-alloy
+    volumes:
+      - prod_alloy_data:/var/lib/alloy/data
+      - ./alloy/config.alloy:/etc/alloy/config.alloy
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/log/docker-health.log:/var/log/docker-health.log
+    networks:
+      - prod_log
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s -f -o /dev/null http://localhost:12345/-/healthy || exit 1"]
+      interval: 300s
+      timeout: 10s
+      retries: 3
 
 secrets:
   db_name:
@@ -77,6 +116,8 @@ volumes:
     name: dbox_prod_media_files
   prod_static_files:
     name: dbox_prod_static_files
+  prod_alloy_data:
+    name: dbox_prod_alloy_data
 
 networks:
   prod_api:
@@ -85,3 +126,4 @@ networks:
   prod_mail:
     external: true
     name: dbox_prod_mail
+  prod_log:

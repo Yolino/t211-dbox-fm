@@ -1,0 +1,49 @@
+discovery.docker "containers" {
+  host = "unix:///var/run/docker.sock"
+  refresh_interval = "5s"
+}
+
+discovery.relabel "containers" {
+  targets = []
+  rule {
+    target_label = "job"
+    replacement = "docker"
+  }
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex = "/(.*)"
+    target_label = "container"
+  }
+}
+
+loki.source.docker "containers" {
+  host = "unix:///var/run/docker.sock"
+  targets = discovery.docker.containers.targets
+  relabel_rules = discovery.relabel.containers.rules
+  forward_to = [loki.write.grafana_loki.receiver]
+}
+
+local.file_match "docker_health" {
+  path_targets = [{"__path__" = "/var/log/docker-health.log"}]
+}
+
+loki.source.file "docker_health" {
+  targets = local.file_match.docker_health.targets
+  forward_to = [loki.process.docker_health.receiver]
+  tail_from_end = true
+}
+
+loki.process "docker_health" {
+ stage.static_labels {
+    values = {
+      job = "docker_health",
+    }
+  }
+  forward_to = [loki.write.grafana_loki.receiver]
+}
+
+loki.write "grafana_loki" {
+  endpoint {
+    url = "http://10.0.0.1:3100/loki/api/v1/push"
+  }
+}
