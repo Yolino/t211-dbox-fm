@@ -191,7 +191,7 @@ class UpdatePassword(graphene.Mutation):
         except ValidationError as e:
             logger.warning(f"Invalid new password entered by {user}")
             raise GraphQLError(f"Invalid new password: {', '.join(e.messages)}")
-        logger.info(f"User {username} (id {user.id}) successfully changed their password")
+        logger.info(f"User {user.username} (id {user.id}) successfully changed their password")
         user.set_password(new_password)
         user.save()
         return UpdatePassword(success=True)

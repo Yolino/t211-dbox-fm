@@ -37,7 +37,6 @@ services:
     networks:
       - prod_orm
       - prod_api
-      - prod_log
     ports:
       - "8000:8000"
     depends_on:
@@ -54,51 +53,11 @@ services:
       - prod_static_files:/usr/share/nginx/html/static/django
     networks:
       - prod_api
-      - prod_log
     ports:
       - "80:80"
       - "443:443"
     depends_on:
       - backend
-      - kibana
-
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.2
-    container_name: dbox-es-prod
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=true
-      - ES_JAVA_OPTS=-Xms512m -Xmx512m
-    volumes:
-      - prod_esdata:/usr/share/elasticsearch/data
-    networks:
-      - prod_log
-
-  logstash:
-    image: docker.elastic.co/logstash/logstash:8.12.2
-    container_name: dbox-logstash-prod
-    volumes:
-      - ./logstash/pipeline:/usr/share/logstash/pipeline
-    networks:
-      - prod_log
-    env_file:
-      - .secrets/prod/logstash.env
-    depends_on:
-      - elasticsearch
-
-  kibana:
-    image: docker.elastic.co/kibana/kibana:8.12.2
-    container_name: dbox-kibana-prod
-    networks:
-      - prod_log
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-      - SERVER_BASEPATH=/kibana
-      - SERVER_REWRITEBASEPATH=true
-    env_file:
-      - .secrets/prod/kibana.env
-    depends_on:
-      - elasticsearch
 
 secrets:
   db_name:
@@ -118,11 +77,8 @@ volumes:
   prod_db_data:
   prod_media_files:
   prod_static_files:
-  prod_esdata:
 
 networks:
   prod_api:
   prod_orm: 
-  prod_log:
     internal: true
-

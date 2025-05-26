@@ -49,7 +49,7 @@ const ProfileCommentTile = ({ comment, index, isSelf, onEdit, onCloseTile, isExp
     setCommentText(event.target.value);
   };
 
-  const [updateComment, {loading}] = useMutation(UPDATE_COMMENT_MUTATION, {
+  const [updateComment] = useMutation(UPDATE_COMMENT_MUTATION, {
     onCompleted: (data) => {
       if (data.updateComment.success) {
         onSetMessage({

@@ -1,5 +1,4 @@
 import React, { useRef, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import LoadingIcon from "../svg/LoadingIcon.tsx";
 import PlayIcon from "../svg/PlayIcon.tsx";
 import PauseIcon from "../svg/PauseIcon.tsx";
@@ -11,7 +10,6 @@ interface AudioPlayerProps {
 }
 
 const AudioPlayer = ({ audio, onClose }: AudioPlayerProps) => {
-  const navigate = useNavigate();
   const audioRef = useRef(null);
   const controllerRef = useRef(new AbortController());
   const [audioBlob, setAudioBlob] = useState(null);
@@ -68,7 +66,7 @@ const AudioPlayer = ({ audio, onClose }: AudioPlayerProps) => {
         controller.abort();
       };
     }
-  }, [audioBlob]);
+  }, [audioBlob, autoplay]);
 
   const togglePlayPause = () => {
     if (isPlaying) {
@@ -102,11 +100,6 @@ const AudioPlayer = ({ audio, onClose }: AudioPlayerProps) => {
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
-  };
-
-  const handleClosePlayer = () => {
-    setIsPlaying(false);
-    onClose();
   };
 
   return (

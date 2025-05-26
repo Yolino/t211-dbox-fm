@@ -8,7 +8,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.exceptions import ValidationError
 from django.contrib.contenttypes.models import ContentType
 from graphene_django.utils.testing import GraphQLTestCase
-from ..models import Publication, Tag, View, Vote, Comment, Follower
+from ..models import Publication, Tag, View, Vote, Comment
 from ..schema import schema
 from ..validators import validate_image, validate_audio
 from moderation.models import ReportPublication
