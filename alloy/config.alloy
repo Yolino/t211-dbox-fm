@@ -34,11 +34,32 @@ loki.source.file "docker_health" {
 }
 
 loki.process "docker_health" {
- stage.static_labels {
+  stage.regex {
+    expression = "timestamp=(?P<ts>[^ ]+) container=(?P<container>[^ ]+) status=(?P<status>.+?) \\((?P<health>[^)]+)\\)"
+  }
+
+  stage.timestamp {
+    source = "timestamp"
+    format = "RFC3339"
+  }
+
+  stage.labels {
+    values = {
+      container = "container",
+      health    = "health",
+    }
+  }
+
+  stage.static_labels {
     values = {
       job = "docker_health",
     }
   }
+
+  stage.output {
+    source = "health"
+  }
+
   forward_to = [loki.write.grafana_loki.receiver]
 }
 

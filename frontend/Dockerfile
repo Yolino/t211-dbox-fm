@@ -1,4 +1,4 @@
-FROM slyven/dbox:frontend-0.6.0
+FROM slyven/dbox:frontend-0.6.2
 
 RUN apk add curl
 
