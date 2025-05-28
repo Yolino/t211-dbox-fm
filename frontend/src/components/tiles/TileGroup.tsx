@@ -2,8 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useQuery } from "@apollo/client";
 import Tile from "./Tile.tsx";
 import PUBLICATION_PAGE_QUERY from "../../graphql/publicationPageQuery.ts";
-import LoadingIcon from "../../svg/LoadingIcon.tsx";
-import CloseIcon from "../../svg/CloseIcon.tsx";
 import ShowMoreIcon from "../../svg/ShowMoreIcon.tsx";
 
 interface TileGroupProps {
@@ -67,32 +65,22 @@ const TileGroup = ({ groupTitle="Default", orderBy="-created_at", onPlayAudio, o
     <div id={orderBy} className="m-1 sm:m-2 md:m-4 flex-shrink">
       <p className="text-white text-2xl md:text-3xl font-semibold mb-2 cursor-default text-center">{groupTitle}</p>
       <div className="flex">
-        {(loading || error) ? (
-          <div className="group w-1/4 p-1 md:p-2 lg:p-4 bg-gray-100 rounded-lg shadow-md hover:bg-gray-200 hover:scale-105 hover:shadow-lg transition-all duration-300 relative">
-            <div
-              className="flex items-center justify-center w-full h-20 sm:h-24 md:h-28 lg:h-32 object-cover rounded mb-1 sm:mb-2 bg-gray-100"
+        <div className="flex flex-col sm:flex-row items-center justify-center">
+          <div className="flex items-center justify-center">
+            <button
+              onClick={() => { updatePublications(false) }}
+              className={`${start === 0 ? "bg-gray-500" : ""} flex justify-center items-center w-8 h-16 rounded-full bg-gray-200 text-gray-800 hover:bg-gray-300 focus:outline-none -rotate-90 sm:rotate-180`}
+              disabled={start === 0}
             >
-              {loading && <LoadingIcon />}
-              {error && <CloseIcon />}
-            </div>
-            <div className="p-5 lg:p-10">
-              {loading && <p>Loading...</p>}
-              {error && <p className="text-red-600">{error.message}</p>}
-            </div>
+              <ShowMoreIcon />
+            </button>
           </div>
-        ) : (
-          <div className="flex flex-col sm:flex-row items-center justify-center">
-            <div className="flex items-center justify-center">
-              <button
-                onClick={() => { updatePublications(false) }}
-                className={`${start === 0 ? "bg-gray-500" : ""} flex justify-center items-center w-8 h-16 rounded-full bg-gray-200 text-gray-800 hover:bg-gray-300 focus:outline-none -rotate-90 sm:rotate-180`}
-                disabled={start === 0}
-              >
-                <ShowMoreIcon />
-              </button>
-            </div>
-            <div className="flex flex-col sm:flex-row flex-grow flex-shrink justify-around">
-              {pubs.slice(0, displayCount).map((p) => (
+
+          <div className="flex flex-col sm:flex-row flex-grow flex-shrink justify-around">
+            {(loading || error) ? (
+              new Array(displayCount).fill('').map((_, index) => <Tile key={index} publication={null} />)
+            ) : (
+              pubs.slice(0, displayCount).map((p) => (
                 <Tile
                   key={p.id}
                   publication={p}
@@ -102,19 +90,19 @@ const TileGroup = ({ groupTitle="Default", orderBy="-created_at", onPlayAudio, o
                   onTileVote={onTileVote}
                   onError={onError}
                 />
-              ))}
-            </div>
-            <div className="flex items-center justify-center">
-              <button
-                onClick={() => { updatePublications(true) }}
-                className={`${!hasNextPage ? "bg-gray-500" : ""} flex justify-center items-center w-8 h-16 rounded-full bg-gray-200 text-gray-800 hover:bg-gray-300 focus:outline-none rotate-90 sm:rotate-0`}
-                disabled={!hasNextPage}
-              >
-                <ShowMoreIcon />
-              </button>
-            </div>
+              ))
+            )}
           </div>
-        )}
+          <div className="flex items-center justify-center">
+            <button
+              onClick={() => { updatePublications(true) }}
+              className={`${!hasNextPage ? "bg-gray-500" : ""} flex justify-center items-center w-8 h-16 rounded-full bg-gray-200 text-gray-800 hover:bg-gray-300 focus:outline-none rotate-90 sm:rotate-0`}
+              disabled={!hasNextPage}
+            >
+              <ShowMoreIcon />
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

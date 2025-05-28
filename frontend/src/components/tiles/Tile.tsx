@@ -5,6 +5,7 @@ import { usePrivileges } from "../../context/PrivilegesContext.tsx";
 import CREATE_VOTE_MUTATION from "../../graphql/createVoteMutation.ts";
 import UPDATE_VOTE_MUTATION from "../../graphql/updateVoteMutation.ts";
 import DELETE_VOTE_MUTATION from "../../graphql/deleteVoteMutation.ts";
+import LoadingIcon from "../../svg/LoadingIcon.tsx";
 import AudioIcon from "../../svg/AudioIcon.tsx";
 import PlayIcon from "../../svg/PlayIcon.tsx";
 import UpvoteIcon from "../../svg/UpvoteIcon.tsx";
@@ -116,6 +117,27 @@ const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote, onErro
     }
   };
 
+  if (!publication) return (
+    <div className="bg-gray-100 hover:bg-gray-200 group flex-grow m-1 md:m-2 w-32 lg:w-40 p-2 sm:p-3 md:p-4 rounded-lg shadow-md hover:scale-105 hover:shadow-lg transition-all duration-300 relative">
+      <div
+        className="w-full h-24 lg:h-32 flex items-center justify-center rounded mb-1 sm:mb-2 bg-gray-100"
+      >
+        <LoadingIcon styleClass={"text-gray-800 w-8 sm:w-10 md:w-12 h-10 md:h-12"} />
+      </div>
+      <div className="text-gray-800 p-1 sm:p-2 md:p-3">
+        <div className="flex justify-between">
+          <p className="font-bold text-sm sm:text-base md:text-lg truncate cursor-default">Loading...</p>
+        </div>
+        <div className="flex justify-between">
+          <p className="text-xs sm:text-sm truncate">Loading...</p>
+        </div>
+        <div className="flex items-center justify-between mt-1 sm:mt-2">
+          <p className="text-xs cursor-default">Loading...</p>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div
       className={`${publication.isBanned ? "bg-red-200 hover:bg-red-300" : "bg-gray-100 hover:bg-gray-200"} group flex-grow m-1 md:m-2 w-32 lg:w-40 p-2 sm:p-3 md:p-4 rounded-lg shadow-md hover:scale-105 hover:shadow-lg transition-all duration-300 relative`}
@@ -134,7 +156,7 @@ const Tile = ({ publication, group, onPlayAudio, onTileClick, onTileVote, onErro
           <AudioIcon styleClass={`${publication.isBanned ? "text-red-800" : "text-gray-800"} w-8 sm:w-10 md:w-12 h-10 md:h-12`} />
         </div>
       }
-      
+
       {/* Play button on hover */}
       <div className="absolute inset-x-0 top-1/4 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
         <button

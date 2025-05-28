@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
+import sys
 from .secrets import get_secret
 
 WEBSITE_URL = "http://localhost:3000"
@@ -191,47 +192,45 @@ EMAIL_HOST_USER = "noreply@dbox-fm.be"
 LOGGING = {
     'version': 1,
     'handlers': {
-        'logstash': {
-            'class': 'logstash.TCPLogstashHandler',
-            'host': 'logstash',
-            'port': 5000,
-            'version': 1,
-        },
+        'console': {
+            'class': 'logging.StreamHandler',
+            'stream': sys.stdout,
+        }
     },
     'loggers': {
         'django': {
-            'handlers': ['logstash'],
+            'handlers': ['console'],
             'level': 'INFO',
             'propagate': True,
         },
         'django.user': {
-            'handlers': ['logstash'],
+            'handlers': ['console'],
             'level': 'INFO',
             'propagate': True,
         },
         'django.moderation': {
-            'handlers': ['logstash'],
+            'handlers': ['console'],
             'level': 'INFO',
             'propagate': True,
         },
         'django.live': {
-            'handlers': ['logstash'],
+            'handlers': ['console'],
             'level': 'INFO',
             'propagate': True,
         },
         'django.server': {
-        'handlers': ['logstash'],
-        'level': 'WARNING',  # Ignore INFO-level requests like 200 OK
+        'handlers': ['console'],
+        'level': 'WARNING', # Ignore INFO-level requests like 200 OK
         'propagate': False,
         },
         'django.request': {
-        'handlers': ['logstash'],
-        'level': 'ERROR',  # Only log failed requests
+        'handlers': ['console'],
+        'level': 'ERROR', # Only log failed requests
         'propagate': False,
         },
         'django.db.backends': {
-            'level': 'WARNING',  # Avoid SQL logging unless needed
-            'handlers': ['logstash'],
+            'level': 'WARNING', # Avoid SQL logging unless needed
+            'handlers': ['console'],
             'propagate': False,
         },
     }

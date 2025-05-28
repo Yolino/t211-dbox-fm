@@ -25,7 +25,7 @@ const ProfilePublications = ({ username, defaultExpandedTile, onPublicationClick
     if (defaultExpandedTile?.tileId && (expandedTile?.tileId !== defaultExpandedTile.tileId || expandedTile?.tileType !== defaultExpandedTile.tileType)) {
       setExpandedTile(defaultExpandedTile);
     }
-  }, [defaultExpandedTile]);
+  }, [defaultExpandedTile, expandedTile]);
   const [message, setMessage] = useState({
     isError: false,
     text: "",

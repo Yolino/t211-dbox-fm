@@ -36,7 +36,6 @@ services:
     networks:
       - dev_orm
       - dev_api
-      - dev_log_internal
     ports:
       - "8000:8000"
     depends_on:
@@ -58,43 +57,6 @@ services:
     depends_on:
       - backend
 
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.2
-    container_name: dbox-es-dev
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-      - ES_JAVA_OPTS=-Xms512m -Xmx512m
-    ports:
-      - "9200:9200"
-    volumes:
-      - dev_esdata:/usr/share/elasticsearch/data
-    networks:
-      - dev_log_internal
-
-  logstash:
-    image: docker.elastic.co/logstash/logstash:8.12.2
-    container_name: dbox-logstash-dev
-    volumes:
-      - ./logstash/pipeline:/usr/share/logstash/pipeline
-    networks:
-      - dev_log_internal
-    depends_on:
-      - elasticsearch
-
-  kibana:
-    image: docker.elastic.co/kibana/kibana:8.12.2
-    container_name: dbox-kibana-dev
-    networks:
-      - dev_log_public
-      - dev_log_internal
-    ports:
-      - "5601:5601"
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-    depends_on:
-      - elasticsearch
-
 secrets:
   db_name:
     file: ./.secrets/dev/db_name.txt
@@ -113,12 +75,8 @@ volumes:
   dev_db_data:
   dev_media_files:
   dev_node_modules:
-  dev_esdata:
 
 networks:
   dev_api:
   dev_orm:
-    internal: true
-  dev_log_public:
-  dev_log_internal:
     internal: true
