@@ -7,7 +7,6 @@ import CREATE_COMMENT_MUTATION from "../../../graphql/createCommentMutation";
 import { PrivilegesContext } from "../../../context/PrivilegesContext";
 import '@testing-library/jest-dom';
 
-
 const mocks = [
   {
     request: {
@@ -34,7 +33,17 @@ const mocks = [
     },
     result: {
       data: {
-        commentsByPublication: [],
+        commentsByPublication: [
+          {
+            id: "c1",
+            text: "Un commentaire visible",
+            author: {
+              id: "u1",
+              username: "Alice",
+            },
+            createdAt: "2023-01-01T00:00:00Z",
+          },
+        ],
       },
     },
   },
@@ -59,7 +68,6 @@ describe("CommentMain", () => {
       </MockedProvider>
     );
 
-    // Wait for query to resolve
     await waitFor(() => {
       expect(screen.getByPlaceholderText("Write comment")).toBeInTheDocument();
     });
@@ -74,6 +82,27 @@ describe("CommentMain", () => {
       expect(handleSubmit).toHaveBeenCalledWith("Comment submitted successfully");
     });
 
-    expect(textarea).toHaveValue(""); // Le champ devrait être vidé après soumission
+    expect(textarea).toHaveValue("");
+  });
+
+  it("affiche un commentaire existant", async () => {
+    render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <PrivilegesContext.Provider value={{ privileges: { isLoggedIn: true } }}>
+          <CommentMain
+            publicationId={1}
+            onSubmit={() => {}}
+            onError={() => {}}
+            onReportComment={() => {}}
+          />
+        </PrivilegesContext.Provider>
+      </MockedProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Un commentaire visible")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText("Alice")).toBeInTheDocument();
   });
 });
