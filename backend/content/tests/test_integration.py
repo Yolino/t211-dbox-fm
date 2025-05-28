@@ -215,8 +215,8 @@ class GraphQLApiTests(GraphQLTestCase):
                 'title': 'Nouvelle Publication',
                 'description': 'Description de ma nouvelle publication',
                 'tag': self.tag1.id,
-                # Les fichiers seraient normalement fournis via des variables spéciales
-                # C'est une simplification pour l'exemple
+                'audio': None,  # Add this field - will be replaced by the file upload middleware
+                'cover': None   # Add this field too
             }
             
             query = '''
@@ -494,7 +494,7 @@ class GraphQLApiTests(GraphQLTestCase):
 
     def test_delete_publication(self):
         # Créer une publication temporaire pour la supprimer
-        with patch('publication.validators.validate_image'), patch('publication.validators.validate_audio'):
+        with patch('content.validators.validate_image'), patch('content.validators.validate_audio'):
             temp_pub = Publication.objects.create(
                 title='Publication à supprimer',
                 author=self.user1,

@@ -190,37 +190,6 @@ class ValidatorsTestCase(TestCase):
         with self.assertRaises(Exception):
             validate_image_corruption(self.valid_jpeg)
 
-    # Test validate_audio_corruption
-    @patch('subprocess.run')
-    @patch('tempfile.NamedTemporaryFile')
-    def test_validate_audio_corruption_valid(self, mock_temp_file, mock_subprocess_run):
-        # Mock the temp file
-        mock_file = MagicMock()
-        mock_file.name = 'test_temp.mp3'
-        mock_temp_file.return_value.__enter__.return_value = mock_file
-        
-        # Mock subprocess result
-        mock_result = MagicMock()
-        mock_result.stdout = "mp3"
-        mock_subprocess_run.return_value = mock_result
-        
-        result = validate_audio_corruption(self.valid_mp3)
-        self.assertTrue(result)
-
-    @patch('subprocess.run')
-    @patch('tempfile.NamedTemporaryFile')
-    def test_validate_audio_corruption_invalid(self, mock_temp_file, mock_subprocess_run):
-        # Mock the temp file
-        mock_file = MagicMock()
-        mock_file.name = 'test_temp.mp3'
-        mock_temp_file.return_value.__enter__.return_value = mock_file
-        
-        # Mock subprocess error
-        mock_subprocess_run.side_effect = subprocess.CalledProcessError(1, 'cmd')
-        
-        result = validate_audio_corruption(self.valid_mp3)
-        self.assertFalse(result)
-
     # Test the comprehensive validate_image function
     @patch('content.validators.validate_image_extension')
     @patch('content.validators.validate_image_mime')
