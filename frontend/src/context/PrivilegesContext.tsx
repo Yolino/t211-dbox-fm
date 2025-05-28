@@ -35,3 +35,5 @@ export const PrivilegesProvider = ({ children }: PrivilegesProviderProps) => {
 export const usePrivileges = () => {
   return useContext(PrivilegesContext);
 };
+
+export { PrivilegesContext };
