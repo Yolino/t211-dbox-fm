@@ -157,7 +157,7 @@ class CreateReport(graphene.Mutation):
             if ReportComment.objects.filter(reporter=reporter, reported_comment=reported_comment).exists():
                 return CreateReport(success=False)
             report_comment = ReportComment(reporter=reporter, reported_comment=reported_comment)
-            logger.info(f"{reporter.username} has reported comment : {reported_user}")
+            logger.info(f"{reporter.username} has reported comment : {reported_comment}")
             report_comment.save()
             return CreateReport(success=True)
 
@@ -174,7 +174,7 @@ class ReviewReport(graphene.Mutation):
     def mutate(root, info, reported_id, report_type, is_safe):
         user = info.context.user
         if not (user.is_authenticated and user.has_perm("moderation.change_reportuser") and user.has_perm("moderation.change_reportpublication") and user.has_perm("moderation.change_reportcomment")):
-            logger.warning(f"Unauthorized report reviewing (tried to mark as {"safe" if is_safe else "unsafe"}) attempt from {user if user.is_authenticated else "visitor"}@{get_client_ip(info.context)}")
+            logger.warning(f"Unauthorized report reviewing (tried to mark as {"safe" if is_safe else "unsae"}) attempt from {user if user.is_authenticated else "visitor"}@{get_client_ip(info.context)}")
             raise GraphQLError("You do not have permission to review Reports")
 
         if report_type == "user":
