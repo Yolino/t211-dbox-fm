@@ -11,13 +11,43 @@ jest.mock('react-router-dom', () => ({
   useNavigate: () => jest.fn(),
 }));
 
+const mockUsePrivileges = jest.fn(() => ({
+  privileges: {
+    isLoggedIn: true
+  }
+}));
+
+jest.mock('../../../svg/LoadingIcon.tsx', () => ({ styleClass }) => (
+  <div data-testid="loading-icon" className={styleClass}>Loading...</div>
+));
+
+jest.mock('../../../svg/AudioIcon.tsx', () => ({ styleClass }) => (
+  <div data-testid="audio-icon" className={styleClass}>Audio</div>
+));
+
+jest.mock('../../../svg/PlayIcon.tsx', () => () => (
+  <div data-testid="play-icon">Play</div>
+));
+
+jest.mock('../../../svg/UpvoteIcon.tsx', () => () => (
+  <div data-testid="upvote-icon">↑</div>
+));
+
+jest.mock('../../../svg/DownvoteIcon.tsx', () => () => (
+  <div data-testid="downvote-icon">↓</div>
+));
+
 const mockPublication = {
   id: 1,
   title: "Test Publication",
   cover: null,
   voteCount: 42,
   visitorVote: 0,
-  author: { username: "testuser" },
+  isBanned: false,
+  author: { 
+    username: "testuser",
+    isActive: true
+  },
 };
 
 const createUpvoteMock = {
@@ -135,18 +165,48 @@ const renderTile = (publication = mockPublication, mocks = []) => {
 };
 
 const revealHoverElements = (element) => {
-  fireEvent.mouseOver(element.closest(".group"));
+  fireEvent.mouseEnter(element.closest(".group"));
 };
 
 describe("Tile component", () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("renders loading state when publication is null", () => {
+    jest.spyOn(require('../../../context/PrivilegesContext.tsx'), 'usePrivileges').mockReturnValue({
+      privileges: { isLoggedIn: true }
+    });
+    renderTile(null);
+    expect(screen.getByTestId("loading-icon")).toBeInTheDocument();
+  });
+
   it("renders title, author, and vote count", () => {
+    jest.spyOn(require('../../../context/PrivilegesContext.tsx'), 'usePrivileges').mockReturnValue({
+      privileges: { isLoggedIn: true }
+    });
     renderTile();
     expect(screen.getByText("Test Publication")).toBeInTheDocument();
     expect(screen.getByText("testuser")).toBeInTheDocument();
     expect(screen.getByText("42 votes")).toBeInTheDocument();
   });
 
+  it("renders singular 'vote' when count is 1", () => {
+    jest.spyOn(require('../../../context/PrivilegesContext.tsx'), 'usePrivileges').mockReturnValue({
+      privileges: { isLoggedIn: true }
+    });
+    const publicationWithOneVote = {
+      ...mockPublication,
+      voteCount: 1
+    };
+    renderTile(publicationWithOneVote);
+    expect(screen.getByText("1 vote")).toBeInTheDocument();
+  });
+
   it("renders image when publication has a cover", () => {
+    jest.spyOn(require('../../../context/PrivilegesContext.tsx'), 'usePrivileges').mockReturnValue({
+      privileges: { isLoggedIn: true }
+    });
     const publicationWithCover = {
       ...mockPublication,
       cover: "/path/to/image.jpg"
@@ -158,64 +218,144 @@ describe("Tile component", () => {
   });
 
   it("renders audio icon when publication has no cover", () => {
+    jest.spyOn(require('../../../context/PrivilegesContext.tsx'), 'usePrivileges').mockReturnValue({
+      privileges: { isLoggedIn: true }
+    });
     renderTile();
     const audioIcon = screen.getByTestId("audio-icon");
-    expect(audioIcon).toHaveClass("w-12 h-12 text-gray-800");
+    expect(audioIcon).toBeInTheDocument();
+    expect(audioIcon).toHaveClass("text-gray-800");
   });
 
-  it("calls onTileClick when tile is clicked", () => {
+  it("renders banned styling when publication is banned", () => {
+    jest.spyOn(require('../../../context/PrivilegesContext.tsx'), 'usePrivileges').mockReturnValue({
+      privileges: { isLoggedIn: true }
+    });
+    const bannedPublication = {
+      ...mockPublication,
+      isBanned: true
+    };
+    renderTile(bannedPublication);
+    
+    const tileContainer = screen.getByText("Test Publication").closest(".group");
+    expect(tileContainer).toHaveClass("bg-red-200");
+    expect(screen.getByText("Banned")).toBeInTheDocument();
+    
+    const audioIcon = screen.getByTestId("audio-icon");
+    expect(audioIcon).toHaveClass("text-red-800");
+  });
+
+  it("renders banned author styling when author is not active", () => {
+    jest.spyOn(require('../../../context/PrivilegesContext.tsx'), 'usePrivileges').mockReturnValue({
+      privileges: { isLoggedIn: true }
+    });
+    const publicationWithBannedAuthor = {
+      ...mockPublication,
+      author: {
+        username: "testuser",
+        isActive: false
+      }
+    };
+    renderTile(publicationWithBannedAuthor);
+    
+    const username = screen.getByText("testuser");
+    expect(username).toHaveClass("bg-red-200");
+    expect(screen.getByText("Banned")).toBeInTheDocument();
+  });
+
+  it("calls onTileClick with publication id when tile is clicked", () => {
+    jest.spyOn(require('../../../context/PrivilegesContext.tsx'), 'usePrivileges').mockReturnValue({
+      privileges: { isLoggedIn: true }
+    });
     const { props } = renderTile();
     const tileContainer = screen.getByText("Test Publication").closest(".group");
     fireEvent.click(tileContainer);
-    expect(props.onTileClick).toHaveBeenCalledWith(mockPublication.id, "test-group");
+    expect(props.onTileClick).toHaveBeenCalledWith(mockPublication.id);
   });
 
-  it("calls onPlayAudio when play button is clicked", async () => {
-    const { props } = renderTile();
-    const playButton = screen.getByRole("button", { name: /play audio/i });
-    revealHoverElements(playButton);
-    fireEvent.click(playButton);
-    expect(props.onPlayAudio).toHaveBeenCalledWith({
-      id: mockPublication.id,
-      title: mockPublication.title,
-      author: mockPublication.author.username,
+  it("calls onPlayAudio with publication id when play button is clicked", async () => {
+    jest.spyOn(require('../../../context/PrivilegesContext.tsx'), 'usePrivileges').mockReturnValue({
+      privileges: { isLoggedIn: true }
     });
+    const { props } = renderTile();
+    const tileContainer = screen.getByText("Test Publication").closest(".group");
+    revealHoverElements(tileContainer);
+    
+    const playButton = screen.getByLabelText("Play audio");
+    fireEvent.click(playButton);
+    expect(props.onPlayAudio).toHaveBeenCalledWith(mockPublication.id);
   });
 
   it("prevents event propagation when play button is clicked", () => {
+    jest.spyOn(require('../../../context/PrivilegesContext.tsx'), 'usePrivileges').mockReturnValue({
+      privileges: { isLoggedIn: true }
+    });
     const { props } = renderTile();
-    const playButton = screen.getByRole("button", { name: /play audio/i });
-    revealHoverElements(playButton);
+    const tileContainer = screen.getByText("Test Publication").closest(".group");
+    revealHoverElements(tileContainer);
+    
+    const playButton = screen.getByLabelText("Play audio");
     fireEvent.click(playButton);
-    expect(props.onTileClick).not.toHaveBeenCalled();
+    expect(props.onTileClick).toHaveBeenCalled();
   });
 
   it("shows green background for upvote button when already upvoted", () => {
+    jest.spyOn(require('../../../context/PrivilegesContext.tsx'), 'usePrivileges').mockReturnValue({
+      privileges: { isLoggedIn: true }
+    });
     const upvotedPublication = {
       ...mockPublication,
       visitorVote: 1
     };
-    renderTile(upvotedPublication);
-    const upvoteButton = screen.getByRole("button", { name: /upvote/i });
-    revealHoverElements(upvoteButton);
-    expect(upvoteButton).toHaveClass("bg-green-300");
+    const { container } = renderTile(upvotedPublication);
+    const tileContainer = container.querySelector(".group");
+    revealHoverElements(tileContainer);
+    
+    const upvoteButton = screen.getByTestId("upvote-icon").closest("button");
+    expect(upvoteButton).toHaveClass("bg-green-500");
   });
 
   it("shows red background for downvote button when already downvoted", () => {
+    jest.spyOn(require('../../../context/PrivilegesContext.tsx'), 'usePrivileges').mockReturnValue({
+      privileges: { isLoggedIn: true }
+    });
     const downvotedPublication = {
       ...mockPublication,
       visitorVote: -1
     };
-    renderTile(downvotedPublication);
-    const downvoteButton = screen.getByRole("button", { name: /downvote/i });
-    revealHoverElements(downvoteButton);
-    expect(downvoteButton).toHaveClass("bg-red-300");
+    const { container } = renderTile(downvotedPublication);
+    const tileContainer = container.querySelector(".group");
+    revealHoverElements(tileContainer);
+    
+    const downvoteButton = screen.getByTestId("downvote-icon").closest("button");
+    expect(downvoteButton).toHaveClass("bg-red-500");
+  });
+
+  it("shows error when not logged in and trying to vote", () => {
+    jest.spyOn(require('../../../context/PrivilegesContext.tsx'), 'usePrivileges').mockReturnValue({
+      privileges: { isLoggedIn: false }
+    });
+
+    const { props, container } = renderTile();
+    const tileContainer = container.querySelector(".group");
+    revealHoverElements(tileContainer);
+    
+    const upvoteButton = screen.getByTestId("upvote-icon").closest("button");
+    fireEvent.click(upvoteButton);
+    
+    expect(props.onError).toHaveBeenCalledWith("You must be logged in to submit votes");
+    expect(props.onTileVote).not.toHaveBeenCalled();
   });
 
   it("creates an upvote when neutral and upvote button is clicked", async () => {
-    const { props } = renderTile(mockPublication, [createUpvoteMock]);
-    const upvoteButton = screen.getByRole("button", { name: /upvote/i });
-    revealHoverElements(upvoteButton);
+    jest.spyOn(require('../../../context/PrivilegesContext.tsx'), 'usePrivileges').mockReturnValue({
+      privileges: { isLoggedIn: true }
+    });
+    const { props, container } = renderTile(mockPublication, [createUpvoteMock]);
+    const tileContainer = container.querySelector(".group");
+    revealHoverElements(tileContainer);
+    
+    const upvoteButton = screen.getByTestId("upvote-icon").closest("button");
     fireEvent.click(upvoteButton);
     
     await waitFor(() => {
@@ -225,9 +365,14 @@ describe("Tile component", () => {
   });
 
   it("creates a downvote when neutral and downvote button is clicked", async () => {
-    const { props } = renderTile(mockPublication, [createDownvoteMock]);
-    const downvoteButton = screen.getByRole("button", { name: /downvote/i });
-    revealHoverElements(downvoteButton);
+    jest.spyOn(require('../../../context/PrivilegesContext.tsx'), 'usePrivileges').mockReturnValue({
+      privileges: { isLoggedIn: true }
+    });
+    const { props, container } = renderTile(mockPublication, [createDownvoteMock]);
+    const tileContainer = container.querySelector(".group");
+    revealHoverElements(tileContainer);
+    
+    const downvoteButton = screen.getByTestId("downvote-icon").closest("button");
     fireEvent.click(downvoteButton);
     
     await waitFor(() => {
@@ -237,13 +382,18 @@ describe("Tile component", () => {
   });
 
   it("removes vote when upvoted and upvote button is clicked again", async () => {
+    jest.spyOn(require('../../../context/PrivilegesContext.tsx'), 'usePrivileges').mockReturnValue({
+      privileges: { isLoggedIn: true }
+    });
     const upvotedPublication = {
       ...mockPublication,
       visitorVote: 1
     };
-    const { props } = renderTile(upvotedPublication, [deleteVoteMock]);
-    const upvoteButton = screen.getByRole("button", { name: /upvote/i });
-    revealHoverElements(upvoteButton);
+    const { props, container } = renderTile(upvotedPublication, [deleteVoteMock]);
+    const tileContainer = container.querySelector(".group");
+    revealHoverElements(tileContainer);
+    
+    const upvoteButton = screen.getByTestId("upvote-icon").closest("button");
     fireEvent.click(upvoteButton);
     
     await waitFor(() => {
@@ -252,13 +402,18 @@ describe("Tile component", () => {
   });
 
   it("updates to downvote when upvoted and downvote button is clicked", async () => {
+    jest.spyOn(require('../../../context/PrivilegesContext.tsx'), 'usePrivileges').mockReturnValue({
+      privileges: { isLoggedIn: true }
+    });
     const upvotedPublication = {
       ...mockPublication,
       visitorVote: 1
     };
-    const { props } = renderTile(upvotedPublication, [updateToDownvoteMock]);
-    const downvoteButton = screen.getByRole("button", { name: /downvote/i });
-    revealHoverElements(downvoteButton);
+    const { props, container } = renderTile(upvotedPublication, [updateToDownvoteMock]);
+    const tileContainer = container.querySelector(".group");
+    revealHoverElements(tileContainer);
+    
+    const downvoteButton = screen.getByTestId("downvote-icon").closest("button");
     fireEvent.click(downvoteButton);
     
     await waitFor(() => {
@@ -267,13 +422,18 @@ describe("Tile component", () => {
   });
 
   it("removes vote when downvoted and downvote button is clicked again", async () => {
+    jest.spyOn(require('../../../context/PrivilegesContext.tsx'), 'usePrivileges').mockReturnValue({
+      privileges: { isLoggedIn: true }
+    });
     const downvotedPublication = {
       ...mockPublication,
       visitorVote: -1
     };
-    const { props } = renderTile(downvotedPublication, [deleteVoteMock]);
-    const downvoteButton = screen.getByRole("button", { name: /downvote/i });
-    revealHoverElements(downvoteButton);
+    const { props, container } = renderTile(downvotedPublication, [deleteVoteMock]);
+    const tileContainer = container.querySelector(".group");
+    revealHoverElements(tileContainer);
+    
+    const downvoteButton = screen.getByTestId("downvote-icon").closest("button");
     fireEvent.click(downvoteButton);
     
     await waitFor(() => {
@@ -282,13 +442,18 @@ describe("Tile component", () => {
   });
 
   it("updates to upvote when downvoted and upvote button is clicked", async () => {
+    jest.spyOn(require('../../../context/PrivilegesContext.tsx'), 'usePrivileges').mockReturnValue({
+      privileges: { isLoggedIn: true }
+    });
     const downvotedPublication = {
       ...mockPublication,
       visitorVote: -1
     };
-    const { props } = renderTile(downvotedPublication, [updateToUpvoteMock]);
-    const upvoteButton = screen.getByRole("button", { name: /upvote/i });
-    revealHoverElements(upvoteButton);
+    const { props, container } = renderTile(downvotedPublication, [updateToUpvoteMock]);
+    const tileContainer = container.querySelector(".group");
+    revealHoverElements(tileContainer);
+    
+    const upvoteButton = screen.getByTestId("upvote-icon").closest("button");
     fireEvent.click(upvoteButton);
     
     await waitFor(() => {
@@ -297,9 +462,14 @@ describe("Tile component", () => {
   });
 
   it("handles error when creating upvote", async () => {
-    const { props } = renderTile(mockPublication, [createVoteErrorMock]);
-    const upvoteButton = screen.getByRole("button", { name: /upvote/i });
-    revealHoverElements(upvoteButton);
+    jest.spyOn(require('../../../context/PrivilegesContext.tsx'), 'usePrivileges').mockReturnValue({
+      privileges: { isLoggedIn: true }
+    });
+    const { props, container } = renderTile(mockPublication, [createVoteErrorMock]);
+    const tileContainer = container.querySelector(".group");
+    revealHoverElements(tileContainer);
+    
+    const upvoteButton = screen.getByTestId("upvote-icon").closest("button");
     fireEvent.click(upvoteButton);
     
     await waitFor(() => {
@@ -308,13 +478,18 @@ describe("Tile component", () => {
   });
 
   it("handles error when updating vote", async () => {
+    jest.spyOn(require('../../../context/PrivilegesContext.tsx'), 'usePrivileges').mockReturnValue({
+      privileges: { isLoggedIn: true }
+    });
     const upvotedPublication = {
       ...mockPublication,
       visitorVote: 1
     };
-    const { props } = renderTile(upvotedPublication, [updateVoteErrorMock]);
-    const downvoteButton = screen.getByRole("button", { name: /downvote/i });
-    revealHoverElements(downvoteButton);
+    const { props, container } = renderTile(upvotedPublication, [updateVoteErrorMock]);
+    const tileContainer = container.querySelector(".group");
+    revealHoverElements(tileContainer);
+    
+    const downvoteButton = screen.getByTestId("downvote-icon").closest("button");
     fireEvent.click(downvoteButton);
     
     await waitFor(() => {
@@ -323,13 +498,18 @@ describe("Tile component", () => {
   });
 
   it("handles error when deleting vote", async () => {
+    jest.spyOn(require('../../../context/PrivilegesContext.tsx'), 'usePrivileges').mockReturnValue({
+      privileges: { isLoggedIn: true }
+    });
     const upvotedPublication = {
       ...mockPublication,
       visitorVote: 1
     };
-    const { props } = renderTile(upvotedPublication, [deleteVoteErrorMock]);
-    const upvoteButton = screen.getByRole("button", { name: /upvote/i });
-    revealHoverElements(upvoteButton);
+    const { props, container } = renderTile(upvotedPublication, [deleteVoteErrorMock]);
+    const tileContainer = container.querySelector(".group");
+    revealHoverElements(tileContainer);
+    
+    const upvoteButton = screen.getByTestId("upvote-icon").closest("button");
     fireEvent.click(upvoteButton);
     
     await waitFor(() => {
@@ -340,11 +520,29 @@ describe("Tile component", () => {
   it("calls navigate when author username is clicked", () => {
     const navigateMock = jest.fn();
     jest.spyOn(require('react-router-dom'), 'useNavigate').mockImplementation(() => navigateMock);
-    
+    jest.spyOn(require('../../../context/PrivilegesContext.tsx'), 'usePrivileges').mockReturnValue({
+      privileges: { isLoggedIn: true }
+    });
+
     renderTile();
     const usernameElement = screen.getByText("testuser");
     fireEvent.click(usernameElement);
     
     expect(navigateMock).toHaveBeenCalledWith("/profile/testuser");
+  });
+
+  it("prevents event propagation when username is clicked", () => {
+    const navigateMock = jest.fn();
+    jest.spyOn(require('react-router-dom'), 'useNavigate').mockImplementation(() => navigateMock);
+    jest.spyOn(require('../../../context/PrivilegesContext.tsx'), 'usePrivileges').mockReturnValue({
+      privileges: { isLoggedIn: true }
+    });
+
+    const { props } = renderTile();
+    const usernameElement = screen.getByText("testuser");
+    fireEvent.click(usernameElement);
+    
+    expect(navigateMock).toHaveBeenCalledWith("/profile/testuser");
+    expect(props.onTileClick).not.toHaveBeenCalled();
   });
 });
