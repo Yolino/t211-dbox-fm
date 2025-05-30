@@ -2,8 +2,8 @@ import React from "react";
 import { render, fireEvent, waitFor, screen } from "@testing-library/react";
 import '@testing-library/jest-dom';
 import { MockedProvider } from "@apollo/client/testing";
-import LoginCard from "../components/Login/LoginCard";
-import LOGIN_MUTATION from "../graphql/loginMutation";
+import LoginCard from "../../header/LoginCard";
+import LOGIN_MUTATION from "../../../graphql/loginMutation";
 
 const mockLoginSuccess = jest.fn();
 const mockClose = jest.fn();
@@ -29,8 +29,19 @@ describe("LoginCard", () => {
   });
 
   it("shows error for empty credentials", async () => {
-    renderLogin();
+    const mocks = [
+      {
+        request: {
+          query: LOGIN_MUTATION,
+          variables: { username: "", password: "" },
+        },
+        error: new Error("Invalid credentials"),
+      },
+    ];
+
+    renderLogin(mocks);
     fireEvent.click(screen.getByRole("button", { name: /Log In/i }));
+
     await waitFor(() => {
       expect(screen.getByText(/Invalid credentials/i)).toBeInTheDocument();
     });
@@ -50,6 +61,7 @@ describe("LoginCard", () => {
               user: {
                 id: "1",
                 username: "testuser",
+                email: "testuser@example.com", 
               },
             },
           },
@@ -114,6 +126,7 @@ describe("LoginCard", () => {
               user: {
                 id: "1",
                 username: "testuser",
+                email: "testuser@example.com",
               },
             },
           },
@@ -133,4 +146,3 @@ describe("LoginCard", () => {
     expect(screen.getByRole("button", { name: /Logging In/i })).toBeDisabled();
   });
 });
-
